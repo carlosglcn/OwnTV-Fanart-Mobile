@@ -105,6 +105,9 @@ fun LiveScreen(
     val providers by vm.providerNames.collectAsStateWithLifecycle()
     val showNumbers by vm.showChannelNumbers.collectAsStateWithLifecycle()
     val refreshing by vm.refreshing.collectAsStateWithLifecycle()
+    // glcn: picture cards instead of the list (Settings › Layout, or the button beside search).
+    val cardsView by vm.cardsView.collectAsStateWithLifecycle()
+    val gridState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
 
     val listState = rememberLazyListState()
     listState.ObeyScrollToTop(route = "live", scrollToTop = scrollToTop)
@@ -137,7 +140,20 @@ fun LiveScreen(
     }
 
     // Changing category scrolls back to the top: the position of the old list means nothing in the new one.
-    LaunchedEffect(selected) { listState.scrollToItem(0) }
+    LaunchedEffect(selected) { listState.scrollToItem(0); gridState.scrollToItem(0) }
+
+    val openChannel: (ChannelEntity) -> Unit = { channel ->
+        when {
+            // Channels are waiting to become a Multiview grid, so the tap that says "now" must
+            // actually start playing (see the list's own handler below).
+            multiviewPending -> {
+                tuner.selectWithoutPlaying(channel)
+                onOpenPlayer()
+            }
+            twoPane -> previewing = channel.id
+            else -> onOpenChannel(channel.id, false)
+        }
+    }
 
     val listPane = @Composable {
     Column(Modifier.fillMaxSize()) {
@@ -146,18 +162,23 @@ fun LiveScreen(
                 labels = categories.map { it.label() },
                 selectedIndex = categories.indexOfFirst { it.key == selected },
                 onSelect = { index -> categories.getOrNull(index)?.let { vm.select(it.key) } },
-                modifier = Modifier.padding(end = MobileDimens.TouchTarget),
+                modifier = Modifier.padding(end = MobileDimens.TouchTarget * 2),
                 // All, Favorites, History and Catch-up are not folders: there is nothing to hide or move.
                 onLongPress = { index ->
                     categoryMenuFor = categories.getOrNull(index)?.takeIf { it.builtIn == null }
                 },
                 onLongPressLabel = stringResource(R.string.settings_customize_categories),
             )
-            IconButton(
-                onClick = { categoryPicker = true },
-                modifier = Modifier.align(Alignment.CenterEnd),
-            ) {
-                Icon(MobileIcons.Search, stringResource(R.string.content_search_categories))
+            Row(Modifier.align(Alignment.CenterEnd)) {
+                IconButton(onClick = { vm.setCardsView(!cardsView) }) {
+                    Icon(
+                        if (cardsView) MobileIcons.ViewList else MobileIcons.GridView,
+                        stringResource(R.string.settings_live_layout),
+                    )
+                }
+                IconButton(onClick = { categoryPicker = true }) {
+                    Icon(MobileIcons.Search, stringResource(R.string.content_search_categories))
+                }
             }
         }
         if (categoryPicker) {
@@ -175,6 +196,15 @@ fun LiveScreen(
         ) {
             if (channels.itemCount == 0) {
                 EmptyChannels()
+            } else if (cardsView) {
+                LiveCardsGrid(
+                    channels = channels,
+                    gridState = gridState,
+                    loadProgrammes = { list, from, to -> vm.cardProgrammesFor(list, from, to) },
+                    providerNames = providers,
+                    onClick = openChannel,
+                    onLongClick = { menuFor = it },
+                )
             } else {
                 LazyColumn(state = listState, modifier = Modifier.fillMaxSize().mobileGroupPlate()) {
                     items(count = channels.itemCount, key = channels.itemKey { it.id }) { index ->

@@ -6,12 +6,8 @@ name: Android CI
 #   check      — unit tests + lint. Gates the build. Skipped on core pin bumps.
 #   build      — assembles the APKs, and publishes a GitHub Release on v* tags. Never runs for a PR,
 #                so PR branches only get the test/lint verdict, never an APK.
+# glcn fork: upstream workflow, manual only (the fork builds with glcn.yml).
 on:
-  push:
-    branches: [ main ]
-    tags: [ "v*" ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 permissions:

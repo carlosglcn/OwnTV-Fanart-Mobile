@@ -48,6 +48,8 @@ android {
 
     defaultConfig {
         applicationId = "tv.own.owntv.mobile"
+        // glcn fork: own package id so it installs next to the official OwnTV Mobile (CI passes ".glcn").
+        providers.gradleProperty("glcn.appIdSuffix").orNull?.takeIf { it.isNotBlank() }?.let { applicationIdSuffix = it }
         minSdk = 26
         targetSdk = 36
         // CI injects these from the git tag, exactly as in the TV app. The fallbacks are only used

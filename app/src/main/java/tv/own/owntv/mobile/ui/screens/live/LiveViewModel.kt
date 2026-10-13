@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.screens.live
 
+import org.koin.core.component.inject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -94,7 +95,29 @@ class LiveViewModel(
     epgDao: EpgDao,
     /** The app-wide reader the Guide uses too (T18) — one now/next cache, not two. */
     private val epgReader: LiveEpgReader,
-) : ViewModel() {
+) : ViewModel(), org.koin.core.component.KoinComponent {
+
+    // glcn: the card view reads a window of the stored guide (now + what follows, with the programme
+    // pictures) for the channels on screen, through the same reader the Guide uses.
+    private val guideReader: tv.own.owntv.core.live.GuideReader by inject()
+
+    suspend fun cardProgrammesFor(
+        channels: List<ChannelEntity>,
+        from: Long,
+        to: Long,
+    ): Map<Long, List<tv.own.owntv.core.database.entity.EpgProgrammeEntity>> =
+        guideReader.slice(channels, custom.value, epgOffset.value, from, to)
+
+    /** glcn: Live TV as picture cards — the same setting the TV app calls Cinematic. */
+    val cardsView: StateFlow<Boolean> = settings.liveLayout
+        .map { it == SettingsRepository.LiveLayout.CINEMATIC }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    fun setCardsView(on: Boolean) {
+        viewModelScope.launch {
+            settings.setLiveLayout(if (on) SettingsRepository.LiveLayout.CINEMATIC else SettingsRepository.LiveLayout.STAGE)
+        }
+    }
 
 
     /** The same candidate set the Guide's picker uses — filtered by no source. */

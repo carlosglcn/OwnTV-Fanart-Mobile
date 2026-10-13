@@ -55,6 +55,8 @@ fun SettingsLayoutPage(
     val lastMovies = vm.settings.rememberLastMovies.pref(false)
     val lastSeries = vm.settings.rememberLastSeries.pref(false)
     val guideDensity = vm.settings.guideDensityPct.pref(100)
+    // glcn: Live TV as picture cards (the TV app's Cinematic layout).
+    val liveCards = vm.settings.liveLayout.pref(SettingsRepository.LiveLayout.STAGE) == SettingsRepository.LiveLayout.CINEMATIC
 
     SettingsPage(modifier) {
         settingsLeafRows(SettingsGroup.LAYOUT, onOpenLeaf)
@@ -83,6 +85,21 @@ fun SettingsLayoutPage(
                     )
                 }
             }
+        }
+
+        // --- Live TV layout (glcn) ---
+        settingsSection(R.string.settings_live_layout)
+        settingsGroup(key = "live_layout") {
+            SettingRow(
+                title = stringResource(R.string.settings_vod_layout_cinematic),
+                subtitle = stringResource(R.string.settings_live_layout_cinematic_description),
+                checked = liveCards,
+                onCheckedChange = { on ->
+                    vm.edit {
+                        setLiveLayout(if (on) SettingsRepository.LiveLayout.CINEMATIC else SettingsRepository.LiveLayout.STAGE)
+                    }
+                },
+            )
         }
 
         // --- Browsing & lists ---

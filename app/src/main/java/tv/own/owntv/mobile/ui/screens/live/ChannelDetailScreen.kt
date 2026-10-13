@@ -1,5 +1,8 @@
 package tv.own.owntv.mobile.ui.screens.live
 
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -189,6 +192,19 @@ private fun GuidePanel(nowNext: tv.own.owntv.core.live.EpgNowNext?) {
     LazyColumn(Modifier.fillMaxSize()) {
         item {
             Column(Modifier.padding(MobileDimens.ScreenPaddingH)) {
+                // glcn: the programme's own picture (XMLTV <programme><icon>), when the guide has one.
+                nowNext.nowDetails?.imageUrl?.takeIf { it.isNotBlank() }?.let { art ->
+                    coil3.compose.AsyncImage(
+                        model = art,
+                        contentDescription = null,
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(16f / 9f)
+                            .clip(RoundedCornerShape(MobileDimens.CardCorner)),
+                    )
+                    androidx.compose.foundation.layout.Spacer(Modifier.height(MobileDimens.GapMedium))
+                }
                 Text(
                     text = stringResource(R.string.content_live_now_label),
                     style = MaterialTheme.typography.labelMedium,
@@ -308,3 +324,4 @@ private fun rememberTimeFormat(): DateFormat {
 }
 
 private const val VIDEO_ASPECT = 16f / 9f
+

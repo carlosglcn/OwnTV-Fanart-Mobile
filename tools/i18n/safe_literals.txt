@@ -317,6 +317,7 @@
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsLanguagePage.kt	languages
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsLanguagePage.kt	search
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsLayoutPage.kt	browsing
+1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsLayoutPage.kt	live_layout
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsLayoutPage.kt	menus
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsLayoutPage.kt	nav
 1	uri	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsLeaf.kt	${group.route}/$slug
