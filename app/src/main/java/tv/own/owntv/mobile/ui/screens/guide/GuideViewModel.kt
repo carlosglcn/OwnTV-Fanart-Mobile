@@ -484,6 +484,9 @@ class GuideViewModel(
     /** The synopsis, fetched when a programme is opened — the list queries leave it out. */
     suspend fun description(programmeId: Long): String? = guide.description(programmeId)
 
+    /** glcn: the programme's picture (XMLTV <icon>), fetched when it is opened. */
+    suspend fun imageUrl(programmeId: Long): String? = guide.programme(programmeId)?.imageUrl
+
     /** Whether this programme can be replayed: an archive channel, already aired, still in window. */
     fun canCatchup(channel: ChannelEntity, programme: EpgProgrammeEntity): Boolean {
         if (!channel.catchup) return false

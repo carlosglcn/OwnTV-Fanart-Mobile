@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.screens.home
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import tv.own.owntv.mobile.ui.components.ChannelLogoImage
 import tv.own.owntv.mobile.ui.components.MobileIcons
 import androidx.compose.foundation.background
@@ -339,15 +340,17 @@ private fun HeroCard(
         is HeroItem.SeriesHero -> item.series.backdropUrl ?: item.series.posterUrl
         is HeroItem.LiveHero -> item.channel.displayLogoUrl
     }
+    // glcn: a channel with a guide picture for what is on shows that picture and the programme's title.
+    val liveArt = (item as? HeroItem.LiveHero)?.now?.imageUrl?.takeIf { it.isNotBlank() }
     val title = when (item) {
         is HeroItem.MovieHero -> item.movie.name
         is HeroItem.SeriesHero -> item.series.name
-        is HeroItem.LiveHero -> item.channel.name
+        is HeroItem.LiveHero -> item.now?.title ?: item.channel.name
     }
     val subtitle = when (item) {
         is HeroItem.MovieHero -> item.movie.year?.toString()
         is HeroItem.SeriesHero -> item.item.subtitle
-        is HeroItem.LiveHero -> null
+        is HeroItem.LiveHero -> item.now?.let { item.channel.name }
     }
     // A channel's logo is a small transparent picture, not a backdrop: it is centred at its own size
     // rather than stretched across the card, which is the one place the three variants really differ.
@@ -377,7 +380,24 @@ private fun HeroCard(
             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.18f),
             modifier = Modifier.align(Alignment.Center).size(HeroLogoSize),
         )
-        if (artwork != null) {
+        if (liveArt != null) {
+            tv.own.owntv.mobile.ui.components.ProgrammeArt(url = liveArt, modifier = Modifier.fillMaxSize())
+            // The channel's logo, top left, on a dark plate.
+            if (artwork != null) {
+                AsyncImage(
+                    model = artwork,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(MobileDimens.GapSmall)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.Black.copy(alpha = 0.45f))
+                        .padding(4.dp)
+                        .size(width = 48.dp, height = 32.dp),
+                )
+            }
+        } else if (artwork != null) {
             AsyncImage(
                 model = artwork,
                 contentDescription = null,
@@ -422,6 +442,18 @@ private fun HeroCard(
                     color = Color.White.copy(alpha = 0.8f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                )
+            }
+            val liveNow = (item as? HeroItem.LiveHero)?.now
+            if (liveNow != null && liveNow.stopMs > liveNow.startMs) {
+                LinearProgressIndicator(
+                    progress = {
+                        ((System.currentTimeMillis() - liveNow.startMs).toFloat() / (liveNow.stopMs - liveNow.startMs)).coerceIn(0f, 1f)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = MobileDimens.GapSmall)
+                        .height(MobileDimens.PosterProgressHeight),
                 )
             }
             if (item.durationMs > 0 && item.positionMs > 0) {

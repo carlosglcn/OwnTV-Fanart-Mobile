@@ -35,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,7 +42,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
-import coil3.compose.AsyncImage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -162,7 +160,7 @@ private fun LiveCard(
         ) {
             val art = programme?.imageUrl
             if (!art.isNullOrBlank()) {
-                AsyncImage(model = art, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+                tv.own.owntv.mobile.ui.components.ProgrammeArt(url = art, modifier = Modifier.fillMaxSize())
             } else {
                 ChannelLogoImage(
                     url = channel.displayLogoUrl,
@@ -206,7 +204,7 @@ private fun LiveCard(
                 )
                 Text(
                     listOfNotNull(
-                        channel.name,
+                        if (programme != null) channel.name else stringResource(R.string.content_no_epg),
                         programme?.let {
                             stringResource(R.string.content_live_time_range_plain, times.format(Date(it.startMs)), times.format(Date(it.stopMs)))
                         },

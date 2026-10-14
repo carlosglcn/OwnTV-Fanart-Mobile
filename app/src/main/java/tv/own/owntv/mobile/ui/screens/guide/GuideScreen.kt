@@ -1,5 +1,10 @@
 package tv.own.owntv.mobile.ui.screens.guide
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.RoundedCornerShape
 import tv.own.owntv.mobile.ui.components.ChannelLogoImage
 import tv.own.owntv.mobile.ui.components.MobileIcons
 import androidx.compose.foundation.layout.Box
@@ -310,7 +315,11 @@ private fun OnNowList(
             MobileListRow(
                 title = channel.name,
                 subtitle = now?.title ?: stringResource(R.string.content_epg_no_guide),
-                leading = { ChannelLogo(channel) },
+                // glcn: the picture of what is on, with the channel's logo on it; the logo alone without one.
+                leading = {
+                    val art = now?.imageUrl?.takeIf { it.isNotBlank() }
+                    if (art != null) OnNowThumb(channel, art) else ChannelLogo(channel)
+                },
                 trailing = {
                     if (channel.id in favorites) {
                         Icon(
@@ -412,10 +421,24 @@ private fun ProgrammeSheet(
 ) {
     var description by remember(programme.id) { mutableStateOf<String?>(null) }
     LaunchedEffect(programme.id) { description = vm.description(programme.id) }
+    // glcn: the programme's picture at the top of the sheet.
+    var art by remember(programme.id) { mutableStateOf(programme.imageUrl) }
+    LaunchedEffect(programme.id) { if (art == null) art = vm.imageUrl(programme.id) }
 
     val times = rememberGuideTimeFormat()
 
     MobileBottomSheet(onDismissRequest = onDismiss, title = programme.title) {
+        art?.takeIf { it.isNotBlank() }?.let { url ->
+            tv.own.owntv.mobile.ui.components.ProgrammeArt(
+                url = url,
+                modifier = Modifier
+                    .padding(horizontal = MobileDimens.ScreenPaddingH)
+                    .padding(bottom = MobileDimens.GapSmall)
+                    .fillMaxWidth()
+                    .aspectRatio(16f / 9f)
+                    .clip(RoundedCornerShape(MobileDimens.CardCorner)),
+            )
+        }
         Text(
             text = stringResource(
                 R.string.content_epg_time_range,
@@ -722,3 +745,30 @@ private val ROW_TEXT_INSET =
 
 private val LOGO_SIZE = 32.dp
 private val TRAILING_ICON = 18.dp
+
+/** glcn: a 16:9 thumbnail of the programme on now, with the channel's logo in its corner. */
+@Composable
+private fun OnNowThumb(channel: ChannelEntity, art: String) {
+    Box(
+        Modifier
+            .width(96.dp)
+            .aspectRatio(16f / 9f)
+            .clip(RoundedCornerShape(8.dp)),
+    ) {
+        tv.own.owntv.mobile.ui.components.ProgrammeArt(url = art, modifier = Modifier.fillMaxSize())
+        Box(
+            Modifier
+                .align(Alignment.BottomStart)
+                .padding(3.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.55f))
+                .padding(2.dp),
+        ) {
+            tv.own.owntv.mobile.ui.components.ChannelLogoImage(
+                url = channel.displayLogoUrl,
+                modifier = Modifier.size(width = 28.dp, height = 18.dp),
+                fallback = {},
+            )
+        }
+    }
+}

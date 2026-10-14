@@ -194,10 +194,8 @@ private fun GuidePanel(nowNext: tv.own.owntv.core.live.EpgNowNext?) {
             Column(Modifier.padding(MobileDimens.ScreenPaddingH)) {
                 // glcn: the programme's own picture (XMLTV <programme><icon>), when the guide has one.
                 nowNext.nowDetails?.imageUrl?.takeIf { it.isNotBlank() }?.let { art ->
-                    coil3.compose.AsyncImage(
-                        model = art,
-                        contentDescription = null,
-                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                    tv.own.owntv.mobile.ui.components.ProgrammeArt(
+                        url = art,
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(16f / 9f)
