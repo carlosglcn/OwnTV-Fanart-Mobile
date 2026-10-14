@@ -353,7 +353,7 @@ private fun PlaylistRow(
     // One fact per line. Squeezed onto one, the channel and film counts — the reason to look at this
     // screen at all — fall off the right-hand edge behind the URL.
     val details = buildList {
-        add(stringResource(source.type.labelRes(), source.url))
+        add(stringResource(source.type.labelRes(), source.url.replace(Regex("(://[^:/@]+):[^@/]*@"), "$1:••••@")))
         if (!visibleCounts.isNullOrBlank()) add(visibleCounts)
         else if (active != null) add(stringResource(R.string.settings_sources_preparing_detail))
         if (!expiry.isNullOrBlank()) add(stringResource(R.string.settings_sources_expiry, expiry))
