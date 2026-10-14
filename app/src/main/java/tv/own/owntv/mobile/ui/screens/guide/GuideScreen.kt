@@ -174,7 +174,10 @@ fun GuideScreen(
                 onAddEpg = onAddEpg,
             )
         } else {
-            when (mode) {
+            // glcn: "On now" can only show today. Picking another day in the strip shows that day's
+            // grid instead; back on today the chosen view returns.
+            val shownMode = if (day > 0 && mode == SettingsRepository.GuideView.ON_NOW) SettingsRepository.GuideView.GRID else mode
+            when (shownMode) {
                 SettingsRepository.GuideView.ON_NOW -> OnNowList(
                     vm = vm,
                     channels = channels,
