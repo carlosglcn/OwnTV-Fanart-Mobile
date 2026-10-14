@@ -212,6 +212,14 @@ class HomeViewModel(
         }
     }
 
+    /** glcn: out of Keep watching — its resume point and history go, and the feed is rebuilt. */
+    fun removeFromContinue(type: MediaType, itemId: Long) {
+        viewModelScope.launch {
+            actions.removeFromContinue(type, itemId)
+            refresh()
+        }
+    }
+
     fun download(type: MediaType, itemId: Long) {
         viewModelScope.launch { actions.download(type, itemId) }
     }

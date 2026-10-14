@@ -7,7 +7,13 @@ import tv.own.owntv.core.model.MediaType
 import tv.own.owntv.mobile.R
 
 /** The item a long press was made on, wherever it was made. */
-data class ContentTarget(val type: MediaType, val id: Long, val title: String)
+data class ContentTarget(
+    val type: MediaType,
+    val id: Long,
+    val title: String,
+    /** glcn: opened from a Keep watching card, so the menu can take it out of that row. */
+    val continueRow: Boolean = false,
+)
 
 /**
  * The short long-press menu: everything an item can do to itself, and nothing that needs the list it
@@ -24,8 +30,20 @@ fun ContentActionsMenu(
     onDownload: () -> Unit,
     onHide: () -> Unit,
     onDismiss: () -> Unit,
+    onRemoveFromContinue: (() -> Unit)? = null,
 ) {
     val actions = buildList {
+        if (target.continueRow && onRemoveFromContinue != null) {
+            add(
+                SheetAction(
+                    key = "remove_continue",
+                    label = stringResource(R.string.glcn_remove_from_continue),
+                    icon = MobileIcons.Close,
+                    group = 0,
+                    onClick = onRemoveFromContinue,
+                ),
+            )
+        }
         add(
             SheetAction(
                 key = "favourite",

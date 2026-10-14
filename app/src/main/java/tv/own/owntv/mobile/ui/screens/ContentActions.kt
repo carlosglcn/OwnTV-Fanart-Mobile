@@ -55,6 +55,20 @@ class ContentActions(
         .flatMapLatest { favoriteDao.observeFavoriteIds(it, type) }
         .map { it.toSet() }
 
+    /** glcn: take an item out of Keep watching — its resume point and its history entry. */
+    suspend fun removeFromContinue(type: MediaType, itemId: Long) {
+        val pid = profileId() ?: return
+        when (type) {
+            MediaType.MOVIE -> {
+                userDataWriter.clearProgress(pid, MediaType.MOVIE, itemId)
+                userDataWriter.removeHistory(pid, MediaType.MOVIE, itemId)
+            }
+            MediaType.SERIES -> userDataWriter.removeSeriesHistory(pid, itemId)
+            MediaType.EPISODE -> userDataWriter.clearProgress(pid, MediaType.EPISODE, itemId)
+            MediaType.LIVE -> userDataWriter.removeHistory(pid, MediaType.LIVE, itemId)
+        }
+    }
+
     suspend fun toggleFavorite(type: MediaType, itemId: Long) {
         val pid = profileId() ?: return
         if (favoriteDao.isFavorite(pid, type, itemId).first()) userDataWriter.removeFavorite(pid, type, itemId)

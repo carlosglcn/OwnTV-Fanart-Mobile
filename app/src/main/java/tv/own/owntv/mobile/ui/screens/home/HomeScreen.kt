@@ -255,6 +255,7 @@ fun HomeScreen(
             onDownload = { vm.download(target.type, target.id) },
             onHide = { vm.hide(target.type, target.id) },
             onDismiss = { menuFor = null },
+            onRemoveFromContinue = { vm.removeFromContinue(target.type, target.id) },
         )
     }
 }
@@ -321,7 +322,7 @@ private fun HeroRow(
                             is HeroItem.SeriesHero -> onPlayEpisode(item.episode.id, item.seekToMs)
                         }
                     },
-                    onLongClick = { onMenu(item.menuTarget()) },
+                    onLongClick = { onMenu(item.menuTarget().copy(continueRow = true)) },
                 )
             }
         }
@@ -598,6 +599,7 @@ private fun ContinueRow(
                                 type = type,
                                 id = item.sourceItemId,
                                 title = item.containerTitle ?: item.title,
+                                continueRow = true,
                             ),
                         )
                     },
