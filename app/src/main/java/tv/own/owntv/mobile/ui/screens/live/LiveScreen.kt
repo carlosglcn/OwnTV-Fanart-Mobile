@@ -113,6 +113,8 @@ fun LiveScreen(
     listState.ObeyScrollToTop(route = "live", scrollToTop = scrollToTop)
 
     var menuFor by remember { mutableStateOf<ChannelEntity?>(null) }
+    // glcn: the "Sports now" sheet.
+    var sportsOpen by remember { mutableStateOf(false) }
     var categoryPicker by remember { mutableStateOf(false) }
     var categoryMenuFor by remember { mutableStateOf<LiveCategory?>(null) }
     // Survives a rotation, so turning a tablet keeps the channel you were watching beside the list.
@@ -162,7 +164,7 @@ fun LiveScreen(
                 labels = categories.map { it.label() },
                 selectedIndex = categories.indexOfFirst { it.key == selected },
                 onSelect = { index -> categories.getOrNull(index)?.let { vm.select(it.key) } },
-                modifier = Modifier.padding(end = MobileDimens.TouchTarget * 2),
+                modifier = Modifier.padding(end = MobileDimens.TouchTarget * 3),
                 // All, Favorites, History and Catch-up are not folders: there is nothing to hide or move.
                 onLongPress = { index ->
                     categoryMenuFor = categories.getOrNull(index)?.takeIf { it.builtIn == null }
@@ -170,6 +172,9 @@ fun LiveScreen(
                 onLongPressLabel = stringResource(R.string.settings_customize_categories),
             )
             Row(Modifier.align(Alignment.CenterEnd)) {
+                IconButton(onClick = { sportsOpen = true }) {
+                    Icon(MobileIcons.Bolt, stringResource(R.string.glcn_sports_now))
+                }
                 IconButton(onClick = { vm.setCardsView(!cardsView) }) {
                     Icon(
                         if (cardsView) MobileIcons.ViewList else MobileIcons.GridView,
@@ -278,6 +283,14 @@ fun LiveScreen(
             vm = vm,
             onOpenCatchup = { onOpenChannel(channel.id, true) },
             onDismiss = { menuFor = null },
+        )
+    }
+
+    if (sportsOpen) {
+        SportsNowSheet(
+            load = { vm.sportsNow() },
+            onPick = { channel -> sportsOpen = false; openChannel(channel) },
+            onDismiss = { sportsOpen = false },
         )
     }
 

@@ -101,6 +101,12 @@ class LiveViewModel(
     // pictures) for the channels on screen, through the same reader the Guide uses.
     private val guideReader: tv.own.owntv.core.live.GuideReader by inject()
 
+    private val sports by lazy { tv.own.owntv.core.live.SportsNow(channelDao, guideReader) }
+
+    /** glcn: channels showing sport right now, live events first. */
+    suspend fun sportsNow(): List<tv.own.owntv.core.live.SportsNow.Entry> =
+        sports.find(ctx.value.liveSourceIds, custom.value, epgOffset.value)
+
     suspend fun cardProgrammesFor(
         channels: List<ChannelEntity>,
         from: Long,

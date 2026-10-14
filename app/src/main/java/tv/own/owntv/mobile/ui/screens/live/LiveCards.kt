@@ -1,5 +1,8 @@
 package tv.own.owntv.mobile.ui.screens.live
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -271,4 +274,84 @@ private fun LiveBadge(modifier: Modifier = Modifier) {
 private fun rememberCardTimeFormat(): DateFormat {
     val locales = LocalConfiguration.current.locales
     return remember(locales) { DateFormat.getTimeInstance(DateFormat.SHORT) }
+}
+
+/** glcn: "Sports now" — every channel showing sport right now, live events first. */
+@Composable
+internal fun SportsNowSheet(
+    load: suspend () -> List<tv.own.owntv.core.live.SportsNow.Entry>,
+    onPick: (ChannelEntity) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var entries by remember { mutableStateOf<List<tv.own.owntv.core.live.SportsNow.Entry>?>(null) }
+    LaunchedEffect(Unit) { entries = runCatching { load() }.getOrDefault(emptyList()) }
+    val times = rememberCardTimeFormat()
+    val separator = stringResource(R.string.content_epg_bits_separator)
+    tv.own.owntv.mobile.ui.components.MobileBottomSheet(
+        onDismissRequest = onDismiss,
+        title = stringResource(R.string.glcn_sports_now),
+    ) {
+        val list = entries
+        when {
+            list == null -> Box(Modifier.fillMaxWidth().height(160.dp), contentAlignment = Alignment.Center) {
+                androidx.compose.material3.CircularProgressIndicator()
+            }
+            list.isEmpty() -> Text(
+                stringResource(R.string.glcn_sports_none),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(MobileDimens.ScreenPaddingH),
+            )
+            else -> androidx.compose.foundation.lazy.LazyColumn(
+                Modifier.heightIn(max = (LocalConfiguration.current.screenHeightDp * 0.7f).dp),
+            ) {
+                items(list.size, key = { list[it].channel.id }) { i ->
+                    val e = list[i]
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable(onClick = { onPick(e.channel) })
+                            .padding(horizontal = MobileDimens.ScreenPaddingH, vertical = MobileDimens.GapSmall),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(MobileDimens.GapMedium),
+                    ) {
+                        Box(
+                            Modifier
+                                .width(128.dp)
+                                .aspectRatio(16f / 9f)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color(0xFF15191C)),
+                        ) {
+                            val art = e.programme.imageUrl
+                            if (!art.isNullOrBlank()) {
+                                tv.own.owntv.mobile.ui.components.ProgrammeArt(url = art, modifier = Modifier.fillMaxSize())
+                            } else {
+                                ChannelLogoImage(
+                                    url = e.channel.displayLogoUrl,
+                                    modifier = Modifier.align(Alignment.Center).size(56.dp),
+                                    fallback = { Icon(MobileIcons.LiveTv, null) },
+                                )
+                            }
+                        }
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                e.programme.title,
+                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                maxLines = 2, overflow = TextOverflow.Ellipsis,
+                            )
+                            Text(
+                                e.channel.name + separator + stringResource(
+                                    R.string.content_live_time_range_plain,
+                                    times.format(Date(e.programme.startMs)), times.format(Date(e.programme.stopMs)),
+                                ),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1, overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
