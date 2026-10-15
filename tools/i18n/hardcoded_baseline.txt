@@ -51,6 +51,12 @@
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/Seasonal.kt	🦌🦌🛷🎅
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/library/DetailScreen.kt	w300
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelDetailScreen.kt	·
+1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	ahXN00
+1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	carlosglcn
+1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	github.com/ahXN00/OwnTV_Mobile
+1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	github.com/carlosglcn/OwnTV_Mobile_glcn
+1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	https://$GLCN_REPO
+2	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	·
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppearancePage.kt	glcn_season
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsPlaylistsPage.kt	$1:••••@
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsPlaylistsPage.kt	(://[^:/@]+):[^@/]*@

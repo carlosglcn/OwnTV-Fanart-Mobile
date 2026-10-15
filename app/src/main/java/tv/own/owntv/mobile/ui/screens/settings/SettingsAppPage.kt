@@ -207,8 +207,9 @@ fun AboutPage(modifier: Modifier = Modifier) {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                // glcn: what this version is and whose work it builds on.
                 Text(
-                    text = stringResource(R.string.settings_contributions),
+                    text = stringResource(R.string.glcn_about_fork),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = MobileDimens.GapSmall),
@@ -216,9 +217,14 @@ fun AboutPage(modifier: Modifier = Modifier) {
             }
 
             SettingRow(
-                title = stringResource(R.string.settings_about),
+                title = stringResource(R.string.glcn_about_original) + " · " + stringResource(R.string.glcn_about_by, "ahXN00"),
                 subtitle = GITHUB_REPO,
                 onClick = { openLink(context, "https://$GITHUB_REPO") },
+            )
+            SettingRow(
+                title = stringResource(R.string.glcn_about_this) + " · " + stringResource(R.string.glcn_about_by, "carlosglcn"),
+                subtitle = GLCN_REPO,
+                onClick = { openLink(context, "https://$GLCN_REPO") },
             )
 
             // The link is what a phone user taps; the QR is for the person sitting next to them, and
@@ -399,7 +405,8 @@ private fun LogEntry(entry: PlaybackErrorLog.Entry, when_: String) {
     }
 }
 
-private const val GITHUB_REPO = "github.com/ahXN00/OwnTV"
+private const val GITHUB_REPO = "github.com/ahXN00/OwnTV_Mobile"
+private const val GLCN_REPO = "github.com/carlosglcn/OwnTV_Mobile_glcn"
 private const val TELEGRAM_LINK = "t.me/owntvplayer"
 
 /** The group's address as a code to point a camera at, with the line that says what to do with it. */
