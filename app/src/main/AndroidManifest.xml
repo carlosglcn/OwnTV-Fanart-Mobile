@@ -248,6 +248,23 @@
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
 
+        <!-- glcn: Android Auto — the channels as a media library, played as sound. -->
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc" />
+        <service
+            android:name=".auto.AutoBrowserService"
+            android:exported="true"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService" />
+            </intent-filter>
+        </service>
+        <provider
+            android:name=".auto.ArtProvider"
+            android:authorities="${applicationId}.glcnart"
+            android:exported="true" />
+
         <!-- glcn: home-screen widget, "Sports now". -->
         <receiver
             android:name=".widget.SportsWidget"

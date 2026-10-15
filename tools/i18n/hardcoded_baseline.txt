@@ -4,6 +4,25 @@
 # Phase 1 deletes occurrences until this file is empty; the CI guard then becomes absolute.
 # Format: <count>\t<relative path>\t<content with \t/\n escaped>
 
+1	app/src/main/java/tv/own/owntv/mobile/auto/ArtProvider.kt	.png
+1	app/src/main/java/tv/own/owntv/mobile/auto/ArtProvider.kt	auto_art
+1	app/src/main/java/tv/own/owntv/mobile/auto/ArtProvider.kt	content://${context.packageName}.glcnart/$token
+1	app/src/main/java/tv/own/owntv/mobile/auto/ArtProvider.kt	http://
+1	app/src/main/java/tv/own/owntv/mobile/auto/ArtProvider.kt	https://
+1	app/src/main/java/tv/own/owntv/mobile/auto/ArtProvider.kt	image/png
+2	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	\0
+1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	OwnTV-Auto
+1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	[^a-z0-9+]+
+1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	\\p{M}+
+1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	all
+1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	android.media.browse.CONTENT_STYLE_BROWSABLE_HINT
+1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	android.media.browse.CONTENT_STYLE_PLAYABLE_HINT
+1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	android.media.browse.SEARCH_SUPPORTED
+1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	ch:
+1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	favourites
+1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	recent
+1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	root
+1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	sports
 1	app/src/main/java/tv/own/owntv/mobile/playback/ReminderAlerts.kt	glcn_open_channel
 1	app/src/main/java/tv/own/owntv/mobile/playback/ReminderAlerts.kt	glcn_reminder_id
 1	app/src/main/java/tv/own/owntv/mobile/playback/ReminderAlerts.kt	glcn_reminders

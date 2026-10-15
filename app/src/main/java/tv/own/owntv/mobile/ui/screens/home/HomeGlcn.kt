@@ -104,7 +104,11 @@ internal fun HomeGreetingHeader(name: String?, trailing: @Composable () -> Unit)
     }
 }
 
-/** A live programme as a picture card: fanart, logo, title, channel and time left, progress. */
+/**
+ * A live programme as a picture card: the programme's fanart on top (the channel logo when the guide
+ * has none, or only a blank placeholder), and under it — never over it, where the picture's own
+ * lettering would fight it — the title, the channel and time, and the progress bar.
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun ArtLiveCardMobile(
@@ -117,57 +121,65 @@ internal fun ArtLiveCardMobile(
     startLabel: String? = null,
     bell: Boolean = false,
 ) {
-    val art = programme?.imageUrl?.takeIf { it.isNotBlank() }
-    Box(
+    val rawArt = programme?.imageUrl?.takeIf { it.isNotBlank() }
+    val art = rawArt?.takeUnless { tv.own.owntv.mobile.ui.components.rememberPlainArt(it) }
+    Column(
         Modifier
             .width(width)
-            .aspectRatio(16f / 9f)
             .clip(RoundedCornerShape(14.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .background(MaterialTheme.colorScheme.surfaceContainer)
             .combinedClickable(onClick = onClick, onLongClick = onLongClick),
     ) {
-        if (art != null) {
-            ProgrammeArt(url = art, modifier = Modifier.fillMaxSize())
-        } else {
-            AsyncImage(
-                model = channel.displayLogoUrl, contentDescription = null,
-                modifier = Modifier.align(Alignment.Center).size(72.dp),
-            )
-        }
-        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.35f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.88f))))
-        if (art != null) {
-            AsyncImage(
-                model = channel.displayLogoUrl, contentDescription = null,
-                modifier = Modifier.padding(8.dp).size(30.dp).clip(RoundedCornerShape(6.dp)),
-            )
-        }
-        Row(Modifier.align(Alignment.TopEnd).padding(8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            if (programme != null && startLabel == null && SportsNow.isLive(programme)) LiveBadgeSmall()
-            if (bell) {
-                Box(Modifier.size(22.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) {
-                    Icon(MobileIcons.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .aspectRatio(16f / 9f)
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+        ) {
+            if (art != null) {
+                ProgrammeArt(url = art, modifier = Modifier.fillMaxSize())
+                AsyncImage(
+                    model = channel.displayLogoUrl, contentDescription = null,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .size(34.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.Black.copy(alpha = 0.45f))
+                        .padding(3.dp),
+                )
+            } else {
+                AsyncImage(
+                    model = channel.displayLogoUrl, contentDescription = null,
+                    modifier = Modifier.align(Alignment.Center).size(80.dp),
+                )
+            }
+            Row(Modifier.align(Alignment.TopEnd).padding(8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                if (programme != null && startLabel == null && SportsNow.isLive(programme)) LiveBadgeSmall()
+                if (bell) {
+                    Box(Modifier.size(22.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) {
+                        Icon(MobileIcons.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+                    }
+                }
+            }
+            if (programme != null && startLabel == null) {
+                val span = (programme.stopMs - programme.startMs).coerceAtLeast(1L)
+                val p = ((now - programme.startMs).toFloat() / span).coerceIn(0f, 1f)
+                Box(Modifier.align(Alignment.BottomStart).fillMaxWidth().height(3.dp).background(Color.Black.copy(alpha = 0.35f))) {
+                    Box(Modifier.fillMaxWidth(p).height(3.dp).background(MaterialTheme.colorScheme.primary))
                 }
             }
         }
-        Column(Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(horizontal = 10.dp, vertical = 8.dp)) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 8.dp)) {
             Text(
-                programme?.title ?: channel.name, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold,
+                programme?.title?.let(SportsNow::displayTitle) ?: channel.name,
+                color = MaterialTheme.colorScheme.onSurface, fontSize = 14.sp, fontWeight = FontWeight.Bold,
                 maxLines = 1, overflow = TextOverflow.Ellipsis,
             )
             val line = when {
                 startLabel != null -> "$startLabel · ${channel.name}"
-                programme != null -> channel.name
-                else -> null
+                else -> channel.name
             }
-            line?.let { Text(it, color = Color.White.copy(alpha = 0.75f), fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis) }
-            if (programme != null && startLabel == null) {
-                val span = (programme.stopMs - programme.startMs).coerceAtLeast(1L)
-                val p = ((now - programme.startMs).toFloat() / span).coerceIn(0f, 1f)
-                Spacer(Modifier.height(5.dp))
-                Box(Modifier.fillMaxWidth().height(3.dp).clip(RoundedCornerShape(2.dp)).background(Color.White.copy(alpha = 0.2f))) {
-                    Box(Modifier.fillMaxWidth(p).height(3.dp).background(MaterialTheme.colorScheme.primary))
-                }
-            }
+            Text(line, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }
@@ -246,7 +258,7 @@ internal fun FeaturedCarousel(
                     },
             ) {
                 AsyncImage(model = item.art, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
-                Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.4f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.9f))))
+                Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.25f to Color.Transparent, 0.6f to Color.Black.copy(alpha = 0.75f), 1f to Color.Black.copy(alpha = 0.97f))))
                 Column(Modifier.align(Alignment.BottomStart).padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                         when (item) {
@@ -261,7 +273,7 @@ internal fun FeaturedCarousel(
                     }
                     Text(
                         when (item) {
-                            is FeaturedItem.Live -> item.programme.title
+                            is FeaturedItem.Live -> SportsNow.displayTitle(item.programme.title)
                             is FeaturedItem.Movie -> item.movie.name
                             is FeaturedItem.Series -> item.series.name
                         },

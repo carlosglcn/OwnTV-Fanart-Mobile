@@ -175,7 +175,7 @@ private fun LiveCard(
             }
             Box(
                 Modifier.fillMaxSize().background(
-                    Brush.verticalGradient(0.4f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.88f)),
+                    Brush.verticalGradient(0.25f to Color.Transparent, 0.6f to Color.Black.copy(alpha = 0.7f), 1f to Color.Black.copy(alpha = 0.95f)),
                 ),
             )
             // Logo, top left — on a dark plate so a white logo never vanishes on a bright picture.
