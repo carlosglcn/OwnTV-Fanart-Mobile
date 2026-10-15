@@ -135,6 +135,16 @@ fun GuideScreen(
                 onSearch = { guideKeyboard?.hide() },
                 modifier = Modifier.weight(1f),
             )
+            // glcn: one tap between "On now" and the full-day grid (today included).
+            val gridShown = mode == SettingsRepository.GuideView.GRID || (day > 0 && mode == SettingsRepository.GuideView.ON_NOW)
+            IconButton(onClick = {
+                vm.setViewMode(if (gridShown) SettingsRepository.GuideView.ON_NOW else SettingsRepository.GuideView.GRID)
+            }) {
+                Icon(
+                    if (gridShown) MobileIcons.ViewList else MobileIcons.GridView,
+                    stringResource(if (gridShown) R.string.home_row_on_now else R.string.settings_view_grid),
+                )
+            }
             IconButton(onClick = { optionsOpen = true }) {
                 Icon(MobileIcons.Tune, stringResource(R.string.content_epg_title))
             }
