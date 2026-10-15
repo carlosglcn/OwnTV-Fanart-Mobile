@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -87,6 +88,26 @@ class DetailViewModel(
 
     private val _show = MutableStateFlow<SeriesEntity?>(null)
     val show: StateFlow<SeriesEntity?> = _show
+
+    /** glcn: the synopsis from TMDB, for a title whose playlist carries none. */
+    private val _tmdbPlot = MutableStateFlow<String?>(null)
+    val tmdbPlot: StateFlow<String?> = _tmdbPlot
+
+    init {
+        viewModelScope.launch {
+            kotlinx.coroutines.flow.combine(_movie, _show) { m, s -> m to s }.collectLatest { (m, s) ->
+                _tmdbPlot.value = null
+                if (!m?.plot.isNullOrBlank() || !s?.plot.isNullOrBlank()) return@collectLatest
+                _tmdbPlot.value = runCatching {
+                    when {
+                        m != null -> metadata.resolveMovie(m)?.overview
+                        s != null -> metadata.resolveSeries(s)?.overview
+                        else -> null
+                    }
+                }.getOrNull()?.takeIf { it.isNotBlank() }
+            }
+        }
+    }
 
     val episodes: StateFlow<List<EpisodeEntity>> = target
         .flatMapLatest { t ->

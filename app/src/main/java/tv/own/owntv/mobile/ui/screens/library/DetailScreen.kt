@@ -110,7 +110,8 @@ fun DetailScreen(
 
     // The page's headline: without a leading provider tag ("|MULTI| "), as on the TV.
     val title = HeadlineTitle.of(movie?.name ?: show?.name.orEmpty())
-    val plot = movie?.plot ?: show?.plot
+    val tmdbPlot by vm.tmdbPlot.collectAsStateWithLifecycle()
+    val plot = movie?.plot?.takeIf { it.isNotBlank() } ?: show?.plot?.takeIf { it.isNotBlank() } ?: tmdbPlot
     val poster = movie?.posterUrl ?: show?.posterUrl
     val backdrop = movie?.backdropUrl ?: show?.backdropUrl
     val year = movie?.year ?: show?.year
