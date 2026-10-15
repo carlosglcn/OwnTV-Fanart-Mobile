@@ -150,13 +150,21 @@ fun HomeScreen(
         return
     }
 
+    var featuredArt by remember { mutableStateOf<String?>(null) }
+    val reminders by vm.reminderRows.collectAsStateWithLifecycle()
+    Box(modifier.fillMaxSize()) {
+    // glcn: Home takes the tone of the featured picture on show.
+    tv.own.owntv.mobile.ui.components.ArtTint(featuredArt, Modifier.matchParentSize(), strength = 0.55f, focusX = 0.5f, focusY = 0.0f)
     LazyColumn(
         state = listState,
-        modifier = modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = MobileDimens.GapLarge),
     ) {
-        weather?.let { info ->
-            item("weather") { WeatherChip(info = info, fahrenheit = fahrenheit) }
+        // glcn: the greeting, with the weather beside it.
+        item("greeting") {
+            HomeGreetingHeader(state.profileName) {
+                weather?.let { info -> WeatherChip(info = info, fahrenheit = fahrenheit) }
+            }
         }
         rows.forEach { row ->
             item(row.name) {
@@ -241,6 +249,31 @@ fun HomeScreen(
                         },
                         onMenu = { menuFor = it },
                     )
+                    HomeRow.FEATURED -> FeaturedCarousel(
+                        items = state.featured,
+                        onPage = { featuredArt = it.art },
+                        onOpenChannel = onOpenChannel,
+                        onOpenMovie = onOpenMovie,
+                        onOpenSeries = onOpenSeries,
+                    )
+                    HomeRow.TONIGHT -> TonightRowMobile(
+                        items = state.tonight,
+                        reminded = { t -> reminders.any { it.channelId == t.channel.id && it.startMs == t.programme.startMs } },
+                        onToggleReminder = vm::toggleTonightReminder,
+                        onOpenChannel = onOpenChannel,
+                    )
+                    HomeRow.GENRES -> androidx.compose.foundation.layout.Column(
+                        verticalArrangement = Arrangement.spacedBy(MobileDimens.GapLarge),
+                    ) {
+                        state.genres.forEach { genre ->
+                            FavoriteRow(
+                                title = genre.name,
+                                items = genre.movies.map { ContentTarget(MediaType.MOVIE, it.id, it.name) to it.posterUrl },
+                                onOpen = onOpenMovie,
+                                onMenu = { menuFor = it },
+                            )
+                        }
+                    }
                     HomeRow.SPORTS_NOW -> state.sportsGuide.let { guide ->
                         LiveRow(
                             title = stringResource(R.string.glcn_sports_now),
@@ -268,6 +301,7 @@ fun HomeScreen(
                 }
             }
         }
+    }
     }
 
     menuFor?.let { target ->
@@ -310,6 +344,9 @@ private fun HomeFeed.hasContent(row: HomeRow): Boolean = when (row) {
     HomeRow.SPORTS_NOW -> sportsNow.isNotEmpty()
     HomeRow.RECENT_MOVIES -> recentMovies.isNotEmpty()
     HomeRow.RECENT_SERIES -> recentSeries.isNotEmpty()
+    HomeRow.FEATURED -> featured.isNotEmpty()
+    HomeRow.TONIGHT -> tonight.isNotEmpty()
+    HomeRow.GENRES -> genres.isNotEmpty()
 }
 
 /**
@@ -721,52 +758,13 @@ private fun OnNowCard(
     onClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
-    // The map scan runs once per guide tick, not once per card per recomposition: every OnNowCard
-    // in the row reads the same ticking map, and without this each card re-scans its own list on
-    // every recomposition the tick causes.
+    // glcn: the programme's picture as the card.
     val programmes = guide.programmes[channel.id]
     val nowMs = guide.now
     val now = remember(programmes, channel.id, nowMs) {
         programmes?.firstOrNull { nowMs in it.startMs until it.stopMs }
     }
-    Row(
-        modifier = Modifier
-            .width(OnNowCardWidth)
-            .clip(MobileCardShape)
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-            .padding(MobileDimens.GapSmall),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        ChannelLogo(channel, ChannelLogoSize)
-        Column(modifier = Modifier.padding(start = MobileDimens.GapSmall)) {
-            Text(
-                text = channel.name,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                text = now?.title ?: stringResource(R.string.content_no_epg),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-            if (now != null && now.stopMs > now.startMs) {
-                LinearProgressIndicator(
-                    progress = {
-                        ((guide.now - now.startMs).toFloat() / (now.stopMs - now.startMs)).coerceIn(0f, 1f)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = MobileDimens.GapTiny)
-                        .height(MobileDimens.PosterProgressHeight),
-                )
-            }
-        }
-    }
+    ArtLiveCardMobile(channel = channel, programme = now, now = nowMs, onClick = onClick, onLongClick = onLongClick)
 }
 
 @Composable

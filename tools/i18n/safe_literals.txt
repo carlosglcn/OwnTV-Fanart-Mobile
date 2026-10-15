@@ -162,7 +162,6 @@
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeScreen.kt	e${episode.id}
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeScreen.kt	home
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeScreen.kt	m${movie.id}
-1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeScreen.kt	weather
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/TrendingHero.kt	#${activeIndex + 1}
 2	protocol	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/TrendingHero.kt	EN
 2	url	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/TrendingHero.kt	w1280

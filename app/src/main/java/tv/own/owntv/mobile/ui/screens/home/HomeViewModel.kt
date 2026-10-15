@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -58,7 +59,27 @@ class HomeViewModel(
     private val metadata: MetadataRepository,
     weatherRepository: WeatherRepository,
     connectivity: ConnectivityObserver,
+    private val reminderManager: tv.own.owntv.core.reminder.ReminderManager,
 ) : ViewModel() {
+
+    // --- glcn: "Tonight" reminders ----------------------------------------------------------------
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    val reminderRows: StateFlow<List<tv.own.owntv.core.database.entity.ReminderEntity>> =
+        settings.activeProfileId
+            .flatMapLatest { pid -> if (pid < 0) flowOf(emptyList()) else reminderManager.observe(pid) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    fun toggleTonightReminder(item: tv.own.owntv.core.home.TonightItem) {
+        viewModelScope.launch {
+            val existing = reminderRows.value.firstOrNull { it.channelId == item.channel.id && it.startMs == item.programme.startMs }
+            if (existing != null) { reminderManager.dismiss(existing.id); return@launch }
+            val pid = settings.activeProfileId.first().takeIf { it >= 0 } ?: return@launch
+            reminderManager.add(
+                pid, item.channel.id, item.channel.name, item.channel.epgChannelId, item.programme.title,
+                item.programme.startMs, item.programme.stopMs, settings.reminderLeadMinutes.first(),
+            )
+        }
+    }
 
     private val profileId: StateFlow<Long> = settings.activeProfileId
         .map { stored -> if (stored >= 0) profileDao.resolveExistingProfileId(stored) ?: -1L else -1L }
