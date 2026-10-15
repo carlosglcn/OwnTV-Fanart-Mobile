@@ -501,6 +501,18 @@ object MobileIcons {
             dot(6f, 18f, 1.5f); dot(12f, 18f, 1.5f); dot(18f, 18f, 1.5f)
         }
     }
+    /** glcn: a football — "Sports now". */
+    val Ball: ImageVector by lazy {
+        glyph() {
+            ring(12f, 12f, 9f)
+            solid(12.00f, 8.40f, 15.42f, 10.89f, 14.12f, 14.91f, 9.88f, 14.91f, 8.58f, 10.89f)
+            line(12.00f, 8.40f, 12.00f, 3.00f)
+            line(15.42f, 10.89f, 20.56f, 9.22f)
+            line(14.12f, 14.91f, 17.29f, 19.28f)
+            line(9.88f, 14.91f, 6.71f, 19.28f)
+            line(8.58f, 10.89f, 3.44f, 9.22f)
+        }
+    }
     val Bolt: ImageVector by lazy {
         glyph() { solid(13.5f, 2f, 6f, 13.5f, 11f, 13.5f, 10.5f, 22f, 18f, 10.5f, 13f, 10.5f) }
     }

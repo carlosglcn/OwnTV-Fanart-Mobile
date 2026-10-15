@@ -13,5 +13,6 @@ import tv.own.owntv.mobile.ui.screens.guide.GuideViewModel
  */
 val guideModule = module {
     single { GuideReader(get(), get(), get(), get()) }
+    single { tv.own.owntv.core.live.NowArt(get(), get(), get()) }
     viewModelOf(::GuideViewModel)
 }

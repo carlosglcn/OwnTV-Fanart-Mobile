@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import tv.own.owntv.mobile.ui.components.shimmer
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -159,6 +160,8 @@ fun HomeScreen(
         }
         rows.forEach { row ->
             item(row.name) {
+                // glcn: rails fade and slide into place as the feed changes, instead of jumping.
+                Box(Modifier.animateItem()) {
                 when (row) {
                     // Two shapes, the user's choice: the full card, or the strip of posters the
                     // rest of Home is made of. Both show the same items in the same order.
@@ -261,6 +264,7 @@ fun HomeScreen(
                         onOpen = onOpenSeries,
                         onMenu = { menuFor = it },
                     )
+                }
                 }
             }
         }
@@ -873,8 +877,32 @@ private fun HomeMessage(
 /** The feed still being read. A quiet spinner, not a blank screen that jumps into a full Home. */
 @Composable
 private fun HomeSkeleton(modifier: Modifier = Modifier) {
-    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+    // glcn: the shape of Home — a hero card and three rails — shimmering while the feed is read.
+    androidx.compose.foundation.layout.Column(
+        modifier.fillMaxSize().padding(top = MobileDimens.GapSmall),
+        verticalArrangement = Arrangement.spacedBy(MobileDimens.GapLarge),
+    ) {
+        Box(
+            Modifier
+                .padding(horizontal = MobileDimens.ScreenPaddingH)
+                .fillMaxWidth()
+                .aspectRatio(16f / 9f)
+                .shimmer(18.dp),
+        )
+        repeat(3) { row ->
+            androidx.compose.foundation.layout.Column(verticalArrangement = Arrangement.spacedBy(MobileDimens.GapSmall)) {
+                Box(Modifier.padding(horizontal = MobileDimens.ScreenPaddingH).width(140.dp).height(16.dp).shimmer(6.dp))
+                androidx.compose.foundation.layout.Row(
+                    Modifier.padding(horizontal = MobileDimens.ScreenPaddingH),
+                    horizontalArrangement = Arrangement.spacedBy(MobileDimens.GapSmall),
+                ) {
+                    repeat(4) {
+                        if (row == 0) Box(Modifier.width(220.dp).height(124.dp).shimmer(12.dp))
+                        else Box(Modifier.width(104.dp).aspectRatio(2f / 3f).shimmer(10.dp))
+                    }
+                }
+            }
+        }
     }
 }
 

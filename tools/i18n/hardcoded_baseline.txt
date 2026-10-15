@@ -8,6 +8,15 @@
 1	app/src/main/java/tv/own/owntv/mobile/playback/ReminderAlerts.kt	glcn_reminder_id
 1	app/src/main/java/tv/own/owntv/mobile/playback/ReminderAlerts.kt	glcn_reminders
 1	app/src/main/java/tv/own/owntv/mobile/playback/ReminderAlerts.kt	reminder-$id
+1	app/src/main/java/tv/own/owntv/mobile/ui/components/ArtColor.kt	artTint
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/ContentActionsMenu.kt	remove_continue
+1	app/src/main/java/tv/own/owntv/mobile/ui/components/Shimmer.kt	shimmer
+1	app/src/main/java/tv/own/owntv/mobile/ui/components/Shimmer.kt	shimmerX
+2	app/src/main/java/tv/own/owntv/mobile/ui/player/ZapBanner.kt	\0
+1	app/src/main/java/tv/own/owntv/mobile/ui/player/ZapBanner.kt	·
+1	app/src/main/java/tv/own/owntv/mobile/ui/screens/library/DetailScreen.kt	w300
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsPlaylistsPage.kt	$1:••••@
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsPlaylistsPage.kt	(://[^:/@]+):[^@/]*@
+1	app/src/main/java/tv/own/owntv/mobile/widget/SportsWidget.kt	\0
+1	app/src/main/java/tv/own/owntv/mobile/widget/SportsWidget.kt	$live${p.title} ${e.channel.name} · ${fmt.format(java.util.Date(p.startMs))}–${fmt.format(java.util.Date(p.stopMs))}
+1	app/src/main/java/tv/own/owntv/mobile/widget/SportsWidget.kt	●

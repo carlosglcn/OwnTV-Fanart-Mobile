@@ -173,7 +173,7 @@ fun LiveScreen(
             )
             Row(Modifier.align(Alignment.CenterEnd)) {
                 IconButton(onClick = { sportsOpen = true }) {
-                    Icon(MobileIcons.Bolt, stringResource(R.string.glcn_sports_now))
+                    Icon(MobileIcons.Ball, stringResource(R.string.glcn_sports_now))
                 }
                 IconButton(onClick = { vm.setCardsView(!cardsView) }) {
                     Icon(

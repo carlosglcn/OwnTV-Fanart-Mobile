@@ -617,6 +617,22 @@ fun PlayerScreen(
             }
         }
 
+        // glcn: the zapping banner, for a few seconds after each channel change while the controls are away.
+        var zapBannerFor by remember { mutableStateOf<Long?>(null) }
+        LaunchedEffect(channel?.id) {
+            val id = channel?.id ?: return@LaunchedEffect
+            zapBannerFor = id
+            kotlinx.coroutines.delay(5_000)
+            if (zapBannerFor == id) zapBannerFor = null
+        }
+        ZapBanner(
+            visible = zapBannerFor != null && zapBannerFor == channel?.id && !controlsVisible && !inPip && failure == null,
+            channel = channel,
+            epg = nowNext,
+            showNumber = showChannelNumbers,
+            modifier = Modifier.align(Alignment.BottomCenter),
+        )
+
         PlayerControls(
             player = player,
             engine = activeEngine,

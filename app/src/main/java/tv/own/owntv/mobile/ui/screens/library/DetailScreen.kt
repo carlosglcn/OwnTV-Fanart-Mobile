@@ -1,6 +1,8 @@
 package tv.own.owntv.mobile.ui.screens.library
 
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.height
 import tv.own.owntv.mobile.ui.nav.posterKey
 import tv.own.owntv.mobile.ui.nav.sharedPoster
@@ -142,7 +144,10 @@ fun DetailScreen(
     var episodeOptions by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
 
-    LazyColumn(state = listState, modifier = modifier.fillMaxSize()) {
+    // glcn: the page takes the tone of the backdrop.
+    Box(modifier.fillMaxSize()) {
+    tv.own.owntv.mobile.ui.components.ArtTint(backdrop ?: poster, Modifier.matchParentSize(), strength = 0.75f, focusX = 0.5f, focusY = 0.2f)
+    LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
         item {
             Box(
                 Modifier
@@ -155,6 +160,15 @@ fun DetailScreen(
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
+                )
+                // glcn: the picture dissolves into the page instead of ending on a hard line.
+                Box(
+                    Modifier.fillMaxSize().background(
+                        androidx.compose.ui.graphics.Brush.verticalGradient(
+                            0.55f to androidx.compose.ui.graphics.Color.Transparent,
+                            1f to MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+                        ),
+                    ),
                 )
                 // The tile the user tapped, landed. It overlaps the backdrop rather than replacing
                 // it, which is what gives the travelling poster somewhere to arrive at — and it is
@@ -319,6 +333,7 @@ fun DetailScreen(
             }
         }
     }
+    }
 
     if (episodeOptions) {
         EpisodeOptionsSheet(
@@ -479,9 +494,32 @@ private fun EpisodeRow(
     onClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
+    // glcn: the episode's still — Emby's own picture, else the guide's (TMDB) one.
+    val still = tv.own.owntv.core.emby.EmbyPlayback.imageFor(episode.streamUrl, 400)
+        ?: tv.own.owntv.core.metadata.MetadataImages.backdrop(meta?.backdropPath, size = "w300")
     Column {
         MobileListRow(
-            leading = if (completed) {
+            leading = if (still != null) {
+                {
+                    Box(
+                        Modifier
+                            .height(63.dp)
+                            .aspectRatio(16f / 9f)
+                            .clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                    ) {
+                        AsyncImage(model = still, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+                        if (completed) {
+                            Icon(
+                                imageVector = MobileIcons.CheckCircle,
+                                contentDescription = stringResource(R.string.content_mark_watched),
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.align(Alignment.TopEnd).padding(4.dp).size(18.dp),
+                            )
+                        }
+                    }
+                }
+            } else if (completed) {
                 {
                     Icon(
                         imageVector = MobileIcons.CheckCircle,

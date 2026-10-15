@@ -257,6 +257,7 @@ open class MainActivity : FragmentActivity() {
      */
     override fun onStop() {
         super.onStop()
+        tv.own.owntv.mobile.widget.SportsWidget.refresh(this) // glcn
         if (isChangingConfigurations) return
         // Stopped after the floating window was up, without ever resuming in between: the window was
         // closed. That is its own answer, and not the background-playback question below.
