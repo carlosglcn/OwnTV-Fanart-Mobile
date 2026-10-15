@@ -97,21 +97,12 @@ class AutoBrowserService : MediaBrowserService() {
             // Folders as a list, channels as a grid of logos.
             putInt("android.media.browse.CONTENT_STYLE_BROWSABLE_HINT", 1)
             putInt("android.media.browse.CONTENT_STYLE_PLAYABLE_HINT", 2)
-            putBoolean("android.media.browse.SEARCH_SUPPORTED", true)
         })
 
     override fun onLoadChildren(parentId: String, result: Result<MutableList<MediaBrowser.MediaItem>>) {
         result.detach()
         scope.launch {
             val items = runCatching { withContext(Dispatchers.IO) { children(parentId) } }.getOrDefault(emptyList())
-            result.sendResult(items.toMutableList())
-        }
-    }
-
-    override fun onSearch(query: String, extras: Bundle?, result: Result<MutableList<MediaBrowser.MediaItem>>) {
-        result.detach()
-        scope.launch {
-            val items = runCatching { withContext(Dispatchers.IO) { search(query).map { it.toItem(null) } } }.getOrDefault(emptyList())
             result.sendResult(items.toMutableList())
         }
     }
