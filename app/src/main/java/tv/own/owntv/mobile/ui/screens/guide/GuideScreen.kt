@@ -474,6 +474,21 @@ private fun ProgrammeSheet(
             title = stringResource(R.string.content_epg_watch_channel),
             onClick = { onDismiss(); onOpenChannel(channel.id) },
         )
+        // glcn: Remind me — a notification when it starts, and a prompt to switch if the app is open.
+        if (vm.canRemind(programme)) {
+            val reminders by vm.reminderRows.collectAsStateWithLifecycle()
+            val reminderSet = reminders.any { it.channelId == channel.id && it.startMs == programme.startMs }
+            MobileListRow(
+                title = stringResource(if (reminderSet) R.string.content_reminder_set else R.string.content_remind_me),
+                leading = {
+                    Icon(
+                        if (reminderSet) MobileIcons.Check else MobileIcons.Schedule,
+                        contentDescription = null,
+                    )
+                },
+                onClick = { vm.toggleReminder(channel, programme) },
+            )
+        }
         if (vm.canCatchup(channel, programme)) {
             MobileListRow(
                 title = stringResource(R.string.content_epg_watch_start),

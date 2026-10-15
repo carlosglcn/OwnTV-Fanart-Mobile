@@ -238,6 +238,29 @@ fun HomeScreen(
                         },
                         onMenu = { menuFor = it },
                     )
+                    HomeRow.SPORTS_NOW -> state.sportsGuide.let { guide ->
+                        LiveRow(
+                            title = stringResource(R.string.glcn_sports_now),
+                            channels = guide.channels,
+                            guide = guide,
+                            mode = HomeLiveRowMode.ON_NOW,
+                            onToggleMode = null,
+                            onOpenChannel = onOpenChannel,
+                            onMenu = { menuFor = it },
+                        )
+                    }
+                    HomeRow.RECENT_MOVIES -> FavoriteRow(
+                        title = stringResource(R.string.glcn_recent_movies),
+                        items = state.recentMovies.map { ContentTarget(MediaType.MOVIE, it.id, it.name) to it.posterUrl },
+                        onOpen = onOpenMovie,
+                        onMenu = { menuFor = it },
+                    )
+                    HomeRow.RECENT_SERIES -> FavoriteRow(
+                        title = stringResource(R.string.glcn_recent_series),
+                        items = state.recentSeries.map { ContentTarget(MediaType.SERIES, it.id, it.name) to it.posterUrl },
+                        onOpen = onOpenSeries,
+                        onMenu = { menuFor = it },
+                    )
                 }
             }
         }
@@ -280,6 +303,9 @@ private fun HomeFeed.hasContent(row: HomeRow): Boolean = when (row) {
     HomeRow.FAVORITE_SERIES -> favoriteSeries.isNotEmpty()
     HomeRow.CONTINUE_MOVIES -> continueMovies.isNotEmpty()
     HomeRow.CONTINUE_SERIES -> continueSeries.isNotEmpty()
+    HomeRow.SPORTS_NOW -> sportsNow.isNotEmpty()
+    HomeRow.RECENT_MOVIES -> recentMovies.isNotEmpty()
+    HomeRow.RECENT_SERIES -> recentSeries.isNotEmpty()
 }
 
 /**
@@ -620,14 +646,14 @@ private fun LiveRow(
     channels: List<ChannelEntity>,
     guide: GuideSliceState,
     mode: HomeLiveRowMode,
-    onToggleMode: () -> Unit,
+    onToggleMode: (() -> Unit)?,
     onOpenChannel: (Long) -> Unit,
     onMenu: (ContentTarget) -> Unit,
 ) {
     Column {
         SectionHeader(
             title = title,
-            actionLabel = stringResource(
+            actionLabel = if (onToggleMode == null) null else stringResource(
                 when (mode) {
                     HomeLiveRowMode.CARDS -> R.string.home_row_on_now
                     HomeLiveRowMode.ON_NOW -> R.string.home_row_cards

@@ -127,7 +127,33 @@ class GuideViewModel(
     private val tuner: LiveTuner,
     private val recordings: tv.own.owntv.core.recording.RecordingManager,
     private val xtream: tv.own.owntv.core.parser.XtreamClient,
+    private val reminderManager: tv.own.owntv.core.reminder.ReminderManager,
 ) : ViewModel() {
+
+    // --- glcn: programme reminders (the television's "Remind me") ------------------------------
+
+    val reminderRows: StateFlow<List<tv.own.owntv.core.database.entity.ReminderEntity>> =
+        settings.activeProfileId
+            .flatMapLatest { pid -> if (pid < 0) flowOf(emptyList()) else reminderManager.observe(pid) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    fun canRemind(programme: EpgProgrammeEntity): Boolean =
+        tv.own.owntv.core.reminder.ReminderSchedule.canRemind(programme.startMs, System.currentTimeMillis())
+
+    fun reminderFor(channel: ChannelEntity, programme: EpgProgrammeEntity): tv.own.owntv.core.database.entity.ReminderEntity? =
+        reminderRows.value.firstOrNull { it.channelId == channel.id && it.startMs == programme.startMs }
+
+    /** Remind me — or take the reminder away when this programme already has one. */
+    fun toggleReminder(channel: ChannelEntity, programme: EpgProgrammeEntity) {
+        viewModelScope.launch {
+            reminderFor(channel, programme)?.let { reminderManager.dismiss(it.id); return@launch }
+            val pid = settings.activeProfileId.first().takeIf { it >= 0 } ?: return@launch
+            reminderManager.add(
+                pid, channel.id, channel.name, channel.epgChannelId, programme.title,
+                programme.startMs, programme.stopMs, settings.reminderLeadMinutes.first(),
+            )
+        }
+    }
 
     /** The one candidate set the picker and auto-match read — filtered by no source. */
     private val guideCandidates = GuideCandidates(epgDao)

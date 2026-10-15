@@ -187,6 +187,9 @@ private fun HomeRow.titleRes() = when (this) {
     HomeRow.FAVORITE_SERIES -> R.string.home_row_favorite_series
     HomeRow.CONTINUE_MOVIES -> R.string.home_row_continue_movies
     HomeRow.CONTINUE_SERIES -> R.string.home_row_continue_series
+    HomeRow.SPORTS_NOW -> R.string.glcn_sports_now
+    HomeRow.RECENT_MOVIES -> R.string.glcn_recent_movies
+    HomeRow.RECENT_SERIES -> R.string.glcn_recent_series
 }
 
 private fun HomeRow.descriptionRes() = when (this) {
@@ -198,6 +201,9 @@ private fun HomeRow.descriptionRes() = when (this) {
     HomeRow.FAVORITE_SERIES -> R.string.home_row_favorite_series_description
     HomeRow.CONTINUE_MOVIES -> R.string.home_row_continue_movies_description
     HomeRow.CONTINUE_SERIES -> R.string.home_row_continue_series_description
+    HomeRow.SPORTS_NOW -> R.string.glcn_sports_now_description
+    HomeRow.RECENT_MOVIES -> R.string.glcn_recent_movies_description
+    HomeRow.RECENT_SERIES -> R.string.glcn_recent_series_description
 }
 
 /** Which of the two channel rows this is, and the shape it is currently drawn in. */

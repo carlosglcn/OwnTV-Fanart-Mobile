@@ -232,6 +232,16 @@ open class MainActivity : FragmentActivity() {
         if (intent?.getBooleanExtra(EXTRA_OPEN_PLAYER, false) == true) {
             pip.openPlayerRequested.value = true
         }
+        // glcn: a reminder notification was tapped — open its channel.
+        val reminderChannel = intent?.getLongExtra(tv.own.owntv.mobile.playback.ReminderAlerts.EXTRA_OPEN_CHANNEL, -1L) ?: -1L
+        if (reminderChannel > 0) {
+            intent?.removeExtra(tv.own.owntv.mobile.playback.ReminderAlerts.EXTRA_OPEN_CHANNEL)
+            tv.own.owntv.mobile.playback.ReminderAlerts.openChannelRequested.value = reminderChannel
+            val reminderId = intent?.getLongExtra(tv.own.owntv.mobile.playback.ReminderAlerts.EXTRA_REMINDER_ID, -1L) ?: -1L
+            if (reminderId > 0) lifecycleScope.launch {
+                runCatching { org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.reminder.ReminderManager>().dismiss(reminderId) }
+            }
+        }
     }
 
     /**

@@ -4,6 +4,10 @@
 # Phase 1 deletes occurrences until this file is empty; the CI guard then becomes absolute.
 # Format: <count>\t<relative path>\t<content with \t/\n escaped>
 
+1	app/src/main/java/tv/own/owntv/mobile/playback/ReminderAlerts.kt	glcn_open_channel
+1	app/src/main/java/tv/own/owntv/mobile/playback/ReminderAlerts.kt	glcn_reminder_id
+1	app/src/main/java/tv/own/owntv/mobile/playback/ReminderAlerts.kt	glcn_reminders
+1	app/src/main/java/tv/own/owntv/mobile/playback/ReminderAlerts.kt	reminder-$id
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/ContentActionsMenu.kt	remove_continue
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsPlaylistsPage.kt	$1:••••@
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsPlaylistsPage.kt	(://[^:/@]+):[^@/]*@
