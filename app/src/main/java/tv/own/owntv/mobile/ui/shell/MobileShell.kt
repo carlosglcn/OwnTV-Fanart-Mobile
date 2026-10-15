@@ -658,6 +658,8 @@ fun MobileShell(
                         )
                     }
                 }
+                // glcn: seasonal touches over every screen — never over a playing picture.
+                if (!showingStream) tv.own.owntv.mobile.ui.screens.home.SeasonalOverlay(Modifier.fillMaxSize())
                 // Low over the page, under the mini player: a sync running while the user browses is
                 // news, but it is never what they came to the screen for.
                 if (fullscreen) {
