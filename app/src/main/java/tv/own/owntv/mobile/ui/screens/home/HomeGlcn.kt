@@ -73,7 +73,7 @@ internal fun LiveBadgeSmall(modifier: Modifier = Modifier) {
 
 /** "Buenas noches, Carlos" over the date, with the weather chip beside it. */
 @Composable
-internal fun HomeGreetingHeader(name: String?, trailing: @Composable () -> Unit) {
+internal fun HomeGreetingHeader(name: String?, mark: String? = null, trailing: @Composable () -> Unit) {
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) { while (true) { delay(60_000); now = System.currentTimeMillis() } }
     val hour = remember(now) { java.util.Calendar.getInstance().apply { timeInMillis = now }.get(java.util.Calendar.HOUR_OF_DAY) }
@@ -91,7 +91,7 @@ internal fun HomeGreetingHeader(name: String?, trailing: @Composable () -> Unit)
     ) {
         Column(Modifier.weight(1f)) {
             Text(
-                listOfNotNull(greeting, name?.takeIf { it.isNotBlank() }).joinToString(", "),
+                listOfNotNull(greeting, name?.takeIf { it.isNotBlank() }).joinToString(", ") + (mark?.let { "  $it" } ?: ""),
                 style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis,
             )

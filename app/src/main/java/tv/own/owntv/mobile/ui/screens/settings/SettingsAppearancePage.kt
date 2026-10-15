@@ -115,6 +115,22 @@ fun SettingsAppearancePage(
                 )
             }
         }
+        // glcn: seasonal themes — a tap steps Off → Details → Animated.
+        settingsGroup(key = "glcn_season") {
+            val mode = vm.settings.seasonMode.pref(0)
+            SettingRow(
+                title = stringResource(R.string.glcn_season_title),
+                subtitle = stringResource(R.string.glcn_season_desc),
+                value = stringResource(
+                    when (mode) {
+                        1 -> R.string.glcn_season_details
+                        2 -> R.string.glcn_season_animated
+                        else -> R.string.common_off
+                    },
+                ),
+                onClick = { vm.edit { setSeasonMode((mode + 1) % 3) } },
+            )
+        }
         settingsGroup(key = "zoom") {
             SettingsSlider(
                 title = stringResource(R.string.settings_ui_zoom),

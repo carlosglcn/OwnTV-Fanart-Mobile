@@ -152,9 +152,17 @@ fun HomeScreen(
 
     var featuredArt by remember { mutableStateOf<String?>(null) }
     val reminders by vm.reminderRows.collectAsStateWithLifecycle()
+    // glcn: seasonal touches (Settings → Appearance), the season read once per visit to Home.
+    val seasonSettings = org.koin.compose.koinInject<tv.own.owntv.core.settings.SettingsRepository>()
+    val seasonMode by seasonSettings.seasonMode.collectAsStateWithLifecycle(initialValue = 0)
+    val animationLevel by seasonSettings.animationLevel.collectAsStateWithLifecycle(initialValue = tv.own.owntv.core.theme.AnimationLevel.FULL)
+    val season = remember { tv.own.owntv.core.theme.Seasons.current() }
     Box(modifier.fillMaxSize()) {
     // glcn: Home takes the tone of the featured picture on show.
     tv.own.owntv.mobile.ui.components.ArtTint(featuredArt, Modifier.matchParentSize(), strength = 0.55f, focusX = 0.5f, focusY = 0.0f)
+    androidx.compose.runtime.CompositionLocalProvider(LocalSeasonAnimations provides (animationLevel != tv.own.owntv.core.theme.AnimationLevel.OFF)) {
+        if (seasonMode > 0) Seasonal.Behind(season, animated = seasonMode == 2)
+    }
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
@@ -162,7 +170,7 @@ fun HomeScreen(
     ) {
         // glcn: the greeting, with the weather beside it.
         item("greeting") {
-            HomeGreetingHeader(state.profileName) {
+            HomeGreetingHeader(state.profileName, mark = if (seasonMode > 0) tv.own.owntv.core.theme.Seasons.mark(season) else null) {
                 weather?.let { info -> WeatherChip(info = info, fahrenheit = fahrenheit) }
             }
         }
