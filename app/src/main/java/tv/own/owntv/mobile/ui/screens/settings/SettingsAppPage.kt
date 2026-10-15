@@ -203,7 +203,7 @@ fun AboutPage(modifier: Modifier = Modifier) {
                     modifier = Modifier.padding(vertical = MobileDimens.GapSmall),
                 )
                 Text(
-                    text = stringResource(R.string.settings_about_license),
+                    text = stringResource(R.string.glcn_about_license),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -216,25 +216,26 @@ fun AboutPage(modifier: Modifier = Modifier) {
                 )
             }
 
-            SettingRow(
-                title = stringResource(R.string.glcn_about_original) + " · " + stringResource(R.string.glcn_about_by, "ahXN00"),
-                subtitle = GITHUB_REPO,
-                onClick = { openLink(context, "https://$GITHUB_REPO") },
-            )
+            // glcn: this version first (where its problems go), then the project it is built on.
             SettingRow(
                 title = stringResource(R.string.glcn_about_this) + " · " + stringResource(R.string.glcn_about_by, "carlosglcn"),
                 subtitle = GLCN_REPO,
                 onClick = { openLink(context, "https://$GLCN_REPO") },
             )
+            SettingRow(
+                title = stringResource(R.string.glcn_about_original) + " · " + stringResource(R.string.glcn_about_by, "ahXN00"),
+                subtitle = GITHUB_REPO,
+                onClick = { openLink(context, "https://$GITHUB_REPO") },
+            )
 
             // The link is what a phone user taps; the QR is for the person sitting next to them, and
             // it is drawn from the address rather than shipped as an image so the two cannot drift.
+            // glcn: the original project's community — named as such, so this version's problems go to its GitHub.
             SettingRow(
-                title = stringResource(R.string.settings_join_telegram),
+                title = stringResource(R.string.glcn_about_community),
                 subtitle = TELEGRAM_LINK,
                 onClick = { openLink(context, "https://$TELEGRAM_LINK") },
             )
-            TelegramQr()
         }
     }
 }

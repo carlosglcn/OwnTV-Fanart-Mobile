@@ -86,6 +86,10 @@ fun BrandLockup(markSize: Int, textSize: Int, modifier: Modifier = Modifier, sta
                 withStyle(androidx.compose.ui.text.SpanStyle(color = tvColor)) {
                     append(stringResource(R.string.brand_tv))
                 }
+                // glcn: this version's name.
+                withStyle(androidx.compose.ui.text.SpanStyle(color = Color(0xFFFF966E))) {
+                    append(" Fanart")
+                }
             },
             fontSize = textSize.sp,
             fontWeight = FontWeight.ExtraBold,

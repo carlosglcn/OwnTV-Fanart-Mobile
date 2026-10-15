@@ -29,6 +29,7 @@
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/ArtColor.kt	TMDB
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/ArtColor.kt	artTint
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/ArtColor.kt	★
+1	app/src/main/java/tv/own/owntv/mobile/ui/components/Brand.kt	Fanart
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/ContentActionsMenu.kt	remove_continue
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/Shimmer.kt	shimmer
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/Shimmer.kt	shimmerX
