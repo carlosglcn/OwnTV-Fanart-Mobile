@@ -1020,6 +1020,7 @@ class LiveTuner(
 
     /** Back to the real-time edge, off the archive stream. */
     fun goToLive() {
+        if (timeshift.goLiveOnCopy()) return
         timeshift.clear()
         _channel.value?.let { ch -> live.launch { open(ch) } }
     }
