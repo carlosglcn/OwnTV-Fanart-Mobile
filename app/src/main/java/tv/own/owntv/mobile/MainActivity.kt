@@ -121,6 +121,14 @@ open class MainActivity : FragmentActivity() {
                 .flatMapLatest { it.isPlaying }
                 .collectLatest { if (pip.inPip.value) applyPipParams() }
         }
+        // glcn: the Fanart icon once, on a phone that had chosen another colour of the old icon.
+        lifecycleScope.launch {
+            runCatching {
+                if (settings.takeGlcnIconOnce()) {
+                    tv.own.owntv.core.brand.AppIconSwitcher.apply(this@MainActivity, tv.own.owntv.core.brand.AppIcon.DEFAULT)
+                }
+            }
+        }
         lifecycleScope.launch { settings.pipEnabled.collect { pipEnabled = it } }
         lifecycleScope.launch { settings.backgroundPlayback.collect { backgroundPlayback = it } }
         lifecycleScope.launch { settings.audioOnScreenOff.collect { audioOnScreenOff = it } }
