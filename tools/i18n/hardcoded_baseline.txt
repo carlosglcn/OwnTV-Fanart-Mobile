@@ -26,17 +26,20 @@
 1	app/src/main/java/tv/own/owntv/mobile/playback/ReminderAlerts.kt	glcn_reminder_id
 1	app/src/main/java/tv/own/owntv/mobile/playback/ReminderAlerts.kt	glcn_reminders
 1	app/src/main/java/tv/own/owntv/mobile/playback/ReminderAlerts.kt	reminder-$id
+1	app/src/main/java/tv/own/owntv/mobile/ui/components/ArtColor.kt	TMDB
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/ArtColor.kt	artTint
+1	app/src/main/java/tv/own/owntv/mobile/ui/components/ArtColor.kt	★
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/ContentActionsMenu.kt	remove_continue
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/Shimmer.kt	shimmer
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/Shimmer.kt	shimmerX
 2	app/src/main/java/tv/own/owntv/mobile/ui/player/ZapBanner.kt	\0
 1	app/src/main/java/tv/own/owntv/mobile/ui/player/ZapBanner.kt	·
+1	app/src/main/java/tv/own/owntv/mobile/ui/screens/guide/GuideScreen.kt	·
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeGlcn.kt	$startLabel · ${channel.name}
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeGlcn.kt	${items[it].channel.id}:${items[it].programme.startMs}
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeGlcn.kt	,
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeGlcn.kt	EEEE d MMMM
-2	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeGlcn.kt	·
+3	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeGlcn.kt	·
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeGlcn.kt	–
 2	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeGlcn.kt	★ %.1f
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeScreen.kt	greeting

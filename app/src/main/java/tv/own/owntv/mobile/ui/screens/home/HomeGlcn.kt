@@ -280,7 +280,10 @@ internal fun FeaturedCarousel(
                         color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis,
                     )
                     val line = when (item) {
-                        is FeaturedItem.Live -> fmt.format(java.util.Date(item.programme.startMs)) + " – " + fmt.format(java.util.Date(item.programme.stopMs))
+                        is FeaturedItem.Live -> listOfNotNull(
+                            fmt.format(java.util.Date(item.programme.startMs)) + " – " + fmt.format(java.util.Date(item.programme.stopMs)),
+                            tv.own.owntv.mobile.ui.components.rememberTmdbRating(item.programme.title),
+                        ).joinToString("  ·  ")
                         is FeaturedItem.Movie -> listOfNotNull(item.movie.year?.toString(), item.movie.rating?.let { "★ %.1f".format(it) }).joinToString("  ·  ")
                         is FeaturedItem.Series -> listOfNotNull(item.series.year?.toString(), item.series.rating?.let { "★ %.1f".format(it) }).joinToString("  ·  ")
                     }

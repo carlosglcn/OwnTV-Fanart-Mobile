@@ -449,11 +449,15 @@ private fun ProgrammeSheet(
             )
         }
         Text(
-            text = stringResource(
-                R.string.content_epg_time_range,
-                times.format(Date(programme.startMs)),
-                times.format(Date(programme.stopMs)),
-            ),
+            // glcn: with TMDB's rating for a film or a series.
+            text = listOfNotNull(
+                stringResource(
+                    R.string.content_epg_time_range,
+                    times.format(Date(programme.startMs)),
+                    times.format(Date(programme.stopMs)),
+                ),
+                tv.own.owntv.mobile.ui.components.rememberTmdbRating(programme.title),
+            ).joinToString("  ·  "),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = MobileDimens.ScreenPaddingH),
