@@ -456,7 +456,7 @@ private fun ProgrammeSheet(
                     times.format(Date(programme.startMs)),
                     times.format(Date(programme.stopMs)),
                 ),
-                tv.own.owntv.mobile.ui.components.rememberTmdbRating(programme.title),
+                tv.own.owntv.mobile.ui.components.rememberTmdbRating(programme.title, programme.categories),
             ).joinToString("  ·  "),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,

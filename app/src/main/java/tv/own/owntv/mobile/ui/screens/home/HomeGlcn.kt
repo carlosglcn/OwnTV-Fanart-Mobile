@@ -285,7 +285,7 @@ internal fun FeaturedCarousel(
                     val line = when (item) {
                         is FeaturedItem.Live -> listOfNotNull(
                             fmt.format(java.util.Date(item.programme.startMs)) + " – " + fmt.format(java.util.Date(item.programme.stopMs)),
-                            tv.own.owntv.mobile.ui.components.rememberTmdbRating(item.programme.title),
+                            tv.own.owntv.mobile.ui.components.rememberTmdbRating(item.programme.title, item.programme.categories),
                         ).joinToString("  ·  ")
                         is FeaturedItem.Movie -> listOfNotNull(item.movie.year?.toString(), item.movie.rating?.let { "★ %.1f".format(it) }).joinToString("  ·  ")
                         is FeaturedItem.Series -> listOfNotNull(item.series.year?.toString(), item.series.rating?.let { "★ %.1f".format(it) }).joinToString("  ·  ")

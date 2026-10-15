@@ -214,7 +214,11 @@ private fun GuidePanel(nowNext: tv.own.owntv.core.live.EpgNowNext?) {
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
-                    text = times.format(Date(now.startMs)),
+                    // glcn: with TMDB's rating for a film or a series.
+                    text = listOfNotNull(
+                        times.format(Date(now.startMs)),
+                        tv.own.owntv.mobile.ui.components.rememberTmdbRating(now.title, nowNext.nowDetails?.categories),
+                    ).joinToString("  ·  "),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
