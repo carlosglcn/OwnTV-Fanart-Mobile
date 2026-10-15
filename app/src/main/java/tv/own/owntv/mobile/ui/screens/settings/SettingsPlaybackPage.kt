@@ -545,6 +545,14 @@ fun SettingsVideoPlayerPage(
                         onCheckedChange = { on -> vm.edit { setNightMode(on) } },
                     )
 
+                    // glcn: clearer speech (decoded sound).
+                    SettingRow(
+                        title = stringResource(R.string.glcn_dialogue_title),
+                        subtitle = stringResource(R.string.glcn_dialogue_desc),
+                        checked = s.dialogueBoost.pref(false),
+                        onCheckedChange = { on -> vm.edit { setDialogueBoost(on) } },
+                    )
+
                     SettingRow(
                         title = stringResource(R.string.settings_volume_leveling),
                         subtitle = stringResource(R.string.settings_volume_leveling_description),
