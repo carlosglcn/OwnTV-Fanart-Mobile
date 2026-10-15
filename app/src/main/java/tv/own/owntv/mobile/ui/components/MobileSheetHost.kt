@@ -278,7 +278,8 @@ private fun BoxScope.SheetLayer(entry: SheetEntry) {
         }
     }
 
-    val offset = if (state.anchors.size > 0) state.requireOffset() else sheetHeight.toFloat()
+    // glcn: the anchors can exist a frame before the offset does; reading it then crashed.
+    val offset = state.offset.takeIf { !it.isNaN() } ?: sheetHeight.toFloat()
     val shown = if (sheetHeight > 0) (1f - offset / sheetHeight).coerceIn(0f, 1f) else 0f
 
     Box(
@@ -434,7 +435,7 @@ private fun rememberSheetNestedScroll(
             }
 
         override suspend fun onPreFling(available: Velocity): Velocity =
-            if (available.y < 0f && state.requireOffset() > state.anchors.minPosition()) {
+            if (available.y < 0f && !state.offset.isNaN() && state.offset > state.anchors.minPosition()) {
                 state.settle(settleSpec)
                 available
             } else {
