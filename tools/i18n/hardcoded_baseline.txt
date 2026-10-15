@@ -17,7 +17,6 @@
 1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	all
 1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	android.media.browse.CONTENT_STYLE_BROWSABLE_HINT
 1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	android.media.browse.CONTENT_STYLE_PLAYABLE_HINT
-1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	android.media.browse.SEARCH_SUPPORTED
 1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	ch:
 1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	favourites
 1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	recent
