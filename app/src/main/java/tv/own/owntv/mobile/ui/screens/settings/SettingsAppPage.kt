@@ -407,7 +407,7 @@ private fun LogEntry(entry: PlaybackErrorLog.Entry, when_: String) {
 }
 
 private const val GITHUB_REPO = "github.com/ahXN00/OwnTV_Mobile"
-private const val GLCN_REPO = "github.com/carlosglcn/OwnTV_Mobile_glcn"
+private const val GLCN_REPO = "github.com/carlosglcn/OwnTV-Fanart-Mobile"
 private const val TELEGRAM_LINK = "t.me/owntvplayer"
 
 /** The group's address as a code to point a camera at, with the line that says what to do with it. */

@@ -4,6 +4,7 @@
 # Phase 1 deletes occurrences until this file is empty; the CI guard then becomes absolute.
 # Format: <count>\t<relative path>\t<content with \t/\n escaped>
 
+1	app/src/main/java/tv/own/owntv/mobile/OwnTVMobileApp.kt	carlosglcn/OwnTV-Fanart-Mobile
 1	app/src/main/java/tv/own/owntv/mobile/auto/ArtProvider.kt	.png
 1	app/src/main/java/tv/own/owntv/mobile/auto/ArtProvider.kt	auto_art
 1	app/src/main/java/tv/own/owntv/mobile/auto/ArtProvider.kt	content://${context.packageName}.glcnart/$token
@@ -55,7 +56,7 @@
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	ahXN00
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	carlosglcn
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	github.com/ahXN00/OwnTV_Mobile
-1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	github.com/carlosglcn/OwnTV_Mobile_glcn
+1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	github.com/carlosglcn/OwnTV-Fanart-Mobile
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	https://$GLCN_REPO
 2	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	·
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppearancePage.kt	glcn_season
