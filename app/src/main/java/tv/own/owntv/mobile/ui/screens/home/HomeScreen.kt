@@ -250,8 +250,8 @@ fun HomeScreen(
                         onMenu = { menuFor = it },
                     )
                     HomeRow.FEATURED -> FeaturedCarousel(
-                        items = state.featured,
-                        onPage = { featuredArt = it.art },
+                        allItems = state.featured,
+                        onPage = { _, url -> featuredArt = url },
                         onOpenChannel = onOpenChannel,
                         onOpenMovie = onOpenMovie,
                         onOpenSeries = onOpenSeries,

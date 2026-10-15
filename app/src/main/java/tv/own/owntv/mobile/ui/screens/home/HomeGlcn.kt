@@ -220,16 +220,19 @@ internal fun TonightRowMobile(
 /** The featured carousel: a big card per slide, turning by itself every few seconds. */
 @Composable
 internal fun FeaturedCarousel(
-    items: List<FeaturedItem>,
-    onPage: (FeaturedItem) -> Unit,
+    allItems: List<FeaturedItem>,
+    onPage: (FeaturedItem, String) -> Unit,
     onOpenChannel: (Long) -> Unit,
     onOpenMovie: (Long) -> Unit,
     onOpenSeries: (Long) -> Unit,
 ) {
-    if (items.isEmpty()) return
+    // glcn: only slides whose picture can fill the card (see rememberBillboardSlides).
+    val slides = tv.own.owntv.mobile.ui.components.rememberBillboardSlides(allItems)
+    if (slides.isEmpty()) return
+    val items = slides.map { it.first }
     val pager = rememberPagerState { items.size }
     LaunchedEffect(pager.currentPage, items) {
-        items.getOrNull(pager.currentPage)?.let(onPage)
+        slides.getOrNull(pager.currentPage)?.let { (it0, url) -> onPage(it0, url) }
         if (items.size < 2) return@LaunchedEffect
         delay(7_000)
         runCatching { pager.animateScrollToPage((pager.currentPage + 1) % items.size) }
@@ -257,7 +260,7 @@ internal fun FeaturedCarousel(
                         }
                     },
             ) {
-                AsyncImage(model = item.art, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+                AsyncImage(model = slides[page].second, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
                 Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.25f to Color.Transparent, 0.6f to Color.Black.copy(alpha = 0.75f), 1f to Color.Black.copy(alpha = 0.97f))))
                 Column(Modifier.align(Alignment.BottomStart).padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
