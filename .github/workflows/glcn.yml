@@ -17,7 +17,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: glcn-build
+  group: glcn-build-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
