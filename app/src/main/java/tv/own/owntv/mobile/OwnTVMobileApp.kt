@@ -170,10 +170,6 @@ class OwnTVMobileApp : Application(), androidx.work.Configuration.Provider {
             settings = org.koin.core.context.GlobalContext.get().get(),
             archiveStore = org.koin.core.context.GlobalContext.get().get(),
         )
-        // glcn: programme reminders become notifications on the phone.
-        tv.own.owntv.mobile.playback.ReminderAlerts.start(
-            this, appScope, org.koin.core.context.GlobalContext.get().get(),
-        )
         // "Use this guide's logos": never started on the phone before, so the toggle did nothing here.
         // Reads no EPG data at all while no guide source has it on.
         tv.own.owntv.core.epg.EpgLogoStore.start(

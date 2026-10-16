@@ -268,52 +268,6 @@ fun MobileShell(
         }
     }
 
-    // glcn: programme reminders. A tapped notification opens its channel; with the app open, a due
-    // reminder asks to switch (or switches, or only notifies — the Programme reminders setting).
-    val reminderChannel by tv.own.owntv.mobile.playback.ReminderAlerts.openChannelRequested.collectAsStateWithLifecycle()
-    LaunchedEffect(reminderChannel) {
-        val id = reminderChannel ?: return@LaunchedEffect
-        tv.own.owntv.mobile.playback.ReminderAlerts.openChannelRequested.value = null
-        navController.navigate(liveChannelRoute(id))
-    }
-    run {
-        val reminderManager: tv.own.owntv.core.reminder.ReminderManager = koinInject()
-        val dueReminders by reminderManager.due.collectAsStateWithLifecycle()
-        val activeProfile by settings.activeProfileId.collectAsStateWithLifecycle(-1L)
-        val reminderMode by settings.reminderMode.collectAsStateWithLifecycle(SettingsRepository.ReminderMode.ASK)
-        val due = dueReminders.firstOrNull { it.profileId == activeProfile }
-        val reminderScope = androidx.compose.runtime.rememberCoroutineScope()
-        val reminderContext = LocalContext.current
-        val close: (tv.own.owntv.core.database.entity.ReminderEntity) -> Unit = { r ->
-            tv.own.owntv.mobile.playback.ReminderAlerts.cancel(reminderContext, r.id)
-            reminderScope.launch { reminderManager.dismiss(r.id) }
-        }
-        val watch: (tv.own.owntv.core.database.entity.ReminderEntity) -> Unit = { r ->
-            close(r)
-            navController.navigate(liveChannelRoute(r.channelId))
-        }
-        LaunchedEffect(due?.id, reminderMode) {
-            val r = due ?: return@LaunchedEffect
-            if (reminderMode == SettingsRepository.ReminderMode.SWITCH) watch(r)
-        }
-        if (due != null && reminderMode == SettingsRepository.ReminderMode.ASK) {
-            androidx.compose.material3.AlertDialog(
-                onDismissRequest = { close(due) },
-                title = { androidx.compose.material3.Text(due.title) },
-                text = { androidx.compose.material3.Text(stringResource(tv.own.owntv.mobile.R.string.glcn_reminder_starts, due.channelName)) },
-                confirmButton = {
-                    androidx.compose.material3.TextButton(onClick = { watch(due) }) {
-                        androidx.compose.material3.Text(stringResource(tv.own.owntv.mobile.R.string.content_epg_watch_channel))
-                    }
-                },
-                dismissButton = {
-                    androidx.compose.material3.TextButton(onClick = { close(due) }) {
-                        androidx.compose.material3.Text(stringResource(tv.own.owntv.mobile.R.string.common_dismiss))
-                    }
-                },
-            )
-        }
-    }
 
     // "Start on" — Home, the last channel watched, the Favorites folder, or one chosen channel. Once
     // per launch, and only once the database has said there is something to open: on a first run the
@@ -710,6 +664,14 @@ fun MobileShell(
     val reminderMode by settings.reminderMode.collectAsStateWithLifecycle(SettingsRepository.ReminderMode.ASK)
     val dueReminder = dueReminders.firstOrNull { it.profileId == activeId }
     val reminderScope = androidx.compose.runtime.rememberCoroutineScope()
+    // glcn: the Sports widget (and old reminder notifications) ask for a channel: tune it and open the player.
+    val askedChannel by tv.own.owntv.mobile.playback.ReminderAlerts.openChannelRequested.collectAsStateWithLifecycle()
+    LaunchedEffect(askedChannel) {
+        val id = askedChannel ?: return@LaunchedEffect
+        tv.own.owntv.mobile.playback.ReminderAlerts.openChannelRequested.value = null
+        tuner.tune(id)
+        navController.navigate(PLAYER_ROUTE) { launchSingleTop = true }
+    }
     fun answer(r: tv.own.owntv.core.database.entity.ReminderEntity, watch: Boolean) {
         reminderScope.launch {
             reminders.dismiss(r.id)
