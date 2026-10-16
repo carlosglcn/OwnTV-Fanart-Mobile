@@ -44,6 +44,3 @@ fun Modifier.sharedPoster(key: String): Modifier {
         )
     }
 }
-
-/** The key both ends of the journey agree on: one item, one picture. */
-fun posterKey(tab: String, itemId: Long): String = "poster:$tab:$itemId"

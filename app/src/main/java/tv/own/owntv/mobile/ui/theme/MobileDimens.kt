@@ -28,29 +28,13 @@ object MobileDimens {
      * as glass when there is something beside it to compare it to.
      */
     val ShellInset = 11.dp
-    val ShellGap = 9.dp
-    val TopBarCorner = 20.dp
-    val PageCorner = 24.dp
-    val NavCorner = 22.dp
-    val NavIslandHeight = 64.dp
-
-    /**
-     * A run of rows is one rounded block on the page, with its heading standing above it — the block
-     * is what groups them, so the rows inside it carry no pane of their own.
-     */
-    val GroupCorner = 18.dp
-    val GroupGap = 11.dp
 
     /** The page's own margin inside its pane. Narrow, because the pane is already inset. */
     val PagePaddingH = 10.dp
 
     val PosterWidthPortrait = 100.dp
-    val PosterWidthLandscape = 120.dp
     val PosterArtCorner = 10.dp
     val PosterProgressHeight = 3.dp
-
-    /** The poster that overlaps a detail header — the tile the user tapped, arrived. */
-    val DetailPosterHeight = 132.dp
 
     /**
      * A tile's own margin, and the sliver that keeps one title off the next. Both are tiny on
@@ -59,9 +43,6 @@ object MobileDimens {
     val PosterPadding = 5.dp
     val PosterPaddingBottom = 7.dp
     val PosterTextInset = 1.dp
-
-    /** The air between two tiles, in a grid or along a rail. */
-    val GridGap = 9.dp
 
     /** Row height for a list of channels or settings — one line of title plus one of subtitle. */
     val ListRowHeight = 56.dp

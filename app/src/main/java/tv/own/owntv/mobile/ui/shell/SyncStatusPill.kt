@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,6 +28,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import org.koin.compose.koinInject
 import tv.own.owntv.core.download.DownloadActivityTracker
+import tv.own.owntv.mobile.ui.stage.LocalStagePalette
+import tv.own.owntv.mobile.ui.stage.stageAccent
+import tv.own.owntv.mobile.ui.stage.stageGlass
+import tv.own.owntv.mobile.ui.stage.stageText
 import tv.own.owntv.core.recording.RecordingActivityTracker
 import tv.own.owntv.core.network.ConnectivityObserver
 import tv.own.owntv.core.sync.EpgActivityTracker
@@ -38,12 +41,10 @@ import tv.own.owntv.core.sync.SyncResult
 import tv.own.owntv.core.sync.TrendingActivityTracker
 import tv.own.owntv.core.sync.compactCount
 import tv.own.owntv.core.sync.displayText
-import tv.own.owntv.core.theme.GlassSurface
 import tv.own.owntv.core.setup.displayText
 import tv.own.owntv.core.util.classifySyncFailure
 import tv.own.owntv.mobile.R
 import tv.own.owntv.mobile.ui.theme.MobileDimens
-import tv.own.owntv.mobile.ui.theme.glassSurface
 
 /**
  * "Syncing Sky Sports · 1.2K channels", low over the content while a sync runs.
@@ -143,8 +144,8 @@ fun SyncStatusPill(
         Column(
             Modifier
                 .padding(MobileDimens.GapSmall)
+                .stageGlass(PillShape)
                 .clip(PillShape)
-                .glassSurface(GlassSurface.TOASTS, PillShape)
                 .padding(horizontal = 14.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
@@ -163,7 +164,7 @@ fun SyncStatusPill(
                     CircularProgressIndicator(
                         modifier = Modifier.size(13.dp),
                         strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = stageAccent.accent,
                     )
                     PillText(line.text(res))
                 }
@@ -197,20 +198,14 @@ fun SyncStatusPill(
     }
 }
 
-/**
- * The pill sits on a glass plate, and a plate is not an M3 container — nothing inside it inherits a
- * content colour, so the colour is stated here rather than left to the theme.
- */
+/** A line of the pill in Stage type: the headline in the text colour, the detail under it muted. */
 @Composable
 private fun PillText(text: String, detail: Boolean = false) {
+    val palette = LocalStagePalette.current
     Text(
         text = text,
-        style = if (detail) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelMedium,
-        color = if (detail) {
-            MaterialTheme.colorScheme.onSurfaceVariant
-        } else {
-            MaterialTheme.colorScheme.onSurface
-        },
+        style = if (detail) stageText(11f, 500) else stageText(12.5f, 700),
+        color = if (detail) palette.muted else palette.text,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
     )

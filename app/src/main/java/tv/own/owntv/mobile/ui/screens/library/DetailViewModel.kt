@@ -7,15 +7,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import tv.own.owntv.core.content.AdultCategoryClassifier
+import tv.own.owntv.core.customize.CustomizationStore
+import tv.own.owntv.core.customize.CustomizeKeys
 import tv.own.owntv.core.database.dao.CategoryDao
 import tv.own.owntv.core.database.dao.FavoriteDao
 import tv.own.owntv.core.database.dao.LinkedSubtitle
@@ -33,6 +37,7 @@ import tv.own.owntv.core.database.entity.MovieEntity
 import tv.own.owntv.core.database.entity.PlaybackProgressEntity
 import tv.own.owntv.core.database.entity.SeriesEntity
 import tv.own.owntv.core.download.DownloadManager
+import tv.own.owntv.core.live.ProviderTags
 import tv.own.owntv.core.metadata.MetadataMode
 import tv.own.owntv.core.metadata.MetadataRepository
 import tv.own.owntv.core.model.DownloadStatus
@@ -67,6 +72,7 @@ class DetailViewModel(
     private val seriesSortOrderDao: SeriesSortOrderDao,
     private val metadata: MetadataRepository,
     private val subtitleController: SubtitleController,
+    private val customize: CustomizationStore,
 ) : ViewModel() {
 
     private data class Target(val tab: LibraryTab, val id: Long)
@@ -89,23 +95,55 @@ class DetailViewModel(
     private val _show = MutableStateFlow<SeriesEntity?>(null)
     val show: StateFlow<SeriesEntity?> = _show
 
-    /** glcn: the synopsis from TMDB, for a title whose playlist carries none. */
-    private val _tmdbPlot = MutableStateFlow<String?>(null)
-    val tmdbPlot: StateFlow<String?> = _tmdbPlot
+    /**
+     * What a title page shows beyond the catalogue row: TMDB's record (title art, genres, cast, trailer, its
+     * plot and rating), whether TMDB wins a field, the category by its parsed name, and — on the movie page
+     * (M5-06) — a few more titles from that category. The series page (M6-01) uses the first three.
+     */
+    data class TitlePage(
+        val meta: MetadataCacheEntity? = null,
+        val tmdbWins: Boolean = false,
+        val categoryName: String? = null,
+        val more: List<MovieEntity> = emptyList(),
+    )
 
-    init {
-        viewModelScope.launch {
-            kotlinx.coroutines.flow.combine(_movie, _show) { m, s -> m to s }.collectLatest { (m, s) ->
-                _tmdbPlot.value = null
-                if (!m?.plot.isNullOrBlank() || !s?.plot.isNullOrBlank()) return@collectLatest
-                _tmdbPlot.value = runCatching {
-                    when {
-                        m != null -> metadata.resolveMovie(m)?.overview
-                        s != null -> metadata.resolveSeries(s)?.overview
-                        else -> null
-                    }
-                }.getOrNull()?.takeIf { it.isNotBlank() }
-            }
+    private val _titlePage = MutableStateFlow(TitlePage())
+    val titlePage: StateFlow<TitlePage> = _titlePage
+
+    /** The page arrives in two steps: the category and its titles at once, TMDB when it answers. */
+    private suspend fun loadMoviePage(film: MovieEntity) {
+        val mode = settings.metadataMode.first()
+        val category = film.categoryId?.let { categoryDao.getById(it) }
+        val pid = profileId.value
+        val more = if (category == null || pid < 0) {
+            emptyList()
+        } else {
+            val hidden = customize.observe(pid, MediaType.MOVIE).first().hiddenItems
+            movieDao.snapshotByCategoryManual(category.id, pid, CustomizeKeys.category(category), MORE_IN_CATEGORY * 3)
+                .filter { it.id != film.id && CustomizeKeys.movie(it) !in hidden }
+                .take(MORE_IN_CATEGORY)
+        }
+        _titlePage.value = TitlePage(
+            tmdbWins = mode.tmdbWins,
+            categoryName = category?.let { ProviderTags.parse(it.name).name },
+            more = more,
+        )
+        if (mode.enrich) {
+            val meta = runCatching { metadata.resolveMovie(film) }.getOrNull()
+            if (target.value == Target(LibraryTab.MOVIES, film.id)) _titlePage.value = _titlePage.value.copy(meta = meta)
+        }
+    }
+
+    /** The series page's category and TMDB record, in the same two steps. */
+    private suspend fun loadSeriesPage(show: SeriesEntity) {
+        val mode = settings.metadataMode.first()
+        _titlePage.value = TitlePage(
+            tmdbWins = mode.tmdbWins,
+            categoryName = show.categoryId?.let { categoryDao.getById(it) }?.let { ProviderTags.parse(it.name).name },
+        )
+        if (mode.enrich) {
+            val meta = runCatching { metadata.resolveSeries(show) }.getOrNull()
+            if (target.value == Target(LibraryTab.SERIES, show.id)) _titlePage.value = _titlePage.value.copy(meta = meta)
         }
     }
 
@@ -138,10 +176,11 @@ class DetailViewModel(
         }
     }
 
-    /** The seasons this show actually has episodes for, in the order the user chose. */
+    /** The seasons this show actually has episodes for, in the order the user chose — Specials
+     *  (season 0) after the numbered seasons in either order, as on the television (#228). */
     val seasons: StateFlow<List<Int>> = combine(episodes, order) { list, o ->
         val numbers = list.map { it.seasonNumber }.distinct().sorted()
-        if (o.seasonsDescending) numbers.reversed() else numbers
+        (if (o.seasonsDescending) numbers.reversed() else numbers).sortedBy { it == 0 }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
 
@@ -207,18 +246,13 @@ class DetailViewModel(
         .map { prog -> prog.values.filter { it.isFinished() }.map { it.itemId }.toSet() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
 
-    /** The episode the row marker points at: the one watched most recently, finished or not. */
-    val lastWatchedId: StateFlow<Long?> = episodeProgress
-        .map { prog -> prog.values.maxByOrNull { it.updatedAt }?.itemId }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
-
     /**
      * What the "Next up" card offers: the episode still in progress, else the one after the last
      * finished, else the first — and nothing at all once the whole show has been watched.
      */
     val nextUpId: StateFlow<Long?> = combine(episodes, episodeProgress) { eps, prog ->
         if (eps.isEmpty()) return@combine null
-        val ordered = eps.sortedWith(compareBy({ it.seasonNumber }, { it.episodeNumber }))
+        val ordered = eps.sortedWith(tv.own.owntv.core.content.EpisodeOrder.episodes)
         val lastWatched = prog.values.maxByOrNull { it.updatedAt } ?: return@combine ordered.first().id
         if (lastWatched.isFinished()) {
             val index = ordered.indexOfFirst { it.id == lastWatched.itemId }
@@ -244,16 +278,22 @@ class DetailViewModel(
         _season.value = null
         _movie.value = null
         _show.value = null
+        _titlePage.value = TitlePage()
         viewModelScope.launch {
             profileId.value = currentProfileId() ?: -1L
             if (tab == LibraryTab.MOVIES) {
-                _movie.value = movieDao.getById(id)
+                val film = movieDao.getById(id)
+                _movie.value = film
+                if (film != null) loadMoviePage(film)
                 return@launch
             }
             _loading.value = true
             val entity = seriesDao.getSeriesById(id)
             _show.value = entity
-            if (entity != null) seriesRepository.loadEpisodes(entity)
+            if (entity != null) {
+                launch { loadSeriesPage(entity) }
+                seriesRepository.loadEpisodes(entity)
+            }
             _loading.value = false
             val pid = profileId.value
             val lastWatched = if (pid >= 0) progressDao.lastWatchedEpisodeId(pid, id) else null
@@ -352,6 +392,16 @@ class DetailViewModel(
         }
     }
 
+    /** The series page's ⬇: every episode of [season], as the TV's "Download season". */
+    fun downloadSeason(season: Int) {
+        viewModelScope.launch {
+            val pid = profileId.value.takeIf { it >= 0 } ?: return@launch
+            val current = show.value ?: return@launch
+            if (!AdultCategoryClassifier.allows(pid, current.categoryId, profileDao, categoryDao)) return@launch
+            seriesDao.episodesBySeriesOnce(current.id).filter { it.seasonNumber == season }.forEach { downloadEpisode(current, it, pid) }
+        }
+    }
+
     fun download(episode: EpisodeEntity) {
         viewModelScope.launch {
             val pid = profileId.value.takeIf { it >= 0 } ?: return@launch
@@ -393,24 +443,39 @@ class DetailViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), MetadataMode.PROVIDER_PLUS_TMDB)
 
     /**
-     * TMDB's cached record for the listed season's episodes, keyed by episode id — read for the air
-     * date the row shows when the provider states none.
-     *
-     * Cache-only: this never fetches, so scrolling a season list cannot start a network request. The
-     * rows fill in as the cache does (opening an episode's details populates its season), which is
-     * the right trade for a line of secondary text.
+     * TMDB's record for every episode of the listed season, keyed by episode id — the titles, stills, plots
+     * and air dates of the rows (M6-01 / M6-02). The TV's flow: what is cached at once, and an incomplete
+     * season fetched in one request after [SEASON_DWELL_MS], so a show opened by mistake costs nothing and
+     * leaving cancels the fetch.
      */
     val seasonMeta: StateFlow<Map<Long, MetadataCacheEntity>> =
-        combine(show, episodes, _season) { series, eps, season -> Triple(series, eps, season) }
-            .mapLatest { (series, eps, season) ->
-                val listed = eps.filter { season == null || it.seasonNumber == season }
-                if (series == null || listed.isEmpty()) {
-                    emptyMap()
-                } else {
-                    runCatching { metadata.cachedSeasonEpisodes(series, listed) }.getOrDefault(emptyMap())
+        combine(show, episodes, _season, seasons) { series, eps, season, all ->
+            val active = season ?: all.firstOrNull()
+            series to eps.filter { it.seasonNumber == active }
+        }
+            .distinctUntilChanged { a, b -> a.first?.id == b.first?.id && a.second.map { it.id } == b.second.map { it.id } }
+            .flatMapLatest { (series, listed) ->
+                flow {
+                    if (series == null || listed.isEmpty()) {
+                        emit(emptyMap())
+                        return@flow
+                    }
+                    val cached = runCatching { metadata.cachedSeasonEpisodes(series, listed) }.getOrDefault(emptyMap())
+                    emit(cached)
+                    if (cached.size >= listed.size) return@flow
+                    delay(SEASON_DWELL_MS)
+                    emit(runCatching { metadata.resolveSeasonEpisodes(series, listed) }.getOrDefault(cached))
                 }
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+
+    /** Episodes as stills two a row or as rows (M6-02 / M6-01) — the setting the TV's series page writes too. */
+    val episodeViewMode: StateFlow<SettingsRepository.VodViewMode> = settings.episodeViewMode
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsRepository.VodViewMode.LIST)
+
+    fun setEpisodeViewMode(mode: SettingsRepository.VodViewMode) {
+        viewModelScope.launch { settings.setEpisodeViewMode(mode) }
+    }
 
     /** The TMDB record for one episode — the still, the plot, the air date. Null when off or unmatched. */
     suspend fun episodeMeta(episode: EpisodeEntity): MetadataCacheEntity? = runCatching {
@@ -434,7 +499,7 @@ class DetailViewModel(
         val t = target.value ?: return null
         val pid = profileId.value
         val lastWatched = if (pid >= 0) progressDao.lastWatchedEpisodeId(pid, t.id) else null
-        return lastWatched ?: episodes.value.minByOrNull { it.seasonNumber * 1000 + it.episodeNumber }?.id
+        return lastWatched ?: episodes.value.minWithOrNull(tv.own.owntv.core.content.EpisodeOrder.episodes)?.id
     }
 
     private suspend fun currentProfileId(): Long? {
@@ -442,6 +507,12 @@ class DetailViewModel(
         return if (preferred >= 0) profileDao.resolveExistingProfileId(preferred) else null
     }
 }
+
+/** "More in Disney+ Kids Movies": one row of four (M5-06). */
+private const val MORE_IN_CATEGORY = 4
+
+/** How long a season stays listed before its missing TMDB details are fetched — the TV's grid dwell. */
+private const val SEASON_DWELL_MS = 1_000L
 
 private fun LibraryTab.mediaType() =
     if (this == LibraryTab.MOVIES) MediaType.MOVIE else MediaType.SERIES

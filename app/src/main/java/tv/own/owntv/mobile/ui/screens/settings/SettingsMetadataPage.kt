@@ -4,7 +4,6 @@ import android.text.format.DateFormat
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -280,11 +279,11 @@ private fun MetadataTestLabel(state: SettingsViewModel.MetadataTestState) {
     }
     Text(
         text = text,
-        style = MaterialTheme.typography.bodyMedium,
+        style = tv.own.owntv.mobile.ui.stage.stageText(13.5f, 500),
         color = if (state is SettingsViewModel.MetadataTestState.Ok) {
-            MaterialTheme.colorScheme.onSurface
+            tv.own.owntv.mobile.ui.stage.LocalStagePalette.current.text
         } else {
-            MaterialTheme.colorScheme.error
+            tv.own.owntv.mobile.ui.stage.LocalStagePalette.current.danger
         },
         modifier = Modifier.padding(bottom = MobileDimens.GapSmall),
     )

@@ -1,12 +1,5 @@
 package tv.own.owntv.mobile.ui.player
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -63,7 +56,6 @@ import tv.own.owntv.core.theme.GlassSurface
 import tv.own.owntv.mobile.R
 import tv.own.owntv.mobile.ui.components.ChannelLogoImage
 import tv.own.owntv.mobile.ui.theme.LocalAccentOnVideo
-import tv.own.owntv.mobile.ui.theme.LocalAnimations
 import tv.own.owntv.mobile.ui.theme.LocalGlass
 import tv.own.owntv.mobile.ui.theme.SquircleShape
 import tv.own.owntv.mobile.ui.theme.luminousEdge
@@ -94,9 +86,7 @@ private val ButtonShape: Shape = SquircleShape(14.dp)
 /** Idle white: bright enough to read on a bright scene, quiet enough not to fight the picture. */
 internal val OnVideo = Color.White.copy(alpha = 0.78f)
 
-private const val EXPAND_MS = 140
 private const val HOLD_MS = 400L
-private const val LABEL_MAX_DP = 132
 
 /** One pane of the player's chrome: black glass, hairline rim, and the material's light when scoped. */
 @Composable

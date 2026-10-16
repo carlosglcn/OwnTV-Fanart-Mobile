@@ -3,7 +3,6 @@ package tv.own.owntv.mobile.ui.screens.settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,6 +16,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import tv.own.owntv.mobile.R
+import androidx.compose.ui.unit.dp
 import tv.own.owntv.mobile.ui.components.MobileButton
 import tv.own.owntv.mobile.ui.components.MobileButtonStyle
 import tv.own.owntv.mobile.ui.components.MobileTextField
@@ -27,7 +27,6 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.Locale
-import tv.own.owntv.mobile.ui.theme.glassDialogWindow
 
 /**
  * The account subtitles are downloaded through, what is left of today's allowance, and the files
@@ -188,8 +187,9 @@ fun SettingsOpenSubtitlesPage(
             SettingRow(
                 title = stringResource(R.string.player_subtitles_filter_title),
                 subtitle = stringResource(R.string.player_subtitles_filter_description),
-                value = stringResource(if (filterEnabled) R.string.common_on else R.string.common_off),
-                onClick = {
+                // On / off: a switch (#24); the whole row flips it.
+                checked = filterEnabled,
+                onCheckedChange = {
                     // Turning the filter on with nothing chosen would silently behave like "off",
                     // so seed it from the device's language, falling back to English.
                     if (!filterEnabled && searchLang.isBlank()) {
@@ -282,43 +282,36 @@ private fun SignInDialog(
     var user by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
     var stay by remember { mutableStateOf(true) }
-    androidx.compose.material3.AlertDialog(
-        modifier = Modifier.glassDialogWindow(),
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.player_subtitles_sign_in_title)) },
-        text = {
-            Column {
-                Text(stringResource(R.string.player_subtitles_sign_in_to_use))
-                MobileTextField(
-                    value = user,
-                    onValueChange = { user = it },
-                    label = stringResource(R.string.player_subtitles_username),
-                    imeAction = ImeAction.Next,
-                )
-                MobileTextField(
-                    value = pass,
-                    onValueChange = { pass = it },
-                    label = stringResource(R.string.player_subtitles_password),
-                    isPassword = true,
-                )
-                SettingRow(
-                    title = stringResource(R.string.player_subtitles_stay_signed_in),
-                    value = stringResource(if (stay) R.string.common_on else R.string.common_off),
-                    onClick = { stay = !stay },
-                )
-            }
-        },
-        confirmButton = {
-            androidx.compose.material3.TextButton(onClick = { onSubmit(user, pass, stay) }) {
-                Text(stringResource(R.string.player_subtitles_sign_in))
-            }
-        },
-        dismissButton = {
-            androidx.compose.material3.TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.common_cancel))
-            }
-        },
-    )
+    // A Stage sheet (M9B): what OpenSubtitles asks for, then Sign in / Cancel.
+    tv.own.owntv.mobile.ui.components.MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+        tv.own.owntv.mobile.ui.stage.StageSheetHeader(stringResource(R.string.player_subtitles_sign_in_title))
+        SheetText(stringResource(R.string.player_subtitles_sign_in_to_use))
+        Column(Modifier.padding(horizontal = 6.dp)) {
+            MobileTextField(
+                value = user,
+                onValueChange = { user = it },
+                label = stringResource(R.string.player_subtitles_username),
+                imeAction = ImeAction.Next,
+            )
+            MobileTextField(
+                value = pass,
+                onValueChange = { pass = it },
+                label = stringResource(R.string.player_subtitles_password),
+                isPassword = true,
+            )
+        }
+        SettingRow(
+            title = stringResource(R.string.player_subtitles_stay_signed_in),
+            checked = stay,
+            onCheckedChange = { stay = it },
+        )
+        tv.own.owntv.mobile.ui.components.StageConfirmItems(
+            confirm = stringResource(R.string.player_subtitles_sign_in),
+            confirmEnabled = user.isNotBlank() && pass.isNotBlank(),
+            onConfirm = { onSubmit(user, pass, stay) },
+            onDismiss = onDismiss,
+        )
+    }
 }
 
 /**

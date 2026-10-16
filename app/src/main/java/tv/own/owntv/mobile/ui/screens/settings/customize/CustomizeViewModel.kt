@@ -222,6 +222,42 @@ class CustomizeViewModel(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsRepository.SortMode.PLAYLIST)
 
+    /** The single playlist picked in the shell, or null for "All playlists" — what [restoreSectionDefaults]
+     *  covers, so the question (M9-26) can name it. */
+    val restorePlaylistName: StateFlow<String?> = combine(ctx, settings.defaultSourceId) { c, id ->
+        c.sources.firstOrNull { it.id == id && id > 0 }?.name
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    /**
+     * ⋯ › Restore playlist defaults (M9-26, the TV's PR #235): puts the playlists this section shows back to what
+     * they provide — hidden categories and items show again, renames and category order are cleared, items moved
+     * out of their folders return and manual item orders are dropped. Other playlists, combined categories (and
+     * what is in them), Favorites and guide matches are left alone. Keys are "<sourceId>:<id>", so a playlist's
+     * entries are those whose prefix is one of the shown source ids; "custom:…" keys never match.
+     */
+    fun restoreSectionDefaults() {
+        val pid = ctx.value.profileId
+        if (pid < 0) return
+        viewModelScope.launch {
+            val type = _section.value
+            val ids = ctx.value.sourceIdsFor(type).toSet()
+            fun mine(key: String) = key.substringBefore(':').toLongOrNull() in ids
+            contentOrderDao.observeContextKeys(pid, type).first()
+                .filter { it != tv.own.owntv.core.database.entity.ContentOrderEntity.FAV_CONTEXT && mine(it) }
+                .forEach { contentOrderDao.clearContext(pid, type, it) }
+            customize.update(pid, type) {
+                it.copy(
+                    hiddenCategories = it.hiddenCategories.filterNot(::mine).toSet(),
+                    hiddenItems = it.hiddenItems.filterKeys { k -> !mine(k) },
+                    categoryNames = it.categoryNames.filterKeys { k -> !mine(k) },
+                    itemNames = it.itemNames.filterKeys { k -> !mine(k) },
+                    categoryOrder = it.categoryOrder.filterNot(::mine),
+                    movedFromOrigin = it.movedFromOrigin.filterKeys { k -> !mine(k) },
+                )
+            }
+        }
+    }
+
     fun setSort(mode: SettingsRepository.SortMode) {
         viewModelScope.launch {
             when (_section.value) {

@@ -10,7 +10,7 @@ name: Build glcn (mobile)
 #   - Branch "ci-status": status.txt + build.log (last lines), so the result can be read with git.
 on:
   push:
-    branches: [ main ]
+    branches: [ main, upstream-merge ]
   workflow_dispatch:
 
 permissions:

@@ -1,13 +1,8 @@
 package tv.own.owntv.mobile.ui.components
 
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
 import tv.own.owntv.mobile.ui.theme.MobileDimens
 
 /** How much weight a button carries on the screen it sits on. */
@@ -27,16 +22,13 @@ fun MobileButton(
     style: MobileButtonStyle = MobileButtonStyle.PRIMARY,
     enabled: Boolean = true,
 ) {
-    val sized = modifier.defaultMinSize(minHeight = MobileDimens.TouchTarget)
-    val label: @Composable () -> Unit = {
-        Text(text = text, maxLines = 1, overflow = TextOverflow.Ellipsis)
-    }
-    when (style) {
-        MobileButtonStyle.PRIMARY ->
-            Button(onClick = onClick, modifier = sized, enabled = enabled) { label() }
-        MobileButtonStyle.SECONDARY ->
-            OutlinedButton(onClick = onClick, modifier = sized, enabled = enabled) { label() }
-        MobileButtonStyle.TEXT ->
-            TextButton(onClick = onClick, modifier = sized, enabled = enabled) { label() }
-    }
+    // Drawn as the Stage `.btn` (M9): primary = accent with its glow, secondary = ink, text = the small one.
+    tv.own.owntv.mobile.ui.stage.StageButton(
+        onClick = onClick,
+        modifier = modifier.defaultMinSize(minHeight = MobileDimens.TouchTarget),
+        text = text,
+        style = if (style == MobileButtonStyle.PRIMARY) tv.own.owntv.mobile.ui.stage.StageButtonStyle.PRIMARY else tv.own.owntv.mobile.ui.stage.StageButtonStyle.SECONDARY,
+        small = style == MobileButtonStyle.TEXT,
+        enabled = enabled,
+    )
 }

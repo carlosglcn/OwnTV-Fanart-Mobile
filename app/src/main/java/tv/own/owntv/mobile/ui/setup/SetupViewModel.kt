@@ -36,7 +36,16 @@ class SetupViewModel(
     private val settings: SettingsRepository,
     private val appScope: CoroutineScope,
     private val context: Context,
+    private val companion: tv.own.owntv.core.companion.CompanionController,
 ) : ViewModel() {
+
+    // ---- Remote (M9-19): another device fills the form in a browser; the phone pre-fills its own form. ----
+    val remoteState get() = companion.state
+    /** The last submission, kept until the form has read it. */
+    val remotePayload get() = companion.lastPayload
+    fun startRemote() = companion.start(tv.own.owntv.core.companion.CompanionLink.DEFAULT_PORT)
+    fun stopRemote() = companion.stop()
+    fun consumeRemotePayload() = companion.consumePayload()
 
     val state = importer.state
     val progress = importer.progress

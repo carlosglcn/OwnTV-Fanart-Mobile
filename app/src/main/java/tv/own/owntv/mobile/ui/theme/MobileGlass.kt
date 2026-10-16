@@ -7,7 +7,6 @@ import android.app.ActivityManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
-import android.view.WindowManager
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -21,7 +20,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -63,20 +61,14 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import androidx.compose.ui.window.DialogWindowProvider
-import java.util.function.Consumer
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.koin.compose.koinInject
-import tv.own.owntv.core.settings.SettingsRepository
 import tv.own.owntv.core.theme.GlassConfig
 import tv.own.owntv.core.theme.GlassSurface
 import kotlin.math.ln
@@ -359,13 +351,13 @@ private fun buildLuminanceMap(bitmap: Bitmap): BackdropLuminanceMap {
  */
 @Composable
 fun GlassBackdropRoot(content: @Composable () -> Unit) {
-    val settings: SettingsRepository = koinInject()
-    val bgImagePath by settings.bgImagePath.collectAsStateWithLifecycle("")
-    val glass = LocalGlass.current
-    // The wallpaper belongs to the Glass Effect, so it goes away with it: switching glass off and
-    // being left with a picture the panels no longer sample is the wrong half of the feature.
-    val hasImage = bgImagePath.isNotBlank() && glass.enabled
-    val frosted = hasImage && supportsBackdropBlur && glass.blurStrength > 0f
+    // Glass & background (M11): the picture is Background › Picture's, not the glass's — Glass off keeps it, and
+    // Stage or Plain hide it while the file stays for a return to Picture.
+    val bg = tv.own.owntv.mobile.ui.stage.LocalStageBackground.current
+    val bgImagePath = bg.imagePath
+    val hasImage = bg.showsPicture
+    // The ladder serves the picture's own Blur as well as the glass that samples it.
+    val frosted = hasImage && supportsBackdropBlur
 
     // Ten full-screen textures is real memory even though only the rungs actually drawn are ever
     // rasterized, so a low-RAM phone gets half the rungs — a coarser ladder over the same range,
@@ -426,7 +418,6 @@ fun GlassBackdropRoot(content: @Composable () -> Unit) {
                     .fillMaxSize()
                     .drawWithContent {
                         sharp.record { this@drawWithContent.drawContent() }
-                        drawLayer(sharp)
                         if (frosted) {
                             levels.forEachIndexed { index, layer ->
                                 val radius = radiiPx[index]
@@ -434,8 +425,22 @@ fun GlassBackdropRoot(content: @Composable () -> Unit) {
                                 layer.record { drawLayer(sharp) }
                             }
                         }
+                        // The picture at its Blur, from the same ladder (the TV's BackgroundPicture); sharp at 0
+                        // or on a device that cannot blur.
+                        val shown = if (bg.blurPct > 0) backdrop?.frostFor(bg.blurPct / 100f) else null
+                        if (shown == null) {
+                            drawLayer(sharp)
+                        } else {
+                            shown.lower.alpha = 1f
+                            drawLayer(shown.lower)
+                            shown.upper?.let { it.alpha = shown.upperWeight; drawLayer(it) }
+                        }
                     },
             )
+            // Darken. Light: the picture fades into the paper instead, always far enough for dark ink to read.
+            val dim = bg.dimPct / 100f
+            val light = tv.own.owntv.mobile.ui.stage.LocalStagePalette.current.isLight
+            Box(Modifier.fillMaxSize().background(if (light) Color(0xFFF4F7F5).copy(alpha = 0.55f + 0.45f * dim) else Color(0xFF05080A).copy(alpha = dim)))
         }
         CompositionLocalProvider(
             LocalGlassBackdrop provides backdrop,
@@ -756,47 +761,4 @@ fun Modifier.glassClickable(
         onLongClick = onLongClick,
         onClick = onClick,
     )
-}
-
-/**
- * Blur what is behind a real dialog window.
- *
- * Bottom sheets live in the app's own window now and frost the wallpaper the same way every other
- * pane does. The handful of genuine dialogs that remain cannot: they are separate windows, and a
- * separate window has no access to this one's canvas. What it *can* do, from Android 12 onward, is
- * ask the compositor to blur everything behind it — which is the same effect arrived at from the
- * other side.
- *
- * The system switches cross-window blur off in battery saver and on low-end devices, so the flag is
- * followed live rather than read once: a dialog opened while the blur is on and still open when the
- * battery saver kicks in has to let go of it.
- */
-@Composable
-fun Modifier.glassDialogWindow(): Modifier {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return this
-    val glass = LocalGlass.current
-    val view = LocalView.current
-    val context = LocalContext.current
-    val blurPx = with(LocalDensity.current) { (MaxBlurRadius * glass.blurStrength).roundToPx() }
-    val manager = remember(context) { context.getSystemService(WindowManager::class.java) }
-    var systemAllows by remember { mutableStateOf(manager.isCrossWindowBlurEnabled) }
-    DisposableEffect(manager) {
-        val listener = Consumer<Boolean> { systemAllows = it }
-        manager.addCrossWindowBlurEnabledListener(listener)
-        onDispose { manager.removeCrossWindowBlurEnabledListener(listener) }
-    }
-    val radius = if (systemAllows && glass.isGlassy(GlassSurface.DIALOGS)) blurPx else 0
-    val window = (view.parent as? DialogWindowProvider)?.window
-    DisposableEffect(window, radius) {
-        if (window != null) {
-            if (radius > 0) {
-                window.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
-                window.attributes = window.attributes.apply { blurBehindRadius = radius }
-            } else {
-                window.clearFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
-            }
-        }
-        onDispose {}
-    }
-    return this
 }

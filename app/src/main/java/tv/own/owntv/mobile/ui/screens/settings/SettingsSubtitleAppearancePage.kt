@@ -13,13 +13,12 @@ import tv.own.owntv.core.settings.SubtitleStyle
 import tv.own.owntv.core.theme.AppFontFamily
 import tv.own.owntv.core.theme.parseAccentHex
 import tv.own.owntv.mobile.R
+import tv.own.owntv.mobile.ui.components.MobileIcons
 import tv.own.owntv.mobile.ui.components.ColorPickerSheet
 import tv.own.owntv.mobile.ui.components.MobileBottomSheet
 import tv.own.owntv.mobile.ui.components.MobileButton
-import tv.own.owntv.mobile.ui.components.MobileListRow
 import tv.own.owntv.mobile.ui.components.MobileTextField
 import tv.own.owntv.mobile.ui.components.SettingRow
-import tv.own.owntv.mobile.ui.screens.settings.customize.selectedTick
 import tv.own.owntv.mobile.ui.theme.MobileDimens
 
 /** Which appearance picker is open. One at a time, so one nullable holds them all. */
@@ -209,15 +208,13 @@ private fun SubtitleColorSheet(
     var hexInput by remember { mutableStateOf(color.removePrefix("#")) }
     var hexError by remember { mutableStateOf(false) }
 
-    MobileBottomSheet(
-        onDismissRequest = onDismiss,
-        title = stringResource(R.string.settings_subtitle_color),
-    ) {
-        MobileListRow(
-            title = stringResource(R.string.settings_subtitle_default),
-            subtitle = stringResource(R.string.settings_subtitle_color_default_description),
-            trailing = selectedTick(!SubtitleStyle.hasColor(color)),
-            selected = !SubtitleStyle.hasColor(color),
+    MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+        tv.own.owntv.mobile.ui.stage.StageSheetHeader(stringResource(R.string.settings_subtitle_color))
+        ChoiceItem(
+            label = stringResource(R.string.settings_subtitle_default),
+            description = stringResource(R.string.settings_subtitle_color_default_description),
+            on = !SubtitleStyle.hasColor(color),
+            recommended = false,
             onClick = {
                 hexInput = ""
                 hexError = false
@@ -225,21 +222,13 @@ private fun SubtitleColorSheet(
             },
         )
         SUB_COLOR_PRESETS.forEach { (labelRes, hex) ->
-            MobileListRow(
-                title = stringResource(labelRes),
-                trailing = selectedTick(color.equals(hex, ignoreCase = true)),
-                selected = color.equals(hex, ignoreCase = true),
-                onClick = {
-                    hexInput = hex.removePrefix("#")
-                    hexError = false
-                    onColor(hex)
-                },
-            )
+            ChoiceRow(stringResource(labelRes), color.equals(hex, ignoreCase = true)) {
+                hexInput = hex.removePrefix("#")
+                hexError = false
+                onColor(hex)
+            }
         }
-        MobileListRow(
-            title = stringResource(R.string.settings_color_picker),
-            onClick = onOpenPicker,
-        )
+        tv.own.owntv.mobile.ui.stage.StageMenuItem(stringResource(R.string.settings_color_picker), onClick = onOpenPicker, icon = MobileIcons.Palette)
         MobileTextField(
             value = hexInput,
             onValueChange = { typed -> hexInput = typed.take(6); hexError = false },

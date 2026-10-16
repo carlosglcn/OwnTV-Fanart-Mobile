@@ -10,6 +10,7 @@
 ## Unreleased
 
 ### New features
+- **🎭 Stage design: the television's new look on phone and tablet**
 - **🎨 Pixel app icon and Plus Jakarta Sans, the new default font**
 - **🔊 Volume swipe controls the phone's volume**
 - **⏪ Resume a saved channel: ask, always or never**
@@ -20,8 +21,17 @@
 - **🔎 Search finds TV programmes by title (On TV)**
 - **⏰ Schedule recording… on a channel: pick the day, start and end**
 - **⏹️ Stop recording from the channel's menu**
+- **🔐 ClearKey channels whose playlist carries the key itself play**
+- **🔎 Search filter buttons: Live TV, TV Shows, Movies, Series**
+- **🎞️ Software decoding above 1080p (Video player switch)**
+- **⚡ Faster downloads over several connections**
+- **💬 A failed download says why**
+- **📺 Watch or keep downloading on a one-stream playlist**
+- **🗂️ Downloads and recordings whose file is gone say "File missing"**
 
 ### Fixes
+- **📡 Pause and rewind live TV: a channel comes back by itself after a network outage**
+- **😴 The screen no longer turns off when a film stops to buffer**
 - **Custom categories in the player's channel list and the Multiview picker**
 - **🎞️ Catch-up plays on the hardware decoder and freezes on its first frame less often**
 - **📡 A catch-up of a programme still on air switches to live instead of freezing**
@@ -42,6 +52,13 @@
 - **📱 Cheaper home, guide, search and downloads lists** (community PR #64 by @saltimbanco)
 - **🔋 The idle downloads screen stays asleep** (community PR #64 by @saltimbanco)
 - **📐 Aspect ratio changes on live channels again**
+- **🔗 A provider's get.php M3U link is added as Xtream, so movies and series land in their own sections**
+- **📺 Shows with a Season 0 load all their episodes on Xtream**
+- **🔢 Xtream episodes with no number are numbered in order instead of all showing E0**
+- **🔁 A show's episode list retries once when the provider drops the connection**
+- **▶️ Play on a new show starts at Season 1 Episode 1; Specials come after the last season**
+- **🔤 M3U episodes named "Season 1 Episode 5" or "S2019E05" are recognised**
+- **💾 Big downloads to a FAT32 USB stick fail with a clear reason**
 
 ## v1.0.3 — 2026-09-26
 

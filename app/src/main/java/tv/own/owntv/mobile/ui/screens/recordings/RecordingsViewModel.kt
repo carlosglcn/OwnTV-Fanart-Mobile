@@ -1,5 +1,7 @@
 package tv.own.owntv.mobile.ui.screens.recordings
 
+import kotlinx.coroutines.flow.map
+import tv.own.owntv.core.storage.missingFiles
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -69,6 +71,12 @@ class RecordingsViewModel(
     val rows: StateFlow<List<RecordingEntity>> = settings.activeProfileId
         .flatMapLatest { pid -> if (pid < 0) flowOf(emptyList()) else recordings.observe(pid) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    /** Paths of finished items whose file is gone (drive formatted, swapped or unplugged). */
+    val missingFiles: StateFlow<Set<String>> = rows
+        .map { list -> list.filter { it.status == tv.own.owntv.core.model.RecordingStatus.COMPLETED }.map { it.filePath } }
+        .missingFiles(context)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
 
     /** Keyed on the download root as well as on the list — see the Downloads screen's own note. */
     val storage: StateFlow<RecordingStorageInfo?> =

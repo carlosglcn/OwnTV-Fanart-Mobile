@@ -276,6 +276,7 @@ class VodTuner(
         liveTuner.stop()
 
         val episodes = withContext(Dispatchers.IO) { seriesDao.episodesBySeriesOnce(show.id) }
+            .sortedWith(tv.own.owntv.core.content.EpisodeOrder.episodes)
             .ifEmpty { listOf(episode) }
         val startIndex = episodes.indexOfFirst { it.id == episode.id }.coerceAtLeast(0)
         val needsResolve = streamUrlResolver.needsResolve(source)
