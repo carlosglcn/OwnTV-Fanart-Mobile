@@ -128,6 +128,8 @@ Scan to join from your phone:
 
 ### 🧭 Browse
 
+- **The Stage design** — the same look as the OwnTV television app: frosted glass, a full-picture
+  hero, Dark and Light, and a background of your own picture if you like.
 - **Home** with your own rows in your own order, a hero card for what you were watching, and
   continue-watching rows for films and shows.
 - **Live TV, Movies and Series** with categories, sorting, grid or list, and **pinch to resize** the
@@ -139,7 +141,8 @@ Scan to join from your phone:
   start over — or stops asking, if you prefer.
 - **Search** across channels, films and shows in one field, grouped by kind, loading more as you
   scroll.
-- **Bottom bar on a phone, navigation rail on a tablet**, and two-pane layouts where there is room.
+- **Bottom bar on a phone, a floating rail on a tablet or held sideways**, with the list and the
+  preview side by side where there is room.
 
 ### 📥 Sources & EPG
 
@@ -165,8 +168,9 @@ Scan to join from your phone:
   parts of your data travel.
 - **Local sync** over your own Wi-Fi — pair by QR or on the network, see exactly what will change
   before it changes, and send, receive or merge.
-- **Settings in ten pages** with a search box, reorderable quick toggles, and **Customize** for
-  renaming, hiding, reordering and regrouping everything in your library.
+- **Settings in twelve groups** with a search box that finds any setting by name, **Quick** for the
+  rows you pin, and **Customize** for renaming, hiding, reordering and regrouping everything in your
+  library.
 - **26 languages**, right-to-left layouts included.
 
 ---

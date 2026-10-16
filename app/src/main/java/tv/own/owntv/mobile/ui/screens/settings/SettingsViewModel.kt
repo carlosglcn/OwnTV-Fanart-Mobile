@@ -3,7 +3,6 @@ package tv.own.owntv.mobile.ui.screens.settings
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,9 +26,7 @@ import tv.own.owntv.core.customize.CustomizationStore
 import tv.own.owntv.core.customize.SectionCustomizations
 import tv.own.owntv.core.database.dao.CategoryDao
 import tv.own.owntv.core.database.dao.ChannelDao
-import tv.own.owntv.core.database.dao.HistoryDao
 import tv.own.owntv.core.database.dao.ProfileDao
-import tv.own.owntv.core.database.dao.ProgressDao
 import tv.own.owntv.core.database.dao.SourceDao
 import tv.own.owntv.core.database.dao.TrendingDao
 import tv.own.owntv.core.database.entity.CategoryEntity
@@ -58,7 +55,6 @@ import tv.own.owntv.core.stalker.StalkerAuthManager
 import tv.own.owntv.core.stalker.StalkerClient
 import tv.own.owntv.core.stalker.stalkerCredentials
 import tv.own.owntv.core.stalker.stalkerExpiryOf
-import tv.own.owntv.core.storage.StorageAccess
 import tv.own.owntv.core.sync.ImportFinalizer
 import tv.own.owntv.core.sync.SyncContentTypes
 import tv.own.owntv.core.sync.SyncCounts
@@ -433,18 +429,6 @@ class SettingsViewModel(
         .flatMapLatest { pid ->
             if (pid < 0) flowOf(SectionCustomizations()) else customize.observe(pid, type)
         }
-
-    /** Run one of [CustomizationStore]'s edits against whoever is watching. */
-    fun customizeEdit(type: MediaType, block: suspend CustomizationStore.(Long, MediaType) -> Unit) {
-        viewModelScope.launch {
-            val pid = settings.activeProfileId.first()
-            if (pid >= 0) customize.block(pid, type)
-        }
-    }
-
-    /** The volumes a download can be written to without asking for a file permission. */
-    suspend fun downloadVolumes(): List<StorageAccess.StorageRoot> =
-        withContext(Dispatchers.IO) { StorageAccess.appRoots(context) }
 
     // --- Per-item playback choices the player remembered, and the rows that forget them ---
 

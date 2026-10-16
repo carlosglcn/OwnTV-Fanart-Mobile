@@ -77,6 +77,9 @@ fun ThemeGalleryScreen(modifier: Modifier = Modifier) {
 
     LazyColumn(modifier = modifier.fillMaxWidth()) {
 
+        // --- Stage (plan M0): every new component, in the theme picked below ---
+        item { StageGallerySection() }
+
         // --- UI Zoom: the exit check wants this screen at 100% and at 150% ---
         item {
             SectionHeader(

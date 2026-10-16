@@ -1,5 +1,21 @@
 package tv.own.owntv.mobile.ui.screens.recordings
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import tv.own.owntv.mobile.ui.components.ChannelLogoImage
+import tv.own.owntv.mobile.ui.stage.LocalStagePalette
+import tv.own.owntv.mobile.ui.stage.StageIcon
+import tv.own.owntv.mobile.ui.stage.StageLabel
+import tv.own.owntv.mobile.ui.stage.StageMenuItem
+import tv.own.owntv.mobile.ui.stage.StageRow
+import tv.own.owntv.mobile.ui.stage.StageSettingRow
+import tv.own.owntv.mobile.ui.stage.StageSheetHeader
+import tv.own.owntv.mobile.ui.stage.stageText
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,8 +25,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import tv.own.owntv.core.database.entity.RecordingEntity
@@ -37,8 +50,6 @@ import tv.own.owntv.mobile.R
 import tv.own.owntv.mobile.ui.components.FilterChipRow
 import tv.own.owntv.mobile.ui.components.MobileBottomSheet
 import tv.own.owntv.mobile.ui.components.MobileIcons
-import tv.own.owntv.mobile.ui.components.MobileListRow
-import tv.own.owntv.mobile.ui.components.SectionHeader
 import tv.own.owntv.mobile.ui.theme.MobileDimens
 import java.text.NumberFormat
 
@@ -64,6 +75,7 @@ fun RecordingsScreen(
     vm: RecordingsViewModel = koinViewModel(),
 ) {
     val rows by vm.rows.collectAsStateWithLifecycle()
+    val missing by vm.missingFiles.collectAsStateWithLifecycle()
     val storage by vm.storage.collectAsStateWithLifecycle()
     val playing by vm.playing.collectAsStateWithLifecycle()
 
@@ -107,31 +119,26 @@ fun RecordingsScreen(
         }
 
         if (shown.isEmpty()) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .padding(MobileDimens.GapLarge),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = stringResource(R.string.recording_empty),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                )
-            }
+            // The Downloads list's own empty line (Stage), under the tabs rather than centred on the page.
+            Text(
+                text = stringResource(R.string.recording_empty),
+                style = stageText(13f, 500),
+                color = LocalStagePalette.current.muted,
+                modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 18.dp),
+            )
         } else {
             LazyColumn(Modifier.fillMaxSize()) {
                 if (embedded) {
                     sections.forEach { (section, items) ->
                         item(key = "header_${section.name}") {
-                            SectionHeader(title = stringResource(section.labelRes))
+                            StageLabel(stringResource(section.labelRes), Modifier.padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 6.dp))
                         }
                         items(items, key = { it.id }) { recording ->
                             RecordingRow(
                                 recording = recording,
+                                gone = recording.status == RecordingStatus.COMPLETED && recording.filePath in missing,
                                 onClick = {
-                                    if (recording.status == RecordingStatus.COMPLETED) vm.play(recording)
+                                    if (recording.status == RecordingStatus.COMPLETED && recording.filePath !in missing) vm.play(recording)
                                     else menuFor = recording
                                 },
                                 onLongClick = { menuFor = recording },
@@ -142,8 +149,9 @@ fun RecordingsScreen(
                     items(shown, key = { it.id }) { recording ->
                         RecordingRow(
                             recording = recording,
+                            gone = recording.status == RecordingStatus.COMPLETED && recording.filePath in missing,
                             onClick = {
-                                if (recording.status == RecordingStatus.COMPLETED) vm.play(recording)
+                                if (recording.status == RecordingStatus.COMPLETED && recording.filePath !in missing) vm.play(recording)
                                 else menuFor = recording
                             },
                             onLongClick = { menuFor = recording },
@@ -157,6 +165,7 @@ fun RecordingsScreen(
     menuFor?.let { recording ->
         RecordingMenu(
             recording = recording,
+            gone = recording.filePath in missing,
             vm = vm,
             onSaveCopy = {
                 savingCopyOf = recording
@@ -238,36 +247,51 @@ private fun StorageHeader(storage: RecordingStorageInfo, timersAreExact: Boolean
     }
 }
 
+/**
+ * A recording as a Stage row (Downloads' `.chrow`): the channel's logo on a 104 dp card, the programme, the
+ * channel, where it got to (the dot red while it records), and its folder; ✓ Ready once it can be played.
+ */
 @Composable
-private fun RecordingRow(recording: RecordingEntity, onClick: () -> Unit, onLongClick: () -> Unit) {
-    MobileListRow(
-        title = recording.title,
-        // Three lines' worth in two: the channel it came from, then where it got to or why it did not.
-        subtitle = listOf(recording.channelName, statusLine(recording)).joinToString("\n"),
-        subtitleMaxLines = 2,
-        leading = {
-            Icon(
-                imageVector = MobileIcons.LiveTv,
-                contentDescription = null,
-                tint = if (recording.status == RecordingStatus.RECORDING) {
-                    MaterialTheme.colorScheme.error
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
+private fun RecordingRow(recording: RecordingEntity, onClick: () -> Unit, onLongClick: () -> Unit, gone: Boolean = false) {
+    val palette = LocalStagePalette.current
+    val ready = recording.status == RecordingStatus.COMPLETED && !gone
+    StageRow(onClick = onClick, onLongClick = onLongClick, current = recording.status == RecordingStatus.RECORDING, minHeight = 78.dp) {
+        Box(
+            Modifier.width(104.dp).aspectRatio(16f / 9f).clip(RoundedCornerShape(10.dp)).background(palette.cardSolid).padding(12.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            ChannelLogoImage(
+                url = recording.channelIconUrl,
+                fallback = { StageIcon(MobileIcons.LiveTv, 22.dp, palette.dim) },
+                plateOn = palette.cardSolid,
+                modifier = Modifier.fillMaxSize(),
             )
-        },
-        trailing = {
-            if (recording.status == RecordingStatus.COMPLETED) {
-                Icon(
-                    imageVector = MobileIcons.PlayArrow,
-                    contentDescription = stringResource(R.string.content_downloads_play),
-                    tint = MaterialTheme.colorScheme.primary,
-                )
+        }
+        Column(Modifier.weight(1f).padding(vertical = 8.dp)) {
+            Text(recording.title, style = stageText(13.5f, 700), color = palette.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(recording.channelName, style = stageText(12f, 500), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 1.dp))
+            Text(
+                if (gone) stringResource(R.string.content_downloads_file_missing) else statusLine(recording),
+                style = stageText(12f, 500),
+                color = when {
+                    gone || recording.status == RecordingStatus.FAILED || recording.status == RecordingStatus.MISSED -> palette.danger
+                    recording.status == RecordingStatus.RECORDING -> palette.danger
+                    else -> palette.muted
+                },
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            tv.own.owntv.core.storage.MediaFolders.crumb(recording.filePath, "/")?.takeIf { '/' in it }?.let {
+                Text(PATH_ELLIPSIS + it, style = stageText(10f, 500), color = palette.dim, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
-        },
-        onClick = onClick,
-        onLongClick = onLongClick,
-    )
+        }
+        if (ready) {
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+                StageIcon(MobileIcons.Check, 12.dp, palette.ok)
+                Text(stringResource(R.string.content_downloads_ready_short), style = stageText(11f, 700), color = palette.ok, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+        }
+    }
 }
 
 /** Where this recording got to, or why it never did. */
@@ -292,81 +316,49 @@ private fun statusLine(recording: RecordingEntity): String {
     }
 }
 
+/** A hold on a recording: what can be done with it now, its location (copied on a tap), and Delete. Stage sheet. */
 @Composable
 private fun RecordingMenu(
     recording: RecordingEntity,
+    /** Its file is no longer on the drive: nothing to play or export. */
+    gone: Boolean,
     vm: RecordingsViewModel,
     onSaveCopy: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    MobileBottomSheet(onDismissRequest = onDismiss, title = recording.title) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = recording.title, stage = true) {
+        StageSheetHeader(title = recording.title, subtitle = recording.channelName)
+        fun act(block: () -> Unit) = { block(); onDismiss() }
         when (recording.status) {
-            RecordingStatus.COMPLETED -> MenuRow(R.string.content_downloads_play, MobileIcons.PlayArrow) {
-                vm.play(recording); onDismiss()
+            RecordingStatus.COMPLETED -> if (!gone) {
+                StageMenuItem(stringResource(R.string.content_downloads_play), act { vm.play(recording) }, icon = MobileIcons.PlayArrow)
             }
-            RecordingStatus.RECORDING -> MenuRow(R.string.recording_stop, MobileIcons.Pause) {
-                vm.stop(recording); onDismiss()
-            }
-            RecordingStatus.SCHEDULED -> MenuRow(R.string.common_cancel, MobileIcons.Delete) {
-                vm.cancel(recording); onDismiss()
-            }
-            RecordingStatus.FAILED, RecordingStatus.MISSED -> MenuRow(R.string.common_retry, MobileIcons.Refresh) {
-                vm.retry(recording); onDismiss()
-            }
+            RecordingStatus.RECORDING -> StageMenuItem(stringResource(R.string.recording_stop), act { vm.stop(recording) }, icon = MobileIcons.Pause)
+            RecordingStatus.SCHEDULED -> StageMenuItem(stringResource(R.string.common_cancel), act { vm.cancel(recording) }, icon = MobileIcons.Delete)
+            RecordingStatus.FAILED, RecordingStatus.MISSED ->
+                StageMenuItem(stringResource(R.string.common_retry), act { vm.retry(recording) }, icon = MobileIcons.Refresh)
             RecordingStatus.CANCELLED -> Unit
         }
-        // Nothing to delete while it is only scheduled: there is no file yet, and Cancel is what
-        // "do not do this" means.
         // Only a finished recording has a file worth copying anywhere.
-        if (recording.status == RecordingStatus.COMPLETED) {
-            MenuRow(R.string.settings_export, MobileIcons.Save) { onSaveCopy(); onDismiss() }
+        if (recording.status == RecordingStatus.COMPLETED && !gone) {
+            StageMenuItem(stringResource(R.string.settings_export), act(onSaveCopy), icon = MobileIcons.Save)
         }
-        // Where the file actually is, spelled out in full and copied on a tap — the download menu's
-        // row, on the tab that is the same screen's other half.
+        // Where the file actually is, spelled out in full and copied on a tap — the download menu's row.
         recording.filePath?.let { stored ->
             val path = tv.own.owntv.core.storage.StorageAccess.folderLabel(stored) ?: stored
-            HorizontalDivider()
-            MobileListRow(
+            StageSettingRow(
                 title = stringResource(R.string.settings_backup_location),
                 subtitle = path,
-                subtitleMaxLines = 3,
-                leading = {
-                    Icon(
-                        imageVector = MobileIcons.Folder,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                    )
-                },
-                onClick = { vm.copyPath(path); onDismiss() },
+                icon = MobileIcons.Folder,
+                onClick = act { vm.copyPath(path) },
             )
         }
+        // Nothing to delete while it is only scheduled: there is no file yet, and Cancel is what "do not do
+        // this" means.
         if (recording.status != RecordingStatus.SCHEDULED) {
-            HorizontalDivider()
-            MenuRow(R.string.common_delete, MobileIcons.Delete, destructive = true) {
-                vm.delete(recording); onDismiss()
-            }
+            StageMenuItem(stringResource(R.string.common_delete), act { vm.delete(recording) }, icon = MobileIcons.Delete, danger = true)
         }
     }
-}
-
-@Composable
-private fun MenuRow(
-    labelRes: Int,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    destructive: Boolean = false,
-    onClick: () -> Unit,
-) {
-    MobileListRow(
-        title = stringResource(labelRes),
-        leading = {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = if (destructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
-            )
-        },
-        onClick = onClick,
-    )
 }
 
 /** Minutes actually captured, from the clock where there is one and the programme's length otherwise. */
@@ -385,3 +377,6 @@ private fun gigabytes(bytes: Long): String = NumberFormat.getNumberInstance().ap
     minimumFractionDigits = 1
     maximumFractionDigits = 1
 }.format(bytes.coerceAtLeast(0) / 1_073_741_824.0)
+
+/** A row's folder is shown from the media folder down (`…/TV/Das Erste`). */
+private const val PATH_ELLIPSIS = "…/"

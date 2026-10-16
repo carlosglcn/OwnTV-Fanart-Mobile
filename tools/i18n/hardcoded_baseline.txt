@@ -36,7 +36,6 @@
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/Shimmer.kt	shimmerX
 2	app/src/main/java/tv/own/owntv/mobile/ui/player/ZapBanner.kt	\0
 1	app/src/main/java/tv/own/owntv/mobile/ui/player/ZapBanner.kt	·
-1	app/src/main/java/tv/own/owntv/mobile/ui/screens/guide/GuideScreen.kt	·
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeGlcn.kt	\0
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeGlcn.kt	$it
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeGlcn.kt	$startLabel · ${channel.name}
@@ -46,22 +45,16 @@
 3	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeGlcn.kt	·
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeGlcn.kt	–
 2	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeGlcn.kt	★ %.1f
-1	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeScreen.kt	greeting
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/Seasonal.kt	👻
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/Seasonal.kt	🕷️
 3	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/Seasonal.kt	🦇
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/Seasonal.kt	🦌🦌🛷🎅
-1	app/src/main/java/tv/own/owntv/mobile/ui/screens/library/DetailScreen.kt	w300
-1	app/src/main/java/tv/own/owntv/mobile/ui/screens/live/ChannelDetailScreen.kt	·
-1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	ahXN00
-1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	carlosglcn
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	github.com/ahXN00/OwnTV_Mobile
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	github.com/carlosglcn/OwnTV-Fanart-Mobile
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	https://$GLCN_REPO
-2	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	·
-1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppearancePage.kt	glcn_season
-1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsPlaylistsPage.kt	$1:••••@
-1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsPlaylistsPage.kt	(://[^:/@]+):[^@/]*@
+1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	· ahXN00
+1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsGroupRows.kt	glcn_season
+1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsPlayerRows.kt	glcn_dialogue
 1	app/src/main/java/tv/own/owntv/mobile/widget/SportsWidget.kt	\0
 1	app/src/main/java/tv/own/owntv/mobile/widget/SportsWidget.kt	$live${p.title} ${e.channel.name} · ${fmt.format(java.util.Date(p.startMs))}–${fmt.format(java.util.Date(p.stopMs))}
 1	app/src/main/java/tv/own/owntv/mobile/widget/SportsWidget.kt	●

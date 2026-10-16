@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.components
 
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -36,10 +37,39 @@ fun CategoryPickerSheet(
      * just set, so choosing a category made the whole picker vanish.
      */
     dismissOnSelect: Boolean = true,
+    /** Live TV's categories sheet in Stage (M3-10's player lists): parsed names, tags, the open one filled. */
+    stage: Boolean = false,
 ) {
     var query by remember { mutableStateOf("") }
     val matches = remember(labels, query) {
         labels.withIndex().filter { (_, label) -> label.contains(query.trim(), ignoreCase = true) }
+    }
+    if (stage) {
+        val title = stringResource(R.string.content_category_browser_title)
+        MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+            tv.own.owntv.mobile.ui.stage.StageSheetHeader(title = title, extra = stringResource(R.string.common_nav_live_tv))
+            tv.own.owntv.mobile.ui.stage.StageSearchField(
+                value = query,
+                onValueChange = { query = it },
+                placeholder = stringResource(R.string.content_search_categories),
+                modifier = Modifier.padding(start = 6.dp, end = 6.dp, bottom = 8.dp),
+            )
+            LazyColumn(Modifier.heightIn(max = sheetListHeight())) {
+                itemsIndexed(matches, key = { _, (index, _) -> index }) { _, (index, label) ->
+                    val name = remember(label) { tv.own.owntv.core.live.ProviderTags.parse(label) }
+                    tv.own.owntv.mobile.ui.stage.StageMenuItem(
+                        label = name.name,
+                        onClick = {
+                            onSelect(index)
+                            if (dismissOnSelect) onDismiss()
+                        },
+                        filled = index == selectedIndex,
+                        tags = if (name.tags.isEmpty()) null else { { name.tags.forEach { tv.own.owntv.mobile.ui.stage.StageTag(it) } } },
+                    )
+                }
+            }
+        }
+        return
     }
     MobileBottomSheet(onDismissRequest = onDismiss) {
         MobileTextField(

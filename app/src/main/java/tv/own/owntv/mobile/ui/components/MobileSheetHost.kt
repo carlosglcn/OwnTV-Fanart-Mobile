@@ -17,10 +17,13 @@ import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -81,6 +84,12 @@ import tv.own.owntv.mobile.ui.theme.LocalAnimations
 import tv.own.owntv.mobile.ui.theme.MobileDimens
 import tv.own.owntv.mobile.ui.theme.MobileSheetShape
 import tv.own.owntv.mobile.ui.theme.glassSurface
+import tv.own.owntv.mobile.ui.stage.LocalStagePalette
+import tv.own.owntv.mobile.ui.stage.StageRadii
+import tv.own.owntv.mobile.ui.stage.stageGlass
+import tv.own.owntv.mobile.ui.stage.LocalStageBackdrop
+import tv.own.owntv.mobile.ui.stage.rememberStageBackdrop
+import tv.own.owntv.mobile.ui.stage.stageBackdropSource
 import kotlin.math.roundToInt
 
 /** Where a sheet can come to rest. */
@@ -107,9 +116,11 @@ internal class SheetEntry(
     onDismissRequest: () -> Unit,
     modifier: Modifier,
     title: String?,
+    stage: Boolean,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     var onDismissRequest by mutableStateOf(onDismissRequest)
+    var stage by mutableStateOf(stage)
     var modifier by mutableStateOf(modifier)
     var title by mutableStateOf(title)
     var content by mutableStateOf(content)
@@ -130,6 +141,13 @@ class SheetHostState internal constructor() {
 internal val LocalSheetHost = staticCompositionLocalOf<SheetHostState?> { null }
 
 /**
+ * Whether a sheet is up. A video surface draws above the sheet, so Live TV's preview lets its picture
+ * go while this is true.
+ */
+@Composable
+fun sheetOpen(): Boolean = LocalSheetHost.current?.entries?.isNotEmpty() == true
+
+/**
  * The layer every bottom sheet in the app is drawn on, hosted once above the whole UI.
  *
  * A sheet used to be a `ModalBottomSheet`, which is a separate window — and a separate window cannot
@@ -141,10 +159,13 @@ internal val LocalSheetHost = staticCompositionLocalOf<SheetHostState?> { null }
 fun MobileSheetHost(content: @Composable () -> Unit) {
     val host = remember { SheetHostState() }
     val entry = host.entries.lastOrNull()
+    // What a Stage sheet's glass blurs: the app under it, recorded only while a Stage sheet is open.
+    val backdrop = rememberStageBackdrop().takeIf { entry?.stage == true }
     Box(Modifier.fillMaxSize()) {
         Box(
             Modifier
                 .fillMaxSize()
+                .stageBackdropSource(backdrop)
                 // Neither a screen reader nor the keyboard's focus may wander into the page behind an
                 // open sheet — a dialog window used to give both of those for free, and an in-window
                 // sheet has to say so itself.
@@ -162,7 +183,11 @@ fun MobileSheetHost(content: @Composable () -> Unit) {
         }
         // Keyed on the entry, so opening a second sheet builds fresh state rather than sliding the
         // old sheet's position into new content.
-        if (entry != null) key(entry) { SheetLayer(entry) }
+        if (entry != null) {
+            key(entry) {
+                CompositionLocalProvider(LocalStageBackdrop provides backdrop) { SheetLayer(entry) }
+            }
+        }
     }
 }
 
@@ -218,8 +243,9 @@ private fun BoxScope.SheetLayer(entry: SheetEntry) {
     // the frame it appeared.
     LaunchedEffect(Unit) {
         snapshotFlow { state.anchors.size }.first { it > 0 }
-        // A short sheet has no HALF anchor at all, and lands fully open instead.
-        val landing = if (state.anchors.positionOf(SheetAnchor.HALF).isNaN()) {
+        // A short sheet has no HALF anchor at all, and lands fully open instead. A Stage sheet always
+        // opens in full, as the mockup draws every one; HALF stays a rest on the way down.
+        val landing = if (entry.stage || state.anchors.positionOf(SheetAnchor.HALF).isNaN()) {
             SheetAnchor.EXPANDED
         } else {
             SheetAnchor.HALF
@@ -280,13 +306,24 @@ private fun BoxScope.SheetLayer(entry: SheetEntry) {
 
     // glcn: the anchors can exist a frame before the offset does; reading it then crashed.
     val offset = state.offset.takeIf { !it.isNaN() } ?: sheetHeight.toFloat()
+    val stagePalette = LocalStagePalette.current
+    // A Stage sheet (`.ph .sheet`) runs edge to edge at the bottom with only its top corners curved, and
+    // keeps 30 dp under its last row — never less than the gesture bar.
+    val stageShape = RoundedCornerShape(topStart = StageRadii.Sheet, topEnd = StageRadii.Sheet)
+    val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val shown = if (sheetHeight > 0) (1f - offset / sheetHeight).coerceIn(0f, 1f) else 0f
 
     Box(
         Modifier
             .fillMaxSize()
             .onSizeChanged { containerHeight = it.height }
-            .background(MaterialTheme.colorScheme.scrim.copy(alpha = SCRIM_ALPHA * shown * (1f - backProgress.value)))
+            .background(
+                if (entry.stage) {
+                    stagePalette.scrim.let { it.copy(alpha = it.alpha * shown * (1f - backProgress.value)) }
+                } else {
+                    MaterialTheme.colorScheme.scrim.copy(alpha = SCRIM_ALPHA * shown * (1f - backProgress.value))
+                },
+            )
             // Tapping away is a dismissal, and it is the sheet that animates out rather than the
             // whole layer blinking off. The scrim also swallows the touches the page behind must not
             // receive while a modal sheet is open. It must never take focus: it is a full-screen
@@ -320,11 +357,18 @@ private fun BoxScope.SheetLayer(entry: SheetEntry) {
             // A tall sheet with the keyboard up is the one case that reaches the top of the screen,
             // and its title must not end up printed across the clock.
             .statusBarsPadding()
-            .navigationBarsPadding()
-            .padding(
-                start = MobileDimens.ShellInset,
-                end = MobileDimens.ShellInset,
-                bottom = MobileDimens.ShellInset,
+            .then(
+                if (entry.stage) {
+                    Modifier
+                } else {
+                    Modifier
+                        .navigationBarsPadding()
+                        .padding(
+                            start = MobileDimens.ShellInset,
+                            end = MobileDimens.ShellInset,
+                            bottom = MobileDimens.ShellInset,
+                        )
+                },
             )
             .offset { IntOffset(0, offset.roundToInt()) }
             .graphicsLayer {
@@ -355,21 +399,37 @@ private fun BoxScope.SheetLayer(entry: SheetEntry) {
                 isTraversalGroup = true
                 entry.title?.let { paneTitle = it }
             }
-            .glassSurface(GlassSurface.DIALOGS, MobileSheetShape)
-            .clip(MobileSheetShape),
+            .then(
+                if (entry.stage) {
+                    Modifier.stageGlass(stageShape).clip(stageShape)
+                } else {
+                    Modifier.glassSurface(GlassSurface.DIALOGS, MobileSheetShape).clip(MobileSheetShape)
+                },
+            ),
     ) {
         // Our own handle, not Material's: theirs pads 22 dp above and below a 4 dp bar, which is a
         // finger's width of empty sheet before the first word.
         Box(
             Modifier
                 .align(Alignment.CenterHorizontally)
-                .padding(
-                    top = MobileDimens.GrabPaddingTop,
-                    bottom = MobileDimens.GrabPaddingBottom,
-                )
-                .size(MobileDimens.GrabWidth, MobileDimens.GrabHeight)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = GRAB_ALPHA)),
+                .then(
+                    if (entry.stage) {
+                        Modifier
+                            .padding(top = 10.dp, bottom = 12.dp)
+                            .size(38.dp, 4.dp)
+                            .clip(CircleShape)
+                            .background(stagePalette.ink.copy(alpha = 0.25f))
+                    } else {
+                        Modifier
+                            .padding(
+                                top = MobileDimens.GrabPaddingTop,
+                                bottom = MobileDimens.GrabPaddingBottom,
+                            )
+                            .size(MobileDimens.GrabWidth, MobileDimens.GrabHeight)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = GRAB_ALPHA))
+                    },
+                ),
         )
         // The settle rides an inner layer, so what catches up is what is inside the pane — put it on
         // the pane itself and the glass slides off its own bottom edge.
@@ -377,15 +437,17 @@ private fun BoxScope.SheetLayer(entry: SheetEntry) {
             Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = MobileDimens.SheetPaddingH,
-                    end = MobileDimens.SheetPaddingH,
-                    bottom = MobileDimens.SheetPaddingBottom,
+                    start = if (entry.stage) 12.dp else MobileDimens.SheetPaddingH,
+                    end = if (entry.stage) 12.dp else MobileDimens.SheetPaddingH,
+                    bottom = if (entry.stage) maxOf(30.dp, navBottom) else MobileDimens.SheetPaddingBottom,
                 )
                 .graphicsLayer { translationY = settle.value * density },
-            verticalArrangement = Arrangement.spacedBy(MobileDimens.SheetGap),
+            // A Stage sheet's rows stack flush (`.mi`, `.grp`); the header and labels carry their own space.
+            verticalArrangement = if (entry.stage) Arrangement.Top else Arrangement.spacedBy(MobileDimens.SheetGap),
         ) {
             val column = this
-            entry.title?.let {
+            // A Stage sheet draws its own header (StageSheetHeader); its title only names the pane.
+            if (!entry.stage) entry.title?.let {
                 Text(
                     text = it,
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),

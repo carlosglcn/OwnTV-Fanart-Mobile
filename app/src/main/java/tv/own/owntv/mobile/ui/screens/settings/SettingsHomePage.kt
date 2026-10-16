@@ -16,9 +16,14 @@ import tv.own.owntv.core.model.HomeRow
 import tv.own.owntv.core.model.HomeTrendingStyle
 import tv.own.owntv.core.trending.TrendingAvailability
 import tv.own.owntv.mobile.R
-import tv.own.owntv.mobile.ui.components.MobileListRow
-import tv.own.owntv.mobile.ui.components.MobileSwitch
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
+import tv.own.owntv.mobile.ui.components.MobileIcons
 import tv.own.owntv.mobile.ui.components.SettingRow
+import tv.own.owntv.mobile.ui.stage.StageSegmented
+import tv.own.owntv.mobile.ui.stage.StageSettingRow
+import tv.own.owntv.mobile.ui.stage.StageSwitch
 
 /**
  * Home, as the profile wants it: which rows appear, in what order, and what the Keep watching row is
@@ -66,20 +71,15 @@ fun SettingsHomePage(
             // Only worth offering while the row is actually on — with Trending off there is nothing
             // for the choice to apply to, so it is not shown at all.
             if (trendingOn) {
-                SettingRow(
-                    title = stringResource(R.string.home_trending_style),
-                    subtitle = stringResource(home.trendingStyle.labelRes()),
-                    onClick = {
-                        editHome {
-                            it.copy(
-                                trendingStyle = when (it.trendingStyle) {
-                                    HomeTrendingStyle.HERO -> HomeTrendingStyle.POSTERS
-                                    HomeTrendingStyle.POSTERS -> HomeTrendingStyle.HERO
-                                },
-                            )
-                        }
-                    },
-                )
+                // Two shapes, both in view: a segmented control, not a ⌄ that promises a list.
+                val styles = HomeTrendingStyle.entries
+                StageSettingRow(title = stringResource(R.string.home_trending_style)) {
+                    StageSegmented(
+                        options = styles.map { stringResource(it.labelRes()) },
+                        selected = styles.indexOf(home.trendingStyle),
+                        onSelect = { i -> editHome { it.copy(trendingStyle = styles[i]) } },
+                    )
+                }
             }
         }
 
@@ -164,18 +164,13 @@ private fun ReorderableSwitchRow(
     canMoveDown: Boolean,
     onMove: (Int) -> Unit,
 ) {
-    MobileListRow(
-        title = title,
-        subtitle = subtitle,
-        onClick = { onCheckedChange(!checked) },
-        trailing = {
-            Row {
-                MoveButton(up = true, enabled = canMoveUp) { onMove(-1) }
-                MoveButton(up = false, enabled = canMoveDown) { onMove(1) }
-                MobileSwitch(checked = checked)
-            }
-        },
-    )
+    StageSettingRow(title = title, subtitle = subtitle, onClick = { onCheckedChange(!checked) }) {
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+            MoveKey(MobileIcons.KeyboardArrowUp, R.string.settings_row_menu_move_up, canMoveUp) { onMove(-1) }
+            MoveKey(MobileIcons.KeyboardArrowDown, R.string.settings_row_menu_move_down, canMoveDown) { onMove(1) }
+            StageSwitch(checked)
+        }
+    }
 }
 
 private fun HomeRow.titleRes() = when (this) {

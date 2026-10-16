@@ -1,16 +1,26 @@
 package tv.own.owntv.mobile.ui.components
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import tv.own.owntv.core.model.ContentMenu
 import tv.own.owntv.core.model.MediaType
 import tv.own.owntv.mobile.R
+import tv.own.owntv.mobile.ui.stage.LocalStagePalette
+import tv.own.owntv.mobile.ui.stage.StageIcon
 
-/** The item a long press was made on, wherever it was made. */
+/** The item a long press was made on, wherever it was made. [artUrl] is its poster, or a channel's logo. */
 data class ContentTarget(
     val type: MediaType,
     val id: Long,
     val title: String,
+    val artUrl: String? = null,
     /** glcn: opened from a Keep watching card, so the menu can take it out of that row. */
     val continueRow: Boolean = false,
 )
@@ -20,7 +30,8 @@ data class ContentTarget(
  * would normally sit in — reordering a folder from a Home rail has no folder to reorder.
  *
  * The keys are the ones the rest of the app uses, so the order the user arranged in Settings still
- * applies here.
+ * applies here. [stage] draws it as a Stage sheet: the item's picture on top, favourite and download
+ * under LIBRARY, hide under ORGANIZE.
  */
 @Composable
 fun ContentActionsMenu(
@@ -30,6 +41,7 @@ fun ContentActionsMenu(
     onDownload: () -> Unit,
     onHide: () -> Unit,
     onDismiss: () -> Unit,
+    stage: Boolean = false,
     onRemoveFromContinue: (() -> Unit)? = null,
 ) {
     val actions = buildList {
@@ -50,7 +62,11 @@ fun ContentActionsMenu(
                 label = stringResource(
                     if (isFavorite) R.string.content_remove_favourite else R.string.content_add_favourite,
                 ),
-                icon = if (isFavorite) MobileIcons.Star else MobileIcons.StarBorder,
+                icon = if (stage) {
+                    if (isFavorite) MobileIcons.Favorite else MobileIcons.FavoriteBorder
+                } else {
+                    if (isFavorite) MobileIcons.Star else MobileIcons.StarBorder
+                },
                 group = 0,
                 onClick = onToggleFavorite,
             ),
@@ -64,7 +80,7 @@ fun ContentActionsMenu(
                         else R.string.content_download_all_episodes,
                     ),
                     icon = MobileIcons.Download,
-                    group = 1,
+                    group = if (stage) 0 else 1,
                     onClick = onDownload,
                 ),
             )
@@ -77,7 +93,7 @@ fun ContentActionsMenu(
                 ),
                 icon = MobileIcons.VisibilityOff,
                 destructive = true,
-                group = 2,
+                group = if (stage) 1 else 2,
                 onClick = onHide,
             ),
         )
@@ -92,5 +108,34 @@ fun ContentActionsMenu(
         title = target.title,
         actions = actions,
         onDismiss = onDismiss,
+        stage = stage,
+        groupLabels = if (stage) {
+            mapOf(
+                0 to stringResource(R.string.content_menu_group_library),
+                1 to stringResource(R.string.content_menu_group_organise),
+            )
+        } else emptyMap(),
+        leading = if (stage) { { TargetArt(target) } } else null,
     )
+}
+
+/** The sheet header's picture: a poster 34 × 50, or a channel's logo 44 × 32 with no tile. */
+@Composable
+private fun TargetArt(target: ContentTarget) {
+    val live = target.type == MediaType.LIVE
+    val dim = LocalStagePalette.current.dim
+    if (live) {
+        ChannelLogoImage(
+            url = target.artUrl,
+            fallback = { StageIcon(MobileIcons.LiveTv, 18.dp, dim) },
+            modifier = Modifier.size(44.dp, 32.dp),
+        )
+    } else {
+        AsyncImage(
+            target.artUrl,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.size(34.dp, 50.dp).clip(RoundedCornerShape(6.dp)),
+        )
+    }
 }

@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.profiles
 
+import androidx.compose.ui.platform.LocalAutofillManager
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -68,8 +69,12 @@ fun ProfilePinSheet(
     var wrong by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val keyboard = LocalSoftwareKeyboardController.current
+    val autofill = LocalAutofillManager.current
     fun submit() {
         if (pin.length in PIN_MIN..PIN_MAX) {
+            // A profile PIN is not a password to keep: ending the autofill session stops a password
+            // manager from offering to save it.
+            autofill?.cancel()
             if (!onSubmit(pin)) { wrong = true; pin = "" } else keyboard?.hide()
         }
     }
@@ -143,6 +148,7 @@ fun ProfileEditorSheet(
     var avatarId by remember { mutableIntStateOf(initial?.avatarId ?: -1) }
     var isKids by remember { mutableStateOf(initial?.isKids == true) }
     var pin by remember { mutableStateOf("") }
+    val autofill = LocalAutofillManager.current
     var removePin by remember { mutableStateOf(false) }
     val nameTaken = name.trim().isNotEmpty() && name.trim().lowercase() in takenNames
 
@@ -279,6 +285,7 @@ fun ProfileEditorSheet(
             confirmEnabled = name.isNotBlank() && !nameTaken &&
                 (removePin || pin.isEmpty() || pin.length >= PIN_MIN),
             onConfirm = {
+                autofill?.cancel()
                 onConfirm(name.trim(), avatarId, isKids, if (removePin) "" else pin.takeIf { it.isNotBlank() })
                 onDismiss()
             },

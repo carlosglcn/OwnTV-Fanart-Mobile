@@ -10,34 +10,27 @@ import tv.own.owntv.mobile.R
  * Where the phone can navigate to.
  *
  * [sections] is what ties a destination to core's visibility rule: a destination shows only when at
- * least one of its sections is in `NavVisibility.visibleSections()`. Library is one tab covering two
- * sections, which is why the rule is a set and not a single value — a movies-only playlist still
- * gets a Library tab, a channels-only one does not.
+ * least one of its sections is in `NavVisibility.visibleSections()`, so a channels-only playlist loses
+ * Movies and Series in both apps at once.
  *
- * MORE has no section: it is always reachable, because Settings, Profiles and Downloads live behind
- * it and a user must never be able to hide their way out of the app's own settings.
+ * MORE has no section: it is always reachable — from the avatar on a phone, from the rail on a tablet —
+ * because Settings, Profiles and Downloads live behind it and a user must never be able to hide their way
+ * out of the app's own settings.
  */
 enum class MobileDestination(
     val route: String,
     @param:StringRes val labelRes: Int,
     val icon: ImageVector,
     val sections: Set<MainSection>,
+    /** The bottom bar's word, a fifth of the screen wide; the page title keeps [labelRes]. */
+    @param:StringRes val barLabelRes: Int = labelRes,
 ) {
     HOME("home", R.string.common_nav_home, MobileIcons.Home, setOf(MainSection.HOME)),
     LIVE("live", R.string.common_nav_live_tv, MobileIcons.LiveTv, setOf(MainSection.LIVE_TV)),
-    LIBRARY(
-        "library",
-        R.string.common_nav_library,
-        MobileIcons.VideoLibrary,
-        setOf(MainSection.MOVIES, MainSection.SERIES),
-    ),
-    GUIDE("guide", R.string.common_nav_guide, MobileIcons.CalendarMonth, setOf(MainSection.EPG)),
-    MORE("more", R.string.common_nav_more, MobileIcons.MoreHoriz, emptySet()),
-
-    // Rail-only. On a phone these live inside Library and More; on a tablet there is room to show
-    // them as destinations of their own, which is what step 3 of the plan calls the eight-item rail.
+    GUIDE("guide", R.string.common_nav_guide, MobileIcons.Guide, setOf(MainSection.EPG), R.string.common_nav_guide_short),
     MOVIES("movies", R.string.common_nav_movies, MobileIcons.Movie, setOf(MainSection.MOVIES)),
-    SERIES("series", R.string.common_nav_series, MobileIcons.Theaters, setOf(MainSection.SERIES)),
+    SERIES("series", R.string.common_nav_series, MobileIcons.Series, setOf(MainSection.SERIES)),
+    MORE("more", R.string.common_nav_more, MobileIcons.MoreHoriz, emptySet()),
     DOWNLOADS(
         "downloads",
         R.string.common_nav_downloads,
@@ -47,19 +40,18 @@ enum class MobileDestination(
     SETTINGS("settings", R.string.common_nav_settings, MobileIcons.Settings, emptySet());
 
     companion object {
-        /** The bottom bar, in order. Library stands in for Movies and Series on a narrow screen. */
-        val bottomBar: List<MobileDestination> = listOf(HOME, LIVE, LIBRARY, GUIDE, MORE)
+        /**
+         * The bottom bar, in order — the TV rail's order (decision M2). More is not on it: the avatar at
+         * the top right opens it, as the TV rail ends in the profile.
+         */
+        val bottomBar: List<MobileDestination> = listOf(HOME, LIVE, GUIDE, MOVIES, SERIES)
 
         /**
-         * The rail, in order. The same five places as the bottom bar, with Library split into
-         * Movies and Series because a rail has the room for both.
-         *
-         * **Downloads and Settings are deliberately not on it.** They are not browse sections — they
-         * are what More is for, on every width — and a rail that lists them says the tablet is a
-         * different app from the phone rather than the same one with more room.
+         * The rail (M12, the mockup's `railH`), in order: the five places, Downloads, then More as the last
+         * item. Settings is not on it — it is what More is for, on every width.
          */
         val rail: List<MobileDestination> =
-            listOf(HOME, LIVE, MOVIES, SERIES, GUIDE, MORE)
+            listOf(HOME, LIVE, GUIDE, MOVIES, SERIES, DOWNLOADS, MORE)
 
         /**
          * Filters a bar or rail to what the active playlist actually offers. A destination with no

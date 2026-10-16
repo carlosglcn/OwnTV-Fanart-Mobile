@@ -21,7 +21,7 @@ Two rows ended somewhere other than where the mockup put them. Both are explaine
 | Multiple playlists | ✅ | Playlists page; the provider name shows on rows, which matters more here than on a television |
 | Catch-up & live rewind | ✅ | The same `LiveLadder` as the television; a drag replaces the D-pad |
 | Pause and rewind live TV (saved copy) | ✅ | Core's `TimeshiftManager`; rewind/forward buttons, bar, Go live, resume popup; PiP and sound-only keep saving |
-| Series detail, seasons, episodes | ✅ | Opens on the last-watched episode |
+| Series detail, seasons, episodes | ✅ | Opens on the last-watched episode. Since 2026-10-12 Specials sit after the last season, as on the television, and an unstarted show plays from S1 E1 (core's `EpisodeOrder`) |
 | Autoplay next episode / season | ✅ | Core logic, untouched. **Previous / Next** buttons joined the transport row on 2026-09-17 — until then the next episode was reachable only from the card in the last thirty seconds |
 | Resume / watch history | ✅ | Core. The **Resume playback** setting (Always / Ask / Never) was displayed but never read until 2026-09-17, so the phone always resumed silently; all three modes now behave as the television's, including its ten-second threshold |
 | Favourites | ✅ | Core, plus a Favourites screen under More |
@@ -44,11 +44,11 @@ Two rows ended somewhere other than where the mockup put them. Both are explaine
 
 | Feature | Done | Shape it took |
 |---|---|---|
-| Live TV browse | ✅ | Three panels became chips + list + detail |
+| Live TV browse | ✅ | Three panels became a crumb + categories sheet, the list, and a preview on top (beside the list when wide) |
 | EPG / Guide | ✅ | The grid was kept, and *On now* added as the portrait default; Timeline is a third shape |
-| Movies / Series browse | ✅ | One Library tab with a segmented control |
+| Movies / Series browse | ✅ | Two tabs, as the television's rail; a glass title card beside the grid when wide |
 | Long-press menus | ✅ | Bottom sheets, with the same actions in the same saved order |
-| Settings — 10 groups | ✅ | A tile grid became a list with drill-down; the search box was kept |
+| Settings — 12 groups | ✅ | The television's twelve groups as cards in two columns; search by setting name |
 | Player: subtitles, zoom, speed, volume boost | ✅ | The same functions on a gesture *and* a button surface — no gesture-only function. The panels are sheets rather than centred dialogs, and **they scroll**: until 2026-09-17 a sheet taller than a sideways phone silently dropped its last rows, which hid A/V sync, subtitle timing and subtitle search. The audio button is also always on the bar, as the television's is, so A/V sync is reachable on a single-soundtrack film |
 | Mini player / audio bar | ✅ | Three choices, not one: a floating window, a docked bar, or off |
 

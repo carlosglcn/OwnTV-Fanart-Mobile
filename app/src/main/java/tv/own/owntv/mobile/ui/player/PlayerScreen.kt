@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.player
 
+import androidx.compose.runtime.produceState
 import tv.own.owntv.core.database.entity.ChannelEntity
 import tv.own.owntv.mobile.ui.components.CategoryPickerSheet
 import android.content.pm.ActivityInfo
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -58,7 +58,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import tv.own.owntv.mobile.MainActivity
 import tv.own.owntv.mobile.R
 import tv.own.owntv.mobile.cast.CastController
 import tv.own.owntv.mobile.playback.PipController
@@ -70,7 +69,16 @@ import tv.own.owntv.core.subtitles.SubtitleController
 import tv.own.owntv.mobile.ui.screens.ContentActions
 import tv.own.owntv.mobile.ui.setup.copyPickedFile
 import tv.own.owntv.mobile.ui.theme.LocalAccentOnVideo
-import tv.own.owntv.mobile.ui.theme.glassDialogWindow
+import tv.own.owntv.mobile.ui.components.MobileBottomSheet
+import tv.own.owntv.mobile.ui.screens.settings.SheetText
+import tv.own.owntv.mobile.ui.screens.settings.StageConfirmSheet
+import tv.own.owntv.mobile.ui.stage.StageButton
+import tv.own.owntv.mobile.ui.stage.StageButtonStyle
+import tv.own.owntv.mobile.ui.stage.StageMenuItem
+import tv.own.owntv.mobile.ui.stage.StageSheetHeader
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.semantics.Role
 import tv.own.owntv.mobile.ui.screens.library.VodTuner
 import tv.own.owntv.mobile.ui.screens.live.LiveTuner
 import tv.own.owntv.player.ErrorInfo
@@ -112,8 +120,10 @@ fun PlayerScreen(
     actions: ContentActions = koinInject(),
     subtitles: SubtitleController = koinInject(),
     cast: CastController = koinInject(),
+    downloadWatchGuard: tv.own.owntv.core.download.DownloadWatchGuard = koinInject(),
 ) {
     val player = tuner.player
+    val downloadWatchPrompt by downloadWatchGuard.prompt.collectAsStateWithLifecycle()
 
     // L2 - live now has two engines. `liveOnExo` says which one holds the picture, so the stage knows
     // whose surface to draw and the HUD's engine button knows which way it flips.
@@ -155,6 +165,7 @@ fun PlayerScreen(
     // playing", and the spinner over a deliberately paused picture reads as a stall. The television
     // has always drawn this from `buffering`; so does this now.
     val buffering by activeEngine.buffering.collectAsStateWithLifecycle()
+    val stalledSinceMs by activeEngine.stalledSinceMs.collectAsStateWithLifecycle()
     // Only the stream that never had a picture — a radio channel — reaches this screen without one.
     // The user's own sound-only choice cannot, see below.
     val audioOnlyMedia by activeEngine.audioOnlyMedia.collectAsStateWithLifecycle()
@@ -288,18 +299,53 @@ fun PlayerScreen(
     // N4 — back on a channel whose saved copy was kept: continue from there, or stay live.
     val timeshiftResumeAt by tuner.timeshiftResumeAt.collectAsStateWithLifecycle()
     if (timeshiftResumeAt != null) {
-        AlertDialog(
-            modifier = Modifier.glassDialogWindow(),
-            onDismissRequest = tuner::dismissTimeshiftResume,
-            title = { Text(stringResource(R.string.player_timeshift_resume_title)) },
-            text = { Text(stringResource(R.string.player_timeshift_resume_message)) },
-            confirmButton = {
-                TextButton(onClick = tuner::resumeTimeshift) { Text(stringResource(R.string.common_resume)) }
-            },
-            dismissButton = {
-                TextButton(onClick = tuner::dismissTimeshiftResume) { Text(stringResource(R.string.player_go_live)) }
-            },
+        // Resume clears the offer itself, so the sheet's dismiss after it is a no-op.
+        StageConfirmSheet(
+            title = stringResource(R.string.player_timeshift_resume_title),
+            text = stringResource(R.string.player_timeshift_resume_message),
+            confirm = stringResource(R.string.common_resume),
+            onConfirm = tuner::resumeTimeshift,
+            onDismiss = tuner::dismissTimeshiftResume,
+            cancel = stringResource(R.string.player_go_live),
         )
+    }
+
+    // A one-stream playlist a download was using: core has paused the download and asks what next.
+    // Dismissing is watching — the picture is already on and the download stays paused.
+    downloadWatchPrompt?.let { p ->
+        var rememberAnswer by remember(p) { mutableStateOf(false) }
+        MobileBottomSheet(
+            onDismissRequest = { downloadWatchGuard.answer(watch = true, remember = rememberAnswer) },
+            stage = true,
+        ) {
+            StageSheetHeader(stringResource(R.string.content_download_watch_title))
+            SheetText(stringResource(R.string.content_download_watch_body, p.playlistName))
+            StageMenuItem(
+                stringResource(R.string.content_download_watch_remember),
+                onClick = { rememberAnswer = !rememberAnswer },
+                checked = rememberAnswer,
+                role = Role.Checkbox,
+            )
+            Row(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StageButton(
+                    onClick = {
+                        downloadWatchGuard.answer(watch = false, remember = rememberAnswer)
+                        // Stopped, not left playing in the mini player: the download needs the stream.
+                        tuner.stop()
+                        vodTuner.stop()
+                        onExit()
+                    },
+                    text = stringResource(R.string.content_download_watch_keep),
+                    modifier = Modifier.weight(1f),
+                )
+                StageButton(
+                    onClick = { downloadWatchGuard.answer(watch = true, remember = rememberAnswer) },
+                    text = stringResource(R.string.content_download_watch_watch),
+                    style = StageButtonStyle.PRIMARY,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
     }
 
     // The automatic advance, made visible. The engine starts the next episode eight seconds before the
@@ -613,7 +659,27 @@ fun PlayerScreen(
         } else if (buffering && !noPicture) {
             // On the same material as every other message over the picture, rather than a bare ring.
             PlayerToast(Modifier.align(Alignment.Center)) {
-                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(32.dp))
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(32.dp))
+                    // M3-11 (the TV's PR #237): a live channel that had been playing and has stalled for
+                    // 10 s says so under the spinner; gone as soon as the picture returns.
+                    val stalledSince = stalledSinceMs
+                    if (isLive && stalledSince != null) {
+                        val showNotice by produceState(false, stalledSince) {
+                            kotlinx.coroutines.delay(RECONNECT_NOTICE_AFTER_MS - (android.os.SystemClock.elapsedRealtime() - stalledSince))
+                            value = true
+                        }
+                        if (showNotice) {
+                            Text(
+                                stringResource(R.string.player_reconnecting),
+                                style = tv.own.owntv.mobile.ui.stage.stageText(14f, 600),
+                                color = Color(0xFFE6ECE9),
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                modifier = Modifier.padding(top = 14.dp),
+                            )
+                        }
+                    }
+                }
             }
         }
 
@@ -644,7 +710,8 @@ fun PlayerScreen(
             logoUrl = channel?.displayLogoUrl ?: film?.posterUrl,
             // Nothing is drawn over the picture in the little window: it is a thumbnail, and the
             // system draws its own buttons on top of it.
-            visible = controlsVisible && !inPip,
+            // Held sideways the channel list is a panel over the picture alone (M3-10): the controls step aside.
+            visible = controlsVisible && !inPip && !(sheet == PlayerSheet.CHANNELS && landscape),
             isLive = isLive,
             offsetSec = offsetSecState,
             archiveWindowSec = archiveWindowSec,
@@ -827,6 +894,7 @@ fun PlayerScreen(
                     onDismiss = { multiviewPickFor = null },
                     // Two steps: choosing a category opens its channels, it does not close the sheet.
                     dismissOnSelect = false,
+                    stage = true,
                 )
             } else {
                 PlayerSheetHost(
@@ -882,6 +950,7 @@ fun PlayerScreen(
             },
             onDismiss = { sheet = null },
             dismissOnSelect = false,
+            stage = true,
         )
     }
 
@@ -890,6 +959,7 @@ fun PlayerScreen(
             sheet = open,
             player = activeEngine,
             channels = if (open == PlayerSheet.CHANNELS) playerChannels else siblings,
+            channelsTitle = playerCategories.firstOrNull { it.first == playerCategory }?.second,
             brightness = brightness,
             onBrightness = { setBrightness(it) },
             onPickChannel = { tuner.switchTo(it) },
@@ -1041,3 +1111,6 @@ private class Carry {
     var volume = 0f
     var speedBefore = 1.0
 }
+
+/** How long a live stall lasts before the player says it is reconnecting (the TV's value). */
+private const val RECONNECT_NOTICE_AFTER_MS = 10_000L

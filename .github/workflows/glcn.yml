@@ -10,14 +10,14 @@ name: Build glcn (mobile)
 #   - Branch "ci-status": status.txt + build.log (last lines), so the result can be read with git.
 on:
   push:
-    branches: [ main ]
+    branches: [ main, upstream-merge ]
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: glcn-build
+  group: glcn-build-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -105,7 +105,7 @@ jobs:
         run: |
           STATUS="${{ steps.build.outcome }}"
           mkdir -p /tmp/ci && cd /tmp/ci
-          git init -q && git checkout -q -b ci-status
+          git init -q && git checkout -q -b ci-status-merge
           {
             echo "status=$STATUS"
             echo "app=$GITHUB_SHA"
@@ -118,4 +118,4 @@ jobs:
           fi
           git add -A
           git -c user.name=ci -c user.email=ci@localhost commit -q -m "ci $STATUS ${GITHUB_SHA::7}"
-          git push -q -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY" ci-status
+          git push -q -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY" ci-status-merge

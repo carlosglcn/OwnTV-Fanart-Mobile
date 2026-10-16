@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -34,9 +33,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import tv.own.owntv.core.customize.BulkRenameSession
 import tv.own.owntv.core.customize.RenameRules
 import tv.own.owntv.mobile.R
+import tv.own.owntv.mobile.ui.screens.settings.StageDialogSheet
 import tv.own.owntv.mobile.ui.components.MobileBottomSheet
 import tv.own.owntv.mobile.ui.components.MobileListRow
-import tv.own.owntv.mobile.ui.theme.glassDialogWindow
 
 /** Which field of a rule row a nested picker is editing. */
 private enum class RuleField { TYPE, PLACEMENT, VALUE }
@@ -61,8 +60,7 @@ fun BulkRenameFlow(session: BulkRenameSession) {
             onConfirm = { session.confirmRestore() },
             onDismiss = { session.backToChoice() },
         )
-        BulkRenameSession.Screen.REFUSED -> AlertDialog(
-            modifier = Modifier.glassDialogWindow(),
+        BulkRenameSession.Screen.REFUSED -> StageDialogSheet(
             onDismissRequest = { session.dismissRefused() },
             title = { Text(stringResource(R.string.settings_bulk_rename_too_many_title)) },
             text = { Text(stringResource(R.string.settings_bulk_rename_too_many_description)) },
@@ -80,10 +78,8 @@ fun BulkRenameFlow(session: BulkRenameSession) {
 @Composable
 private fun BulkChoiceSheet(session: BulkRenameSession) {
     val count = session.entries.collectAsStateWithLifecycle().value.size
-    MobileBottomSheet(
-        onDismissRequest = { session.close() },
-        title = stringResource(R.string.settings_bulk_rename_title),
-    ) {
+    MobileBottomSheet(onDismissRequest = { session.close() }, stage = true) {
+        tv.own.owntv.mobile.ui.stage.StageSheetHeader(stringResource(R.string.settings_bulk_rename_title))
         Text(
             pluralStringResource(R.plurals.settings_bulk_rename_selected, count, count),
             style = MaterialTheme.typography.bodyMedium,
@@ -139,8 +135,7 @@ private fun BulkRuleBuilderDialog(session: BulkRenameSession) {
         session.submitRules(out, RenameRules.Options(trimLeftovers = trim, ignoreCase = ignoreCase))
     }
 
-    AlertDialog(
-        modifier = Modifier.glassDialogWindow(),
+    StageDialogSheet(
         onDismissRequest = { session.backToChoice() },
         title = { Text(stringResource(R.string.settings_bulk_rename_rules_title)) },
         text = {
@@ -303,8 +298,7 @@ private fun BulkRuleBuilderDialog(session: BulkRenameSession) {
 @Composable
 private fun BulkReviewDialog(session: BulkRenameSession) {
     val rows by session.preview.collectAsStateWithLifecycle()
-    AlertDialog(
-        modifier = Modifier.glassDialogWindow(),
+    StageDialogSheet(
         onDismissRequest = { session.done() },
         title = { Text(stringResource(R.string.settings_bulk_rename_review)) },
         text = {

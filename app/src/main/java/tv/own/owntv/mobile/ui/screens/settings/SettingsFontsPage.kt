@@ -14,7 +14,6 @@ import tv.own.owntv.core.theme.PopupFontScale
 import tv.own.owntv.core.theme.PopupSizeScale
 import tv.own.owntv.core.theme.UiFontScale
 import tv.own.owntv.mobile.R
-import tv.own.owntv.mobile.ui.components.SettingRow
 import tv.own.owntv.mobile.ui.theme.MobileDimens
 
 /**
@@ -87,25 +86,23 @@ fun SettingsFontsPage(
 
         settingsSection(R.string.settings_main_interface_font) {
             AppFontFamily.entries.forEach { family ->
-                SettingRow(
-                    title = stringResource(family.labelRes()),
-                    checked = fonts.mainFamily == family,
-                    onCheckedChange = {
-                        vm.edit { setFontCustomization(fonts.copy(mainFamily = family)) }
-                    },
-                )
+                // One of many: a radio, not a switch (F6). RECOMMENDED beside Plus Jakarta Sans, the default.
+                ChoiceRow(
+                    label = stringResource(family.labelRes()),
+                    on = fonts.mainFamily == family,
+                    recommended = family == AppFontFamily.PLUS_JAKARTA_SANS,
+                ) { vm.edit { setFontCustomization(fonts.copy(mainFamily = family)) } }
             }
         }
 
         settingsSection(R.string.settings_popup_font) {
             AppFontFamily.entries.forEach { family ->
-                SettingRow(
-                    title = stringResource(family.labelRes()),
-                    checked = fonts.popupFamily == family,
-                    onCheckedChange = {
-                        vm.edit { setFontCustomization(fonts.copy(popupFamily = family)) }
-                    },
-                )
+                // One of many: a radio, not a switch (F6). RECOMMENDED beside Plus Jakarta Sans, the default.
+                ChoiceRow(
+                    label = stringResource(family.labelRes()),
+                    on = fonts.popupFamily == family,
+                    recommended = family == AppFontFamily.PLUS_JAKARTA_SANS,
+                ) { vm.edit { setFontCustomization(fonts.copy(popupFamily = family)) } }
             }
         }
     }
