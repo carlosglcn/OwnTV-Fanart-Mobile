@@ -1,3 +1,3 @@
 ## Novedades
 
-(Se irán añadiendo aquí las mejoras de la próxima versión.)
+- "Ir al directo" vuelve de verdad al momento más reciente y en reproducción (antes podía saltar a donde empezaste a ver el canal).
