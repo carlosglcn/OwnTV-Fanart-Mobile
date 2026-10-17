@@ -128,7 +128,7 @@ class AutoBrowserService : MediaBrowserService() {
             else -> emptyList()
         }.filter { CustomizeKeysCompat.visible(it, cust) }.take(MAX_ITEMS)
         val now = runCatching { nowArt.many(channels) }.getOrDefault(emptyMap())
-        return channels.map { ch -> ch.toItem(now[ch.id]?.title) }
+        return channels.map { ch -> ch.toItem(now[ch.id]?.title, now[ch.id]?.imageUrl) }
     }
 
     private suspend fun search(query: String): List<ChannelEntity> {
@@ -145,12 +145,13 @@ class AutoBrowserService : MediaBrowserService() {
         MediaBrowser.MediaItem.FLAG_BROWSABLE,
     )
 
-    private fun ChannelEntity.toItem(nowTitle: String?) = MediaBrowser.MediaItem(
+    /** glcn: the tile shows what is on now (the guide's picture) when there is one; the logo otherwise. */
+    private fun ChannelEntity.toItem(nowTitle: String?, nowArt: String? = null) = MediaBrowser.MediaItem(
         MediaDescription.Builder()
             .setMediaId(CHANNEL_PREFIX + id)
             .setTitle(name)
             .setSubtitle(nowTitle?.let(SportsNow::displayTitle))
-            .setIconUri(ArtProvider.uriFor(this@AutoBrowserService, displayLogoUrl))
+            .setIconUri(ArtProvider.uriFor(this@AutoBrowserService, nowArt?.takeIf { it.isNotBlank() } ?: displayLogoUrl))
             .build(),
         MediaBrowser.MediaItem.FLAG_PLAYABLE,
     )

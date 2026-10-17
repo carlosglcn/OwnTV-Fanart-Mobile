@@ -40,6 +40,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -435,6 +436,24 @@ private fun StreamInfoSheet(player: PlaybackEngine, onDismiss: () -> Unit) {
                     )
                     Text(
                         text = row.value.displayText(res),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontFamily = FontFamily.Monospace,
+                        modifier = Modifier.weight(0.62f),
+                    )
+                }
+            }
+            // glcn: how long this channel took to show its picture.
+            val startMs by tv.own.owntv.player.ZapTiming.lastStartMs.collectAsState()
+            startMs?.takeIf { player.isLiveContent }?.let { ms ->
+                Row(Modifier.fillMaxWidth().padding(vertical = 3.dp)) {
+                    Text(
+                        text = stringResource(R.string.glcn_start_time),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.weight(0.38f),
+                    )
+                    Text(
+                        text = String.format(java.util.Locale.getDefault(), "%.1f s", ms / 1000f),
                         style = MaterialTheme.typography.bodySmall,
                         fontFamily = FontFamily.Monospace,
                         modifier = Modifier.weight(0.62f),

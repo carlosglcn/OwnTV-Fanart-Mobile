@@ -84,11 +84,18 @@ fun ChannelLogoImage(
             when (state) {
                 is AsyncImagePainter.State.Error -> {
                     deadLogos += url
-                    hostOf(url)?.let { deadHosts += it }
+                    // glcn: one failure no longer writes off the whole host — a busy moment (a timeout while
+                    // a sync or a long scroll asks for hundreds of logos at once) blanked every logo in the
+                    // list. Only several failures in a row, with no success between, do.
+                    hostOf(url)?.let { host ->
+                        if ((hostFailures.merge(host, 1, Int::plus) ?: 0) >= HOST_DEAD_AFTER) deadHosts += host
+                    }
                     failed = true
                 }
-                is AsyncImagePainter.State.Success ->
+                is AsyncImagePainter.State.Success -> {
+                    hostOf(url)?.let { hostFailures.remove(it) }
                     if (plateOn != null && !logoInk.containsKey(url)) pending = (state.result.image as? BitmapImage)?.bitmap
+                }
                 else -> Unit
             }
         },
@@ -181,5 +188,9 @@ private val deadLogos = java.util.Collections.newSetFromMap(java.util.concurrent
  * Same lifetime and same reasoning as [deadLogos]: in memory, never removed from, cleared by a restart.
  */
 private val deadHosts = java.util.Collections.newSetFromMap(java.util.concurrent.ConcurrentHashMap<String, Boolean>())
+
+/** glcn: failures in a row per host; a success clears it. */
+private val hostFailures = java.util.concurrent.ConcurrentHashMap<String, Int>()
+private const val HOST_DEAD_AFTER = 6
 
 private fun hostOf(url: String?): String? = runCatching { java.net.URI(url).host }.getOrNull()

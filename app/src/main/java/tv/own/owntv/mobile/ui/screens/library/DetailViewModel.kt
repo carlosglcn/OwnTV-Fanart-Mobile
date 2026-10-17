@@ -42,6 +42,7 @@ import tv.own.owntv.core.metadata.MetadataMode
 import tv.own.owntv.core.metadata.MetadataRepository
 import tv.own.owntv.core.model.DownloadStatus
 import tv.own.owntv.core.model.MediaType
+import tv.own.owntv.core.repository.EpisodeLoad
 import tv.own.owntv.core.repository.SeriesRepository
 import tv.own.owntv.core.settings.SettingsRepository
 import tv.own.owntv.core.storage.StorageAccess
@@ -82,6 +83,10 @@ class DetailViewModel(
 
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading
+
+    /** Why the open show has no episodes when the provider refused or failed the request; null otherwise. */
+    private val _episodesFailure = MutableStateFlow<String?>(null)
+    val episodesFailure: StateFlow<String?> = _episodesFailure
 
     /** The season whose episodes are listed. Null until the show has loaded. */
     private val _season = MutableStateFlow<Int?>(null)
@@ -278,6 +283,7 @@ class DetailViewModel(
         _season.value = null
         _movie.value = null
         _show.value = null
+        _episodesFailure.value = null
         _titlePage.value = TitlePage()
         viewModelScope.launch {
             profileId.value = currentProfileId() ?: -1L
@@ -292,7 +298,7 @@ class DetailViewModel(
             _show.value = entity
             if (entity != null) {
                 launch { loadSeriesPage(entity) }
-                seriesRepository.loadEpisodes(entity)
+                _episodesFailure.value = (seriesRepository.loadEpisodes(entity) as? EpisodeLoad.Failed)?.reason
             }
             _loading.value = false
             val pid = profileId.value

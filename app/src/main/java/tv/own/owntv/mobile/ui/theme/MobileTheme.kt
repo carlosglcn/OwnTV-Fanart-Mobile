@@ -47,6 +47,7 @@ fun MobileTheme(content: @Composable () -> Unit) {
     val animations by settings.animationLevel.collectAsStateWithLifecycle(AnimationLevel.FULL)
     val focusHighlight by settings.focusHighlight.collectAsStateWithLifecycle("")
     val background by settings.backgroundConfig.collectAsStateWithLifecycle(BackgroundConfig())
+    val glcnStyle by settings.glcnStyle.collectAsStateWithLifecycle(null)
 
     MobileTheme(
         themeMode = themeMode,
@@ -58,6 +59,7 @@ fun MobileTheme(content: @Composable () -> Unit) {
         animations = animations,
         focusHighlight = focusHighlight,
         background = background,
+        glcnStyle = glcnStyle,
         content = content,
     )
 }
@@ -74,6 +76,7 @@ fun MobileTheme(
     animations: AnimationLevel = AnimationLevel.FULL,
     focusHighlight: String = "",
     background: BackgroundConfig = BackgroundConfig(),
+    glcnStyle: tv.own.owntv.core.theme.GlcnStyle? = null,
     content: @Composable () -> Unit,
 ) {
     val isDark = when (themeMode) {
@@ -97,7 +100,7 @@ fun MobileTheme(
         LocalMobileMotion provides remember(animations) { MobileMotion(animations) },
         // Stage (the redesign's look): its palette follows the same resolved theme; the focus highlight and
         // Glass & background are core's, so a TV backup brings them across unchanged.
-        LocalStagePalette provides if (isDark) StagePalette.Dark else StagePalette.Light,
+        LocalStagePalette provides glcnPalette(if (isDark) StagePalette.Dark else StagePalette.Light, glcnStyle),
         LocalFocusHighlight provides remember(focusHighlight) { parseAccentHex(focusHighlight)?.let { Color(it) } },
         LocalStageBackground provides background,
     ) {
@@ -136,3 +139,25 @@ val LocalAccentOnVideo = staticCompositionLocalOf { Color(AccentColor.TEAL.roles
  * shell's per-region fills and those are not M3 roles.
  */
 val LocalSurfaceTones = staticCompositionLocalOf { mobileSurfaceTones(isDark = true) }
+
+/**
+ * glcn: a ready-made style's own tones over the theme's palette — only while the theme in force is the
+ * style's (a style sets it, but the user may change the theme afterwards).
+ */
+private fun glcnPalette(base: StagePalette, style: tv.own.owntv.core.theme.GlcnStyle?): StagePalette {
+    if (style == null || style.light != base.isLight) return base
+    val page = Color(style.page)
+    val tint = Color(style.glassTint)
+    return base.copy(
+        page = page,
+        wash = page,
+        glassTint = tint,
+        glassOff = tint,
+        cardSolid = tint,
+        text = Color(style.text),
+        item = Color(style.text),
+        muted = Color(style.muted),
+        navText = Color(style.muted),
+        body = Color(style.body),
+    )
+}

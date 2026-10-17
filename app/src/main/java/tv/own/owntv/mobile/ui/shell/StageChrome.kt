@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
@@ -118,6 +119,9 @@ class ShellChromeState {
 class HomeChrome {
     var backdropUrl by mutableStateOf<String?>(null)
     var backdropHeight by mutableStateOf(470.dp)
+
+    /** glcn: the picture as a soft glow rather than a sharp copy (the featured card already shows it sharp). */
+    var backdropSoft by mutableStateOf(false)
 
     /** Where the picture is cropped (`object-position`): Home 62% / 30%, a movie page 70% / 30%. */
     var backdropAlignment by mutableStateOf(BiasAlignment(0.24f, -0.4f))
@@ -219,7 +223,19 @@ fun HomeBackdrop(chrome: HomeChrome) {
                 drawRect(wash)
             },
     ) {
-        AsyncImage(url, contentDescription = null, contentScale = ContentScale.Crop, alignment = chrome.backdropAlignment, modifier = Modifier.fillMaxSize())
+        val soft = chrome.backdropSoft
+        val canBlur = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S
+        AsyncImage(
+            url, contentDescription = null, contentScale = ContentScale.Crop, alignment = chrome.backdropAlignment,
+            modifier = Modifier
+                .fillMaxSize()
+                .then(
+                    if (!soft) Modifier
+                    else Modifier
+                        .graphicsLayer { alpha = if (canBlur) 0.7f else 0.25f }
+                        .then(if (canBlur) Modifier.blur(56.dp, androidx.compose.ui.draw.BlurredEdgeTreatment.Rectangle) else Modifier),
+                ),
+        )
     }
 }
 

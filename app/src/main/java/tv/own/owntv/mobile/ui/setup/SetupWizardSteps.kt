@@ -236,15 +236,20 @@ fun SetupChoiceStep(onCreateProfile: () -> Unit, onRestore: () -> Unit, onSyncDe
 
 /**
  * W6, Who's watching?: Name, Avatar (the letter first, a tap opens the pictures), Kids profile and an optional
- * PIN, then Create profile. A blank name becomes the default one, as it always has on the phone.
+ * PIN, then Create profile. A blank name becomes the default one, as it always has on the phone. A
+ * picture of the user's own is held until Create: before then there is no profile to store it under.
  */
 @Composable
-fun ProfileStep(onCreate: (name: String, avatarId: Int, isKids: Boolean, pin: String?) -> Unit, onBack: () -> Unit) {
+fun ProfileStep(onCreate: (name: String, avatarId: Int, isKids: Boolean, pin: String?, picture: android.net.Uri?) -> Unit, onBack: () -> Unit) {
     var name by remember { mutableStateOf("") }
     var avatarId by remember { mutableIntStateOf(-1) }
     var isKids by remember { mutableStateOf(false) }
     var pin by remember { mutableStateOf("") }
     var pickAvatar by remember { mutableStateOf(false) }
+    var picture by remember { mutableStateOf<android.net.Uri?>(null) }
+    val picker = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia(),
+    ) { uri -> if (uri != null) picture = uri }
     // A password manager must not offer to save a profile PIN.
     val autofill = LocalAutofillManager.current
     WizardFrame(
@@ -252,7 +257,7 @@ fun ProfileStep(onCreate: (name: String, avatarId: Int, isKids: Boolean, pin: St
         title = stringResource(R.string.profiles_gate_title),
         sub = stringResource(R.string.setup_profile_sub),
         next = stringResource(R.string.setup_create_profile),
-        onNext = { autofill?.cancel(); onCreate(name, avatarId, isKids, pin.takeIf { it.isNotBlank() }) },
+        onNext = { autofill?.cancel(); onCreate(name, avatarId, isKids, pin.takeIf { it.isNotBlank() }, picture) },
         nextEnabled = pin.isEmpty() || pin.length >= PIN_MIN,
         onBack = onBack,
     ) {
@@ -263,6 +268,19 @@ fun ProfileStep(onCreate: (name: String, avatarId: Int, isKids: Boolean, pin: St
             subtitle = stringResource(R.string.setup_avatar_line),
             onClick = { pickAvatar = true },
         ) { AvatarStrip(avatarId) }
+        StageSettingRow(
+            title = stringResource(R.string.profiles_avatar_own_picture),
+            icon = MobileIcons.Person,
+            onClick = {
+                picker.launch(
+                    androidx.activity.result.PickVisualMediaRequest(
+                        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly,
+                    ),
+                )
+            },
+        ) {
+            picture?.let { ProfileAvatar(avatarId = avatarId, imagePath = it.toString(), modifier = Modifier.size(28.dp).clip(CircleShape)) }
+        }
         StageSettingRow(
             title = stringResource(R.string.profiles_kids),
             icon = MobileIcons.FavoriteBorder,

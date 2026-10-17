@@ -33,7 +33,7 @@ class ArtProvider : ContentProvider() {
             val bmp = runBlocking(Dispatchers.IO) {
                 withTimeoutOrNull(6_000) {
                     runCatching {
-                        val request = coil3.request.ImageRequest.Builder(ctx).data(url).size(320, 320).build()
+                        val request = coil3.request.ImageRequest.Builder(ctx).data(url).size(480, 480).build()
                         val result = coil3.SingletonImageLoader.get(ctx).execute(request)
                         ((result as? coil3.request.SuccessResult)?.image as? coil3.BitmapImage)?.bitmap
                     }.getOrNull()

@@ -137,6 +137,7 @@ open class MainActivity : FragmentActivity() {
                 .flatMapLatest { it.isPlaying }
                 .collectLatest { if (pip.inPip.value) applyPipParams() }
         }
+        tv.own.owntv.mobile.glcn.PiconPrefetch.start(this, lifecycleScope)
         // glcn: the Fanart icon once, on a phone that had chosen another colour of the old icon.
         lifecycleScope.launch {
             runCatching {

@@ -37,6 +37,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
@@ -897,6 +899,18 @@ internal fun ProgrammeSheet(
 
     if (subSheet == null) {
         MobileBottomSheet(onDismissRequest = onDismiss, title = programme.title, stage = true) {
+            // glcn: the programme's own picture over its title, when the guide has one.
+            (full.imageUrl ?: programme.imageUrl)?.takeIf { it.isNotBlank() }?.let { art ->
+                tv.own.owntv.mobile.ui.components.ProgrammeArt(
+                    art,
+                    Modifier
+                        .padding(start = 8.dp, end = 8.dp, top = 2.dp, bottom = 10.dp)
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 9f)
+                        .clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
+                        .background(palette.cardSolid),
+                )
+            }
             StageSheetHeader(
                 title = programme.title,
                 subtitle = listOfNotNull(

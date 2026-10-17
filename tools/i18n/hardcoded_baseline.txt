@@ -24,6 +24,7 @@
 1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	recent
 1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	root
 1	app/src/main/java/tv/own/owntv/mobile/auto/AutoBrowserService.kt	sports
+1	app/src/main/java/tv/own/owntv/mobile/glcn/PiconPrefetch.kt	http
 1	app/src/main/java/tv/own/owntv/mobile/playback/ReminderAlerts.kt	glcn_open_channel
 1	app/src/main/java/tv/own/owntv/mobile/playback/ReminderAlerts.kt	glcn_reminder_id
 1	app/src/main/java/tv/own/owntv/mobile/playback/ReminderAlerts.kt	glcn_reminders
@@ -35,6 +36,9 @@
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/ContentActionsMenu.kt	remove_continue
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/Shimmer.kt	shimmer
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/Shimmer.kt	shimmerX
+1	app/src/main/java/tv/own/owntv/mobile/ui/player/GlcnIntroSkip.kt	glcn_intro
+1	app/src/main/java/tv/own/owntv/mobile/ui/player/GlcnIntroSkip.kt	introLift
+1	app/src/main/java/tv/own/owntv/mobile/ui/player/PlayerSheets.kt	%.1f s
 2	app/src/main/java/tv/own/owntv/mobile/ui/player/ZapBanner.kt	\0
 1	app/src/main/java/tv/own/owntv/mobile/ui/player/ZapBanner.kt	·
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/home/HomeGlcn.kt	\0
@@ -54,8 +58,11 @@
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	github.com/carlosglcn/OwnTV-Fanart-Mobile
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	https://$GLCN_REPO
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsAppPage.kt	· ahXN00
-1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsGroupRows.kt	glcn_season
-1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsPlayerRows.kt	glcn_dialogue
+1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsCommon.kt	fanart
+1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsFanartRows.kt	glcn_auto_skip_intro
+1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsFanartRows.kt	glcn_dialogue
+1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsFanartRows.kt	glcn_season
+1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsFanartRows.kt	glcn_style
 1	app/src/main/java/tv/own/owntv/mobile/widget/SportsWidget.kt	\0
 1	app/src/main/java/tv/own/owntv/mobile/widget/SportsWidget.kt	$live${p.title} ${e.channel.name} · ${fmt.format(java.util.Date(p.startMs))}–${fmt.format(java.util.Date(p.stopMs))}
 1	app/src/main/java/tv/own/owntv/mobile/widget/SportsWidget.kt	●

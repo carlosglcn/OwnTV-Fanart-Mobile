@@ -139,8 +139,8 @@ fun ProfileGate(
         ProfileEditorSheet(
             initial = null,
             takenNames = profiles.map { it.name.lowercase() }.toSet(),
-            onConfirm = { name, avatarId, isKids, pin ->
-                vm.create(name, avatarId, isKids, pin, fallbackName)
+            onConfirm = { name, avatarId, isKids, pin, picture ->
+                vm.create(name, avatarId, isKids, pin, fallbackName, picture)
             },
             onDismiss = { addProfile = false },
         )

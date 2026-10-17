@@ -276,11 +276,6 @@ internal fun soundSections(vm: SettingsViewModel): List<SettingSection> {
                     "vp_volume_leveling", MobileIcons.Tune, stringResource(R.string.settings_volume_leveling),
                     stringResource(R.string.settings_line_leveling), s.volumeLevelling.pref(false),
                 ) { vm.edit { setVolumeLevelling(it) } },
-                // glcn: clearer speech (decoded sound).
-                switchItem(
-                    "glcn_dialogue", MobileIcons.Tune, stringResource(R.string.glcn_dialogue_title),
-                    stringResource(R.string.glcn_dialogue_desc), s.dialogueBoost.pref(false),
-                ) { vm.edit { setDialogueBoost(it) } },
                 // 25 ms steps across ±5 s: a device's picture delay lands in the tens of milliseconds.
                 SettingItem(
                     "vp_audio_sync", MobileIcons.Schedule, stringResource(R.string.settings_audio_sync), stringResource(R.string.settings_line_audio_sync),

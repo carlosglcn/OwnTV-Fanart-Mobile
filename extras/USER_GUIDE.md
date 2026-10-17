@@ -432,7 +432,7 @@ Both devices open Local sync  →  pair (scan the QR, or pick from the list)
 **Where:** More → **Profiles**
 Each has its own favourites, history, resume points and layout. Add a **PIN**, or make it a **kids
 profile** to hide adult content everywhere. Pick one of ten drawn avatars — or **a photo of your
-own**, which the television cannot offer.
+own**, already while creating the profile.
 
 **Where a profile opens:** Settings → App → **App startup** — Home, the last channel, Favourites, or one
 chosen channel.
@@ -522,6 +522,7 @@ encrypted with your own password**. Choose which profiles travel. Restores a tel
 | The screen keeps sleeping | Only if nothing is playing; check the channel actually started |
 | Stalker portal refuses the login | Re-check the MAC and your phone's **date & time** |
 | Guide is blank | Settings → Sources & guide → **EPG sources** — add a feed, sync it, then **Auto-match** |
+| A series says "Could not load the episodes" | The provider refused the episode list; the code in brackets (e.g. HTTP 407) says why. Stop any other stream on the account and open the series again |
 | Downloads won't start | Settings → App — **Downloads on Wi-Fi only** may be on |
 | Nothing casts | The receiver has to decode it; raw MPEG-TS channels cannot be cast |
 | Update won't install | Android asks you to allow installs from OwnTV the first time |

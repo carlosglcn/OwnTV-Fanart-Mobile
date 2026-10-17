@@ -30,7 +30,7 @@ Two rows ended somewhere other than where the mockup put them. Both are explaine
 | Search | ✅ | Grouped results with a count per kind. Scrolling to the end loads the next page — the television still stops at the first 40 of each kind |
 | Downloads | ✅ | With SAF for the folder, as the mockup required |
 | Customize categories & items | ✅ | Including bulk rename, spans and the PIN lock |
-| Profiles, PIN, restrictions | ✅ | Plus a profile picture from the phone's photos, which the television has no way to offer |
+| Profiles, PIN, restrictions | ✅ | Plus a profile picture of your own, chosen while creating or editing — the phone from its photos, the television from a file or a photo sent from a phone |
 | Backup / restore | ✅ | Including the television→phone migration path, encrypted backups included |
 | Theme, accent, Glass Effect | ✅ | The same stored values; a colour picker was added for all three colour settings |
 | App icon (eight colours) | ✅ | The same stored choice and the same restart question; the phone has no banner or TV home channel |

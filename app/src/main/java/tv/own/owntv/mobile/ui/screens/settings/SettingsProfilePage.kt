@@ -66,7 +66,7 @@ internal fun profileSections(
         ProfileEditorSheet(
             initial = null,
             takenNames = list.map { it.name.lowercase() }.toSet(),
-            onConfirm = { name, avatarId, isKids, pin -> vm.create(name, avatarId, isKids, pin, fallbackName) },
+            onConfirm = { name, avatarId, isKids, pin, picture -> vm.create(name, avatarId, isKids, pin, fallbackName, picture) },
             onDismiss = { adding = false },
         )
     }
@@ -74,7 +74,7 @@ internal fun profileSections(
         ProfileEditorSheet(
             initial = profile,
             takenNames = list.filter { it.id != profile.id }.map { it.name.lowercase() }.toSet(),
-            onConfirm = { name, avatarId, isKids, pin -> vm.edit(profile, name, avatarId, isKids, pin) },
+            onConfirm = { name, avatarId, isKids, pin, _ -> vm.edit(profile, name, avatarId, isKids, pin) },
             onDismiss = { editing = null },
             customPath = profile.avatarPath.orEmpty(),
             onPickPicture = { uri -> vm.setPicture(profile, uri) },
