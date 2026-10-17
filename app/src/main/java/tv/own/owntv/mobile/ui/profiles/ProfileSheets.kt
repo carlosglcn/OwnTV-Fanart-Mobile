@@ -134,12 +134,13 @@ fun ProfilePinSheet(
 fun ProfileEditorSheet(
     initial: ProfileEntity?,
     takenNames: Set<String>,
-    onConfirm: (name: String, avatarId: Int, isKids: Boolean, pin: String?) -> Unit,
+    onConfirm: (name: String, avatarId: Int, isKids: Boolean, pin: String?, picture: android.net.Uri?) -> Unit,
     onDismiss: () -> Unit,
     extraAction: (() -> Unit)? = null,
-    // A picture of the user's own, which applies immediately rather than on Save — the file is
-    // copied the moment it is chosen, so there is nothing sensible to do with it if the sheet is
-    // then cancelled. Absent on a profile that does not exist yet: it has no id to store one under.
+    // A picture of the user's own. On an existing profile it applies immediately rather than on
+    // Save — the file is copied the moment it is chosen, so there is nothing sensible to do with it
+    // if the sheet is then cancelled. A new profile has no id to store one under yet, so the sheet
+    // holds the choice and hands it to [onConfirm] with the rest.
     customPath: String = "",
     onPickPicture: ((android.net.Uri) -> Unit)? = null,
     onClearPicture: (() -> Unit)? = null,
@@ -148,6 +149,8 @@ fun ProfileEditorSheet(
     var avatarId by remember { mutableIntStateOf(initial?.avatarId ?: -1) }
     var isKids by remember { mutableStateOf(initial?.isKids == true) }
     var pin by remember { mutableStateOf("") }
+    var pendingPicture by remember { mutableStateOf<android.net.Uri?>(null) }
+    val picturePath = pendingPicture?.toString() ?: customPath
     val autofill = LocalAutofillManager.current
     var removePin by remember { mutableStateOf(false) }
     val nameTaken = name.trim().isNotEmpty() && name.trim().lowercase() in takenNames
@@ -178,17 +181,17 @@ fun ProfileEditorSheet(
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            if (onPickPicture != null) {
+            if (onPickPicture != null || initial == null) {
                 val picker = androidx.activity.compose.rememberLauncherForActivityResult(
                     androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia(),
-                ) { uri -> uri?.let(onPickPicture) }
+                ) { uri -> if (uri != null) onPickPicture?.invoke(uri) ?: run { pendingPicture = uri } }
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(MobileDimens.GapSmall),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     ProfileAvatar(
                         avatarId = avatarId,
-                        imagePath = customPath,
+                        imagePath = picturePath,
                         modifier = Modifier
                             .size(AVATAR_PICK_SIZE - 8.dp)
                             .clip(CircleShape)
@@ -211,10 +214,10 @@ fun ProfileEditorSheet(
                         },
                         style = MobileButtonStyle.TEXT,
                     )
-                    if (customPath.isNotBlank() && onClearPicture != null) {
+                    if (pendingPicture != null || (customPath.isNotBlank() && onClearPicture != null)) {
                         MobileButton(
                             text = stringResource(R.string.common_clear),
-                            onClick = onClearPicture,
+                            onClick = { if (pendingPicture != null) pendingPicture = null else onClearPicture?.invoke() },
                             style = MobileButtonStyle.TEXT,
                         )
                     }
@@ -286,7 +289,7 @@ fun ProfileEditorSheet(
                 (removePin || pin.isEmpty() || pin.length >= PIN_MIN),
             onConfirm = {
                 autofill?.cancel()
-                onConfirm(name.trim(), avatarId, isKids, if (removePin) "" else pin.takeIf { it.isNotBlank() })
+                onConfirm(name.trim(), avatarId, isKids, if (removePin) "" else pin.takeIf { it.isNotBlank() }, pendingPicture)
                 onDismiss()
             },
             onDismiss = onDismiss,

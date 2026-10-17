@@ -432,7 +432,7 @@ Both devices open Local sync  →  pair (scan the QR, or pick from the list)
 **Where:** More → **Profiles**
 Each has its own favourites, history, resume points and layout. Add a **PIN**, or make it a **kids
 profile** to hide adult content everywhere. Pick one of ten drawn avatars — or **a photo of your
-own**, which the television cannot offer.
+own**, already while creating the profile.
 
 **Where a profile opens:** Settings → App → **App startup** — Home, the last channel, Favourites, or one
 chosen channel.

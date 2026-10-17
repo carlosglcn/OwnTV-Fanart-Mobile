@@ -37,6 +37,7 @@ class SetupViewModel(
     private val appScope: CoroutineScope,
     private val context: Context,
     private val companion: tv.own.owntv.core.companion.CompanionController,
+    private val profiles: tv.own.owntv.core.profile.ProfileManager,
 ) : ViewModel() {
 
     // ---- Remote (M9-19): another device fills the form in a browser; the phone pre-fills its own form. ----
@@ -164,9 +165,15 @@ class SetupViewModel(
      * the deliberate one, with the name and avatar the user chose. Both go through core's importer, so
      * whichever ran first is the profile the content lands on.
      */
-    fun createProfile(name: String, avatarId: Int, isKids: Boolean, pin: String?, onCreated: () -> Unit) {
+    fun createProfile(name: String, avatarId: Int, isKids: Boolean, pin: String?, picture: android.net.Uri?, onCreated: () -> Unit) {
         appScope.launch {
-            importer.createProfile(name, avatarId, isKids, pin)
+            val id = importer.createProfile(name, avatarId, isKids, pin)
+            // The picture waits for the profile: before it exists there is no id to store one under.
+            if (picture != null) runCatching {
+                profileDao.getById(id)?.let { p ->
+                    context.contentResolver.openInputStream(picture)?.use { profiles.setCustomAvatar(p, it) }
+                }
+            }
             onMain(onCreated)
         }
     }

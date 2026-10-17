@@ -63,7 +63,8 @@ fun ProfileAvatar(avatarId: Int, modifier: Modifier = Modifier, imagePath: Strin
         }
         if (imagePath.isNotBlank()) {
             AsyncImage(
-                model = java.io.File(imagePath),
+                // A content:// address is a photo just picked for a profile not created yet.
+                model = if (imagePath.startsWith("content:")) imagePath else java.io.File(imagePath),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.matchParentSize().clip(CircleShape),

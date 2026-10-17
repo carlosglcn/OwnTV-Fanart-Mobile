@@ -215,8 +215,8 @@ fun SetupFlow(
             // the same way the RESTORE step does rather than inventing a second ending.
             Step.SYNC_DEVICE -> SetupLocalSyncStep(onRestored = { vm.finish(onDone) }, onBack = { step = Step.CHOICE })
             Step.CREATE_PROFILE -> ProfileStep(
-                onCreate = { name, avatar, kids, pin ->
-                    vm.createProfile(name.ifBlank { defaultProfileName }, avatar, kids, pin) { step = Step.ADD_CONTENT }
+                onCreate = { name, avatar, kids, pin, picture ->
+                    vm.createProfile(name.ifBlank { defaultProfileName }, avatar, kids, pin, picture) { step = Step.ADD_CONTENT }
                 },
                 onBack = { step = Step.CHOICE },
             )
