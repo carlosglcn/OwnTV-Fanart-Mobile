@@ -284,6 +284,7 @@ fun PlayerScreen(
     // recordings — a scrub bar offering 25 hours of live television, and no clock, Now/Next, live
     // badge, Go Live pill or programme timeline anywhere.
     val replaying by tuner.replaying.collectAsStateWithLifecycle()
+    val autoSkipIntro by settings.autoSkipIntro.collectAsStateWithLifecycle(false)
     val isLive = channel != null && !replaying
 
     // "Go back to…", for a live channel whose provider keeps an archive — or its own saved copy (N4),
@@ -818,6 +819,14 @@ fun PlayerScreen(
                 null
             },
             recordingThis = playerRecording != null,
+        )
+
+        // glcn: "Skip intro" on a series episode.
+        GlcnIntroSkip.Chip(
+            engine = activeEngine,
+            enabled = channel == null && !inPip && failure == null,
+            controlsVisible = controlsVisible,
+            autoSkip = autoSkipIntro,
         )
 
         // Independent of the controls, so it still appears after they have faded out on their own.

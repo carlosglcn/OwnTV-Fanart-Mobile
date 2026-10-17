@@ -78,6 +78,7 @@ val LocalSettingsNav = staticCompositionLocalOf<(String) -> Unit> { {} }
 @Composable
 fun groupSections(group: SettingsGroup, vm: SettingsViewModel): List<SettingSection> = when (group) {
     SettingsGroup.QUICK -> emptyList()
+    SettingsGroup.FANART -> fanartSections(vm)
     SettingsGroup.PROFILE -> profileSections()
     SettingsGroup.SOURCES -> sourcesSections(vm)
     SettingsGroup.APPEARANCE -> appearanceSections(vm)
@@ -370,17 +371,6 @@ private fun appearanceSections(vm: SettingsViewModel): List<SettingSection> {
                     "animations", MobileIcons.Refresh, stringResource(R.string.settings_animations),
                     stringResource(R.string.settings_line_animations_mobile), animations == AnimationLevel.FULL,
                 ) { on -> vm.edit { setAnimationLevel(if (on) AnimationLevel.FULL else AnimationLevel.OFF) } },
-                // glcn: seasonal themes — Off, Details, Animated.
-                choiceItem(
-                    "glcn_season", MobileIcons.AutoAwesome, SettingsGroup.APPEARANCE, stringResource(R.string.glcn_season_title),
-                    stringResource(R.string.glcn_season_desc), null,
-                    listOf(
-                        SettingsChoice(0, stringResource(R.string.common_off)),
-                        SettingsChoice(1, stringResource(R.string.glcn_season_details)),
-                        SettingsChoice(2, stringResource(R.string.glcn_season_animated)),
-                    ),
-                    s.seasonMode.pref(0), 2, { m -> vm.edit { setSeasonMode(m) } },
-                ),
             ),
         ),
     )

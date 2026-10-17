@@ -37,6 +37,8 @@ enum class SettingsGroup(
     val icon: ImageVector,
 ) {
     QUICK("quick", R.string.settings_group_quick, R.string.settings_group_summary_quick, MobileIcons.AutoAwesome),
+    // glcn: everything the fork adds, on one page.
+    FANART("fanart", R.string.glcn_fanart_group, R.string.glcn_fanart_summary, MobileIcons.Palette),
     PROFILE("profile", R.string.settings_profile_group, R.string.settings_card_profile, MobileIcons.Person),
     SOURCES("sources", R.string.settings_group_sources, R.string.settings_card_sources, MobileIcons.FormatListBulleted),
     APPEARANCE("appearance", R.string.settings_appearance_group, R.string.settings_card_appearance, MobileIcons.Palette),
