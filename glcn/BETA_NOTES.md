@@ -11,3 +11,4 @@ Versión de pruebas de OwnTV Fanart para móvil. Se instala al lado de la normal
 - Guía: al tocar un programa, la hoja muestra arriba su imagen cuando la guía la tiene.
 - Picons: tras abrir la app y después de cada sincronización, se descargan en segundo plano los logos de todos los canales (solo con wifi); la lista y la guía salen ya con sus logos.
 - Info del reproductor: nueva línea **Arranque del canal**, lo que tardó el canal en mostrar imagen.
+- Arreglado: los logos de canales desaparecían todos al hacer scroll tras un fallo puntual del servidor de logos. La precarga va ahora de uno en uno y solo con wifi.
