@@ -1081,6 +1081,9 @@ class LiveTuner(
     fun goToLive() {
         if (timeshift.goLiveOnCopy()) return
         timeshift.clear()
+        // glcn: on the copy saved on the phone (after a plain pause) re-open it at its newest moment;
+        // re-opening the channel picked the copy up at the remembered resume point instead.
+        if (live.localTimeshift.value != null) { live.localRewind.seek(null); return }
         _channel.value?.let { ch -> live.launch { open(ch) } }
     }
 
