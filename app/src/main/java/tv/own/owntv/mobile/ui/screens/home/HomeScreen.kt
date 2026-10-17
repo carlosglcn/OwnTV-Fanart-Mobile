@@ -138,6 +138,7 @@ fun HomeScreen(
     DisposableEffect(homeChrome) {
         onDispose {
             homeChrome?.backdropUrl = null
+            homeChrome?.backdropSoft = false
             homeChrome?.heading = null
             homeChrome?.resume = null
         }
@@ -211,6 +212,7 @@ fun HomeScreen(
     val heading = shownTrending?.takeIf { heroScrolled }?.let { HomeHeading(trendingRank(it), it.snapshot.localizedTitle) }
     SideEffect {
         homeChrome?.backdropUrl = shownTrending?.let(::trendingBackdrop) ?: featuredArt
+        homeChrome?.backdropSoft = shownTrending == null && featuredArt != null
         homeChrome?.backdropHeight = if (posterHero) 300.dp else 470.dp
         homeChrome?.heading = heading
         // The Resume pill belongs to the full hero (M2-01); the posters layout has none (M2-03).
