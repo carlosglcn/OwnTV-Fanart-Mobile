@@ -522,6 +522,7 @@ encrypted with your own password**. Choose which profiles travel. Restores a tel
 | The screen keeps sleeping | Only if nothing is playing; check the channel actually started |
 | Stalker portal refuses the login | Re-check the MAC and your phone's **date & time** |
 | Guide is blank | Settings → Sources & guide → **EPG sources** — add a feed, sync it, then **Auto-match** |
+| A series says "Could not load the episodes" | The provider refused the episode list; the code in brackets (e.g. HTTP 407) says why. Stop any other stream on the account and open the series again |
 | Downloads won't start | Settings → App — **Downloads on Wi-Fi only** may be on |
 | Nothing casts | The receiver has to decode it; raw MPEG-TS channels cannot be cast |
 | Update won't install | Android asks you to allow installs from OwnTV the first time |

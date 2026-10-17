@@ -136,6 +136,7 @@ internal fun SeriesPage(
     val seasons by vm.seasons.collectAsStateWithLifecycle()
     val season by vm.season.collectAsStateWithLifecycle()
     val loading by vm.loading.collectAsStateWithLifecycle()
+    val episodesFailure by vm.episodesFailure.collectAsStateWithLifecycle()
     val favorite by vm.isFavorite.collectAsStateWithLifecycle()
     val episodeProgress by vm.episodeProgress.collectAsStateWithLifecycle()
     val completedIds by vm.completedIds.collectAsStateWithLifecycle()
@@ -297,7 +298,13 @@ internal fun SeriesPage(
                         CircularProgressIndicator(color = stageAccent.accent, strokeWidth = 3.dp, modifier = Modifier.size(28.dp))
                     }
                 } else if (shown.isEmpty()) {
-                    Text(stringResource(R.string.content_no_episodes), style = stageText(13f, 500), color = palette.muted, modifier = Modifier.padding(vertical = 24.dp))
+                    // Only a show with nothing stored can carry a failure; "hide watched" emptying a season cannot.
+                    val failure = episodesFailure?.takeIf { episodes.isEmpty() }
+                    Text(
+                        if (failure != null) stringResource(R.string.content_episodes_load_failed, failure)
+                        else stringResource(R.string.content_no_episodes),
+                        style = stageText(13f, 500), color = palette.muted, modifier = Modifier.padding(vertical = 24.dp),
+                    )
                 }
             }
         }
