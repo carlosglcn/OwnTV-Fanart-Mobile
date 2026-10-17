@@ -6,3 +6,4 @@
 - Avisos de programas: ahora los de la versión original (sin notificaciones duplicadas).
 - Destacados: el paso automático al siguiente se completa entero (antes podía quedarse a medias entre dos tarjetas) y no salta mientras lo estás deslizando.
 - Canales recientes: el canal que acabas de ver sale el primero y entero.
+- "Ir al directo" tras una pausa vuelve de verdad al momento más reciente.
