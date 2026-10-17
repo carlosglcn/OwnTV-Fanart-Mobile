@@ -14,3 +14,4 @@ Versión de pruebas de OwnTV Fanart para móvil. Se instala al lado de la normal
 - Arreglado: los logos de canales desaparecían todos al hacer scroll tras un fallo puntual del servidor de logos. La precarga va ahora de uno en uno y solo con wifi.
 - Android Auto: las fichas de canales muestran la imagen de lo que se emite ahora (si la guía la tiene) en vez del logo, y con más resolución.
 - **Avatares:** de 10 a 24. Nuevos: Estrella, Luna, Sol, Llama, Gato, Huella, Palomitas, Claqueta, Auriculares, Baloncesto, Flor, Montaña, Planeta y Fantasma. Los perfiles existentes conservan el suyo.
+- Del autor original: las series dicen por qué no cargó la lista de episodios; foto propia al crear un perfil.
