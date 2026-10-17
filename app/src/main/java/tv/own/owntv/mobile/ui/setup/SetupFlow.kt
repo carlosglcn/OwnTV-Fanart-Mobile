@@ -82,7 +82,7 @@ object SetupHandoff {
 }
 
 private enum class Step {
-    WELCOME, DISPLAY_SIZE, DISCLAIMER, CHOICE, SYNC_DEVICE, CREATE_PROFILE, ADD_CONTENT, EXISTING, FORM, IMPORTING, RESTORE
+    WELCOME, DISPLAY_SIZE, DISCLAIMER, GLCN_STYLE, CHOICE, SYNC_DEVICE, CREATE_PROFILE, ADD_CONTENT, EXISTING, FORM, IMPORTING, RESTORE
 }
 
 /**
@@ -174,7 +174,8 @@ fun SetupFlow(
             Step.WELCOME -> onCancel?.invoke()
             Step.DISPLAY_SIZE -> step = Step.WELCOME
             Step.DISCLAIMER -> step = Step.DISPLAY_SIZE
-            Step.CHOICE -> step = Step.DISCLAIMER
+            Step.GLCN_STYLE -> step = Step.DISCLAIMER
+            Step.CHOICE -> step = Step.GLCN_STYLE
             // The step owns its own Back: it has sheets to dismiss first, and once the data has
             // landed there is nothing to go back to.
             Step.SYNC_DEVICE -> Unit
@@ -202,12 +203,13 @@ fun SetupFlow(
             // Before the disclaimer, which is the first screen that is mostly words: if the text is
             // too small to read, that is the screen it first hurts on (#179).
             Step.DISPLAY_SIZE -> DisplaySizeStep(onNext = { step = Step.DISCLAIMER }, onBack = { step = Step.WELCOME })
-            Step.DISCLAIMER -> DisclaimerStep(onAgree = { step = Step.CHOICE }, onBack = { step = Step.DISPLAY_SIZE })
+            Step.DISCLAIMER -> DisclaimerStep(onAgree = { step = Step.GLCN_STYLE }, onBack = { step = Step.DISPLAY_SIZE })
+            Step.GLCN_STYLE -> GlcnStyleStep(onNext = { step = Step.CHOICE }, onBack = { step = Step.DISCLAIMER })
             Step.CHOICE -> SetupChoiceStep(
                 onCreateProfile = { step = Step.CREATE_PROFILE },
                 onRestore = { backupOrigin = Step.CHOICE; step = Step.RESTORE; pickBackup() },
                 onSyncDevice = { step = Step.SYNC_DEVICE },
-                onBack = { step = Step.DISCLAIMER },
+                onBack = { step = Step.GLCN_STYLE },
             )
             // A sync brings whole profiles with it, exactly as a restored backup does, so it finishes
             // the same way the RESTORE step does rather than inventing a second ending.
