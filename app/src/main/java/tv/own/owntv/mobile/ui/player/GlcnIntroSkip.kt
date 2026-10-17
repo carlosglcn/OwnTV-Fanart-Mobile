@@ -65,12 +65,16 @@ object GlcnIntroSkip {
 
         var last by remember(meta) { mutableLongStateOf(-1L) }
         var candidate by remember(meta) { mutableLongStateOf(-1L) }
+        // Once the viewer has jumped past the start (with the button or by seeking), the button is done
+        // for this episode — a first skip of a typical length could otherwise land still inside its window.
+        var jumped by remember(meta) { mutableStateOf(false) }
         LaunchedEffect(position, series) {
             if (series == null) return@LaunchedEffect
             val prev = last
             last = position
             if (prev > 3_000L && position - prev > JUMP_MS && prev < WINDOW_MS && position < WINDOW_MS + DEFAULT_JUMP_MS) {
                 candidate = position
+                jumped = true
             }
         }
         LaunchedEffect(candidate) {
@@ -93,7 +97,7 @@ object GlcnIntroSkip {
                 engine.seekBy(learnedEnd - engine.position.value)
             }
         }
-        val visible = inWindow && !(autoSkip && learnedEnd > 0)
+        val visible = inWindow && !jumped && !(autoSkip && learnedEnd > 0)
         val lift by animateDpAsState(if (controlsVisible) 132.dp else 36.dp, label = "introLift")
         Box(modifier.fillMaxSize()) {
             AnimatedVisibility(visible, enter = fadeIn(), exit = fadeOut(), modifier = Modifier.align(Alignment.BottomEnd)) {
