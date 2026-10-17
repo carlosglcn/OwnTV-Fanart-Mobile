@@ -231,11 +231,20 @@ internal fun FeaturedCarousel(
     if (slides.isEmpty()) return
     val items = slides.map { it.first }
     val pager = rememberPagerState { items.size }
-    LaunchedEffect(pager.currentPage, items) {
-        slides.getOrNull(pager.currentPage)?.let { (it0, url) -> onPage(it0, url) }
+    // glcn: keyed on the page once it has landed, not on currentPage — that flips halfway through the slide,
+    // which restarted this effect and cancelled the animation, leaving two cards half on screen.
+    LaunchedEffect(pager.settledPage, items) {
+        slides.getOrNull(pager.settledPage)?.let { (it0, url) -> onPage(it0, url) }
         if (items.size < 2) return@LaunchedEffect
         delay(7_000)
-        runCatching { pager.animateScrollToPage((pager.currentPage + 1) % items.size) }
+        // Never under a finger: a swipe in progress waits, and its own landing restarts the clock.
+        if (pager.isScrollInProgress) return@LaunchedEffect
+        runCatching {
+            pager.animateScrollToPage(
+                (pager.settledPage + 1) % items.size,
+                animationSpec = androidx.compose.animation.core.tween(650, easing = androidx.compose.animation.core.FastOutSlowInEasing),
+            )
+        }
     }
     val context = LocalContext.current
     val fmt = remember { android.text.format.DateFormat.getTimeFormat(context) }
