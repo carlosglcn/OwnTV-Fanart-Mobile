@@ -9,3 +9,5 @@ Versión de pruebas de OwnTV Fanart para móvil. Se instala al lado de la normal
 - Inicio: detrás de Destacados la imagen ahora es un brillo difuminado, no una copia nítida que se veía rara arriba.
 - Saltar intro: tras saltar, el botón desaparece (antes seguía ahí hasta pulsarlo otra vez).
 - Guía: al tocar un programa, la hoja muestra arriba su imagen cuando la guía la tiene.
+- Picons: tras abrir la app y después de cada sincronización, se descargan en segundo plano los logos de todos los canales (solo con wifi); la lista y la guía salen ya con sus logos.
+- Info del reproductor: nueva línea **Arranque del canal**, lo que tardó el canal en mostrar imagen.
