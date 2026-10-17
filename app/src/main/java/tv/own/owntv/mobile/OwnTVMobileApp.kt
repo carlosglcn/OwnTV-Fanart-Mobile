@@ -97,6 +97,7 @@ class OwnTVMobileApp : Application(), androidx.work.Configuration.Provider {
         // would offer OwnTV-v*.apk — a different applicationId, which the installer refuses after
         // the whole download.
         CoreBuildInfo.releaseRepo = "carlosglcn/OwnTV-Fanart-Mobile" // glcn: our own releases
+        if (BuildConfig.GLCN_BETA) tv.own.owntv.core.CoreBuildInfo.releaseTag = "beta-latest" // glcn: the beta follows its own pre-release
         // First thing after the context exists: a crash from here on leaves a trace on disk instead
         // of dying with the process, with the playback ring attached.
         CrashRecorder.diagnostics = { tv.own.owntv.player.LiveDiagnosticsLog.snapshot() }
