@@ -633,7 +633,10 @@ private fun LiveRow(
             mode = if (onToggleMode == null) null else stringResource(if (mode == HomeLiveRowMode.ON_NOW) R.string.home_row_on_now else R.string.home_row_cards),
             onMode = onToggleMode,
         )
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(horizontal = 18.dp)) {
+        // glcn: the channel just watched comes first and shows whole, not half off the left edge.
+        val rowState = rememberLazyListState()
+        LaunchedEffect(channels.firstOrNull()?.id) { runCatching { rowState.scrollToItem(0) } }
+        LazyRow(state = rowState, horizontalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(horizontal = 18.dp)) {
             items(channels, key = { it.id }, contentType = { mode }) { channel ->
                 val menu = { onMenu(ContentTarget(MediaType.LIVE, channel.id, channel.name, channel.displayLogoUrl)) }
                 if (mode == HomeLiveRowMode.ON_NOW) {
