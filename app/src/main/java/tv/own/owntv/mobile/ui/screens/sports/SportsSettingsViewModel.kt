@@ -2,6 +2,8 @@ package tv.own.owntv.mobile.ui.screens.sports
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -71,24 +73,55 @@ class SportsSettingsViewModel(
     fun setLeagueOrder(keys: List<String>) = update { c -> c.copy(leagues = keys + (c.leagues - keys.toSet())) }
 
     fun toggleTeam(team: FollowedTeam) = update { c ->
-        if (c.teams.any { it.key == team.key }) c.copy(teams = c.teams.filterNot { it.key == team.key }) else c.copy(teams = c.teams + team)
+        if (c.teams.any { it.key == team.key }) c.copy(teams = c.teams.filterNot { it.key == team.key })
+        else {
+            // A team from a league not followed yet brings its league along, or the hub would have nothing of it.
+            val league = teamLeague[team.key]
+            val leagues = if (league != null && !c.allSports && league !in c.leagues) c.leagues + league else c.leagues
+            c.copy(teams = c.teams + team, leagues = leagues)
+        }
     }
 
     fun suggestions(c: SportsConfig): List<SportsSuggestion> = SportsMemory.suggestions(c, c.followedLeagues())
 
-    /** Teams of the followed leagues, fetched once per page visit, for the My teams search. */
-    private var teamIndex: List<Pair<FollowedTeam, String>>? = null
+    /** Teams per catalogue league, kept once fetched; a league that failed is asked again on the next search. */
+    private val leagueTeams = HashMap<String, List<Pair<FollowedTeam, String>>>()
+    /** Where each team found by the search plays: following it also follows that league, or the hub would never show it. */
+    private val teamLeague = HashMap<String, String>()
+
+    private suspend fun indexOf(keys: Collection<String>): List<Pair<FollowedTeam, String>> {
+        val sports = tv.own.owntv.core.sports.model.Sport.values().filter {
+            it != tv.own.owntv.core.sports.model.Sport.TENNIS && it != tv.own.owntv.core.sports.model.Sport.RACING &&
+                it != tv.own.owntv.core.sports.model.Sport.MMA && it != tv.own.owntv.core.sports.model.Sport.CRICKET
+        }.toSet()
+        val leagues = keys.mapNotNull { SportsCatalog.league(it) }.filter { it.sport in sports }
+        coroutineScope {
+            leagues.filter { it.key !in leagueTeams }.map { league ->
+                async {
+                    val teams = runCatching { source.teams(league) }.getOrNull()
+                    if (!teams.isNullOrEmpty()) {
+                        leagueTeams[league.key] = teams.map { t ->
+                            teamLeague.putIfAbsent("${league.sport.path}/${t.id}", league.key)
+                            FollowedTeam(league.sport, t.id, t.name, t.abbreviation) to
+                                listOf(t.name, t.shortName, t.location.orEmpty(), t.abbreviation).joinToString(" ")
+                        }
+                    }
+                }
+            }.forEach { it.await() }
+        }
+        return leagues.flatMap { leagueTeams[it.key].orEmpty() }.distinctBy { it.first.key }
+    }
+
+    private fun fold(s: String): String =
+        java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD).replace(Regex("\\p{M}+"), "").lowercase()
 
     suspend fun searchTeams(query: String): List<FollowedTeam> {
         if (query.trim().length < 2) return emptyList()
-        val index = teamIndex ?: buildList {
-            for (key in config.value.followedLeagues()) {
-                val league = SportsCatalog.league(key) ?: continue
-                val teams: List<Team> = runCatching { source.teams(league) }.getOrDefault(emptyList())
-                teams.forEach { t -> add(FollowedTeam(league.sport, t.id, t.name, t.abbreviation) to t.name) }
-            }
-        }.distinctBy { it.first.key }.also { teamIndex = it }
-        val q = query.trim().lowercase()
-        return index.filter { (_, name) -> name.lowercase().contains(q) }.map { it.first }.take(30)
+        val q = fold(query.trim())
+        fun hits(index: List<Pair<FollowedTeam, String>>) = index.filter { (_, text) -> fold(text).contains(q) }.map { it.first }.take(30)
+        val own = hits(indexOf(config.value.followedLeagues()))
+        if (own.isNotEmpty()) return own
+        // Nothing among the followed leagues: look in the whole catalogue.
+        return hits(indexOf(SportsCatalog.leagues.map { it.key }))
     }
 }

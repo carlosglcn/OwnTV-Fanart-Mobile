@@ -206,7 +206,7 @@ class SportsViewModel(
             val found = watchReader.found(m) { SportsMemory.rememberedFor(c, it) }
             when {
                 found != null -> emit(ChannelSearch.Found(found))
-                !(av as Boolean) -> emit(ChannelSearch.NotSearched)
+                // glcn: no button first — once the window is open the channels are searched by themselves.
                 else -> {
                     emit(ChannelSearch.Searching)
                     emit(ChannelSearch.Found(watchReader.watchFor(listOf(m)) { SportsMemory.rememberedFor(c, it) }[m.key].orEmpty()))
