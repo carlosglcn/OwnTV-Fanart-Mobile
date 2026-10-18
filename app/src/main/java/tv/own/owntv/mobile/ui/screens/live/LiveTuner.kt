@@ -716,6 +716,13 @@ class LiveTuner(
             live.noteWatched(named) // "previous channel" follows a cast zap too
         }
         recordHistory(pid, channel.id)
+        // glcn: learn what is usually watched — logged only after the viewer stays a few minutes.
+        runCatching {
+            habitTracker.watching(pid, channel.id, channel.name, channel.epgChannelId) {
+                epgReader.nowNext(channel, custom.value, settings.epgOffsetMinutes.first())?.now
+                    ?.let { tv.own.owntv.core.reminder.HabitTracker.Now(it.title, it.startMs, it.stopMs) }
+            }
+        }
         _nowNext.value = epgReader.nowNext(channel, custom.value, settings.epgOffsetMinutes.first())
         _timelineProgrammes.value = catchupProgrammes()
             .map { LiveProgramme(it.startMs, it.stopMs, it.title) }
@@ -1131,7 +1138,11 @@ class LiveTuner(
     }
 
     /** Stop playing altogether — the mini player's swipe-down, and nothing else. */
+    /** glcn: habit learning (see [tv.own.owntv.core.reminder.HabitTracker]). */
+    private val habitTracker by lazy { org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.reminder.HabitTracker>() }
+
     fun stop() {
+        runCatching { habitTracker.stopped() }
         timeshift.clear()
         loadedId = null
         _previewing.value = false

@@ -72,6 +72,10 @@ internal fun fanartSections(vm: SettingsViewModel): List<SettingSection> {
                     stringResource(R.string.glcn_auto_skip_desc), s.autoSkipIntro.pref(false),
                 ) { vm.edit { setAutoSkipIntro(it) } },
                 switchItem(
+                    "glcn_habits", MobileIcons.Bell, stringResource(R.string.glcn_habits_title),
+                    stringResource(R.string.glcn_habits_desc), s.habitLearning.pref(true),
+                ) { vm.edit { setHabitLearning(it) } },
+                switchItem(
                     "glcn_dialogue", MobileIcons.Tune, stringResource(R.string.glcn_dialogue_title),
                     stringResource(R.string.glcn_dialogue_desc), s.dialogueBoost.pref(false),
                 ) { vm.edit { setDialogueBoost(it) } },

@@ -668,6 +668,14 @@ fun MobileShell(
     val dueReminders by reminders.due.collectAsStateWithLifecycle()
     val reminderMode by settings.reminderMode.collectAsStateWithLifecycle(SettingsRepository.ReminderMode.ASK)
     val dueReminder = dueReminders.firstOrNull { it.profileId == activeId }
+    // glcn: what the viewer usually watches becomes reminders for its coming showings — on start and every two hours.
+    val habitTracker: tv.own.owntv.core.reminder.HabitTracker = koinInject()
+    LaunchedEffect(activeId) {
+        while (true) {
+            runCatching { habitTracker.refresh(activeId) }
+            kotlinx.coroutines.delay(2 * 3_600_000L)
+        }
+    }
     val reminderScope = androidx.compose.runtime.rememberCoroutineScope()
     // glcn: the Sports widget (and old reminder notifications) ask for a channel: tune it and open the player.
     val askedChannel by tv.own.owntv.mobile.playback.ReminderAlerts.openChannelRequested.collectAsStateWithLifecycle()
