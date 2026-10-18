@@ -269,7 +269,7 @@ fun LiveScreen(
                 )
                 StageTool(
                     onClick = { vm.setCardsView(!cardsView) },
-                    icon = if (cardsView) MobileIcons.ViewList else MobileIcons.GridView,
+                    icon = if (cardsView) MobileIcons.FormatListBulleted else MobileIcons.GridView,
                     contentDescription = stringResource(R.string.settings_live_layout),
                 )
             }

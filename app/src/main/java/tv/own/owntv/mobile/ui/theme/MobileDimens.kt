@@ -21,4 +21,7 @@ object MobileDimens {
 
     /** The space between the parts of a sheet's scrolling body ([tv.own.owntv.mobile.ui.components.SheetScroll]). */
     val SheetGap = 9.dp
+
+    /** glcn: the corner of a card in the live list (upstream's cleanup dropped it). */
+    val CardCorner = 12.dp
 }
