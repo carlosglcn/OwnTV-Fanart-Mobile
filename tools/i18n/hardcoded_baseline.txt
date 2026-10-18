@@ -62,6 +62,7 @@
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsFanartRows.kt	glcn_auto_skip_intro
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsFanartRows.kt	glcn_dialogue
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsFanartRows.kt	glcn_habits
+1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsFanartRows.kt	glcn_logo_plate
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsFanartRows.kt	glcn_season
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsFanartRows.kt	glcn_style
 2	app/src/main/java/tv/own/owntv/mobile/ui/screens/sports/SportsSettingsViewModel.kt	\0

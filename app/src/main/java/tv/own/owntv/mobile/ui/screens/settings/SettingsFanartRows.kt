@@ -53,6 +53,15 @@ internal fun fanartSections(vm: SettingsViewModel): List<SettingSection> {
                     style, null, { st -> vm.edit { applyGlcnStyle(st) } },
                 ),
                 choiceItem(
+                    "glcn_logo_plate", MobileIcons.Image, g, stringResource(R.string.glcn_logo_plate_title),
+                    stringResource(R.string.glcn_logo_plate_desc), null,
+                    listOf(
+                        SettingsChoice(0, stringResource(R.string.glcn_logo_plate_classic)),
+                        SettingsChoice(1, stringResource(R.string.glcn_logo_plate_none)),
+                    ),
+                    s.logoPlate.pref(0), 0, { m -> vm.edit { setLogoPlate(m) } },
+                ),
+                choiceItem(
                     "glcn_season", MobileIcons.AutoAwesome, g, stringResource(R.string.glcn_season_title),
                     stringResource(R.string.glcn_season_desc), null,
                     listOf(

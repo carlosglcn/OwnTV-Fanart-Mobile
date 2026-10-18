@@ -65,7 +65,7 @@ fun ChannelLogoImage(
         ink = measured
         pending = null
     }
-    val plate = plateOn?.takeIf { ink != LOGO_INK_NONE }?.let { surface ->
+    val plate = plateOn?.takeIf { LogoPlateMode.mode == 0 && ink != LOGO_INK_NONE }?.let { surface ->
         val s = surface.luminance()
         if (contrastRatio(Color(ink).luminance(), s) >= MIN_CONTRAST) null
         else if (s < 0.5f) LightPlate else DarkPlate
@@ -100,6 +100,11 @@ fun ChannelLogoImage(
             }
         },
     )
+}
+
+/** glcn: plate mode, set from the shell: 0 classic (a plate behind logos that would vanish), 1 none. */
+object LogoPlateMode {
+    var mode by mutableIntStateOf(0)
 }
 
 /** Mean ink colour per logo URL, measured once per run. [LOGO_INK_NONE] = leave it alone. */

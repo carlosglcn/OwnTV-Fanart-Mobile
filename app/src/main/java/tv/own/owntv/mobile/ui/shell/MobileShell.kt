@@ -668,6 +668,9 @@ fun MobileShell(
     val dueReminders by reminders.due.collectAsStateWithLifecycle()
     val reminderMode by settings.reminderMode.collectAsStateWithLifecycle(SettingsRepository.ReminderMode.ASK)
     val dueReminder = dueReminders.firstOrNull { it.profileId == activeId }
+    // glcn: the logo plate setting (Settings › Fanart) reaches every logo through one state object.
+    val logoPlate by settings.logoPlate.collectAsStateWithLifecycle(0)
+    LaunchedEffect(logoPlate) { tv.own.owntv.mobile.ui.components.LogoPlateMode.mode = logoPlate }
     // glcn: what the viewer usually watches becomes reminders for its coming showings — on start and every two hours.
     val habitTracker: tv.own.owntv.core.reminder.HabitTracker = koinInject()
     LaunchedEffect(activeId) {
