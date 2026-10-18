@@ -84,7 +84,7 @@ fun SettingsLocalSyncPage(
     val paired by vm.paired.collectAsStateWithLifecycle()
     val hosting by vm.hosting.collectAsStateWithLifecycle()
     val palette = LocalStagePalette.current
-    // The paired device a tap picked: its row takes the `.fx` look and shows Sync now · Unpair (M8-05).
+    // The paired device a tap picked: its row takes the `.fx` look and shows Sync now · Unpair.
     var picked by remember { mutableStateOf<String?>(null) }
 
     // The listener runs only while this page is on screen. That, and the PIN, is the whole of the
@@ -260,7 +260,7 @@ fun SetupLocalSyncStep(
 /** [ResultSheet] with the one difference setup needs: the button leaves the wizard, not the sheet. */
 @Composable
 private fun SetupResultSheet(result: LocalSyncViewModel.Step.Result, onDone: () -> Unit) {
-    MobileBottomSheet(onDismissRequest = onDone, title = stringResource(R.string.local_sync_done), stage = true) {
+    MobileBottomSheet(onDismissRequest = onDone, title = stringResource(R.string.local_sync_done)) {
         StageSheetHeader(title = stringResource(R.string.local_sync_done))
         Column(
             modifier = Modifier,
@@ -358,7 +358,7 @@ private fun FindDeviceSheet(vm: LocalSyncViewModel) {
         return
     }
 
-    MobileBottomSheet(onDismissRequest = vm::cancel, title = stringResource(R.string.local_sync_add_device), stage = true) {
+    MobileBottomSheet(onDismissRequest = vm::cancel, title = stringResource(R.string.local_sync_add_device)) {
         StageSheetHeader(title = stringResource(R.string.local_sync_add_device))
         Column(
             modifier = Modifier
@@ -416,7 +416,7 @@ private fun FindDeviceSheet(vm: LocalSyncViewModel) {
 @Composable
 private fun PinSheet(onSubmit: (String) -> Unit, onDismiss: () -> Unit) {
     var pin by remember { mutableStateOf("") }
-    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.local_sync_enter_pin), stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.local_sync_enter_pin)) {
         StageSheetHeader(title = stringResource(R.string.local_sync_enter_pin))
         Column(
             modifier = Modifier
@@ -455,7 +455,7 @@ private fun DirectionSheet(
     onUnpair: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    MobileBottomSheet(onDismissRequest = onDismiss, title = deviceName, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = deviceName) {
         StageSheetHeader(title = deviceName)
         Column(Modifier) {
             StageSettingRow(
@@ -498,7 +498,7 @@ private fun SectionsSheet(
             SyncDirection.MERGE -> R.string.local_sync_what_to_merge
         },
     )
-    MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(title = title)
         Column(
             modifier = Modifier
@@ -545,7 +545,7 @@ private fun ConfirmSheet(
 ) {
     // The other device's hardware settings and engine pins: offered only when it sent some, unticked.
     var deviceSettings by remember(preview) { mutableStateOf(false) }
-    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.local_sync_confirm_title), stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.local_sync_confirm_title)) {
         StageSheetHeader(title = stringResource(R.string.local_sync_confirm_title))
         Column(
             modifier = Modifier
@@ -601,7 +601,7 @@ private fun PreviewLine(labelRes: Int, count: Int) {
 
 @Composable
 private fun ResultSheet(result: LocalSyncViewModel.Step.Result, onDismiss: () -> Unit) {
-    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.local_sync_done), stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.local_sync_done)) {
         StageSheetHeader(title = stringResource(R.string.local_sync_done))
         Column(
             modifier = Modifier,
@@ -621,7 +621,7 @@ private fun ResultSheet(result: LocalSyncViewModel.Step.Result, onDismiss: () ->
 
 @Composable
 private fun ErrorSheet(failure: SyncFailure, onDismiss: () -> Unit) {
-    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.local_sync_failed), stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.local_sync_failed)) {
         StageSheetHeader(title = stringResource(R.string.local_sync_failed))
         Column(Modifier) {
             SyncNote(

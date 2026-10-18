@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -53,8 +52,6 @@ import tv.own.owntv.core.companion.CompanionServerState
 import tv.own.owntv.core.database.entity.ProfileEntity
 import tv.own.owntv.mobile.R
 import tv.own.owntv.mobile.ui.components.MobileBottomSheet
-import tv.own.owntv.mobile.ui.components.MobileButton
-import tv.own.owntv.mobile.ui.components.MobileButtonStyle
 import tv.own.owntv.mobile.ui.components.MobileIcons
 import tv.own.owntv.mobile.ui.components.StageConfirmItems
 import tv.own.owntv.mobile.ui.profiles.ProfilePinSheet
@@ -79,6 +76,7 @@ import tv.own.owntv.mobile.ui.stage.stageClickable
 import tv.own.owntv.mobile.ui.stage.stageFx
 import tv.own.owntv.mobile.ui.stage.stageText
 import tv.own.owntv.mobile.ui.theme.MobileDimens
+import tv.own.owntv.mobile.ui.stage.StageButtonStyle
 
 /** What the picker offers to create. A `.own` is a ZIP, and no MIME type of its own exists for it. */
 private const val BACKUP_MIME = "application/octet-stream"
@@ -88,7 +86,7 @@ private const val BACKUP_FILE_NAME = "owntv-backup.own"
 private enum class BackupTarget { FILE, REMOTE, SHARE }
 
 /**
- * More › Backup & Restore (M8-04): "Never backed up" (what lives only on this phone) or when the last backup
+ * More › Backup & Restore: "Never backed up" (what lives only on this phone) or when the last backup
  * was; **Back up now** to a file on this phone, by Remote to another device, or through the share sheet;
  * **Restore** from a file or by Remote; and what a backup holds.
  *
@@ -223,7 +221,7 @@ fun SettingsBackupPage(
     }
 
     if (restoreChooser) {
-        MobileBottomSheet(onDismissRequest = { restoreChooser = false }, title = stringResource(R.string.settings_backup_restore_title), stage = true) {
+        MobileBottomSheet(onDismissRequest = { restoreChooser = false }, title = stringResource(R.string.settings_backup_restore_title)) {
             StageSheetHeader(title = stringResource(R.string.settings_backup_restore_title), subtitle = stringResource(R.string.more_restore_body_mobile))
             StageMenuItem(stringResource(R.string.more_backup_file_tv_mobile), onClick = { restoreChooser = false; pickBackup() }, icon = MobileIcons.Folder, chevron = true)
             StageMenuItem(stringResource(R.string.settings_backup_remote), onClick = { restoreChooser = false; remoteRestore = true }, icon = MobileIcons.Translate, chevron = true)
@@ -378,7 +376,7 @@ internal fun RemoteSheet(
     onDismiss: () -> Unit,
 ) {
     val palette = LocalStagePalette.current
-    MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(title = title)
         Column(Modifier.padding(horizontal = 8.dp, vertical = 8.dp)) {
             val muted = stageText(12.5f, 500)
@@ -460,7 +458,7 @@ private fun ExportSheet(
     var pinFor by remember { mutableStateOf<ProfileEntity?>(null) }
     val palette = LocalStagePalette.current
 
-    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.settings_backup_export_title), stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.settings_backup_export_title)) {
         StageSheetHeader(title = stringResource(R.string.settings_backup_export_title), subtitle = stringResource(R.string.settings_backup_selected_profiles))
         Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
             StageGroupLabel(stringResource(R.string.settings_backup_which_profiles))
@@ -533,7 +531,7 @@ private fun SealedPasswordSheet(
 ) {
     var password by remember { mutableStateOf("") }
     val palette = LocalStagePalette.current
-    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.settings_backup_enter_password), stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.settings_backup_enter_password)) {
         StageSheetHeader(title = stringResource(R.string.settings_backup_enter_password), subtitle = stringResource(R.string.settings_backup_encrypted_description))
         StageSearchField(
             value = password,
@@ -573,7 +571,7 @@ private fun RestoreSheet(
     var deviceSettings by remember(inspection) { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
     val palette = LocalStagePalette.current
-    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.settings_backup_restore_title), stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.settings_backup_restore_title)) {
         StageSheetHeader(title = stringResource(R.string.settings_backup_restore_title))
         Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
             StageGroupLabel(stringResource(R.string.settings_backup_what_restore))
@@ -630,7 +628,7 @@ private fun ConfirmThenCancel(confirm: String, enabled: Boolean, onConfirm: () -
 @Composable
 private fun OutcomeSheet(outcome: BackupViewModel.Outcome, onDismiss: () -> Unit) {
     val palette = LocalStagePalette.current
-    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.settings_backup_title), stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.settings_backup_title)) {
         StageSheetHeader(title = stringResource(R.string.settings_backup_title))
         Column(Modifier.padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             val body = stageText(13f, 500, lineHeight = 1.45f)
@@ -673,12 +671,12 @@ internal fun SheetButtons(
         horizontalArrangement = Arrangement.spacedBy(MobileDimens.GapSmall, Alignment.End),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        MobileButton(
+        StageButton(
             text = stringResource(R.string.common_cancel),
             onClick = onDismiss,
-            style = MobileButtonStyle.TEXT,
+            small = true,
         )
-        MobileButton(text = confirm, onClick = onConfirm, enabled = confirmEnabled)
+        StageButton(text = confirm, onClick = onConfirm, enabled = confirmEnabled, style = StageButtonStyle.PRIMARY)
     }
 }
 
@@ -686,8 +684,8 @@ internal fun SheetButtons(
 internal fun Note(text: String) {
     Text(
         text = text,
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        style = stageText(12f, 400),
+        color = LocalStagePalette.current.muted,
     )
 }
 

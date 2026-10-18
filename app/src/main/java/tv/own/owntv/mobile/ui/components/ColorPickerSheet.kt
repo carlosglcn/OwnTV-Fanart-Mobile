@@ -62,7 +62,7 @@ private val HueSpectrum: List<Color> = (0..360 step 30).map {
 }
 
 /**
- * Pick a colour (M9-16): the presets as 38 dp swatches with their names (and "Yours", the colour being made),
+ * Pick a colour: the presets as 38 dp swatches with their names (and "Yours", the colour being made),
  * then a saturation/brightness square, the hue bar, the hex code, Cancel and Use this colour. The square and
  * the bar are dragged; a preset is one tap; a typed hex wins when it is valid.
  *
@@ -89,7 +89,7 @@ fun ColorPickerSheet(
         }
     }
     // Keyed on the seed: the setting arrives a frame after the sheet opens, and the picker must move to it
-    // rather than stay on the default (it opened on Teal over a custom green, #16).
+    // rather than stay on the default (it opened on Teal over a custom green).
     var hue by remember(seed) { mutableFloatStateOf(seed[0]) }
     var sat by remember(seed) { mutableFloatStateOf(seed[1]) }
     var value by remember(seed) { mutableFloatStateOf(seed[2]) }
@@ -105,7 +105,7 @@ fun ColorPickerSheet(
         hexError = false
     }
 
-    MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss) {
         StageSheetHeader(title, eyebrow = eyebrow)
         Column(Modifier.heightIn(max = sheetListHeight()).verticalScroll(rememberScrollState(), enabled = !dragging)) {
             if (presets.isNotEmpty()) {

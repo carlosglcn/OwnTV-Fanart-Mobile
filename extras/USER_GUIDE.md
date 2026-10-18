@@ -51,7 +51,7 @@ More → [Local sync](#-local-sync-with-your-tv).
 
 ## 🧭 Getting around
 
-**On a phone** — a bottom bar: Home · Live TV · TV Guide · Movies · Series.
+**On a phone** — a bottom bar: Home · Live TV · Sports · TV Guide · Library (Movies | Series at its top).
 **On a tablet, or a phone held sideways** — the bar becomes a floating rail down the left (with
 Downloads and More too), Live TV puts the preview beside the list, and Movies and Series show the
 picked title on a card beside the posters.
@@ -62,7 +62,7 @@ to change category. Top right: the **playlist** button, **search** and **your av
 - **Tap the tab you are already on** — or long-press it — to jump that list back to the top.
 - **More** (tap your avatar) holds your profile and **Switch**, **Settings**, Downloads, Favourites,
   History, Backup, Local sync, the error log and About.
-- The **playlist chip** in the top bar switches which playlist the whole app is showing.
+- The **playlist button** at the top right switches which playlist the whole app is showing.
 
 ---
 
@@ -83,6 +83,34 @@ to change category. Top right: the **playlist** button, **search** and **your av
 
 **Too sensitive?** **Settings → Watching & recording → Gesture sensitivity** changes how far a value
 moves per centimetre of finger, without changing how far you must travel to start a gesture.
+
+---
+
+## 🏆 Sports
+
+**Where:** the **Sports** tab. Nothing is followed at first: tap **Sports and leagues** (or go to
+**Settings → App → Sports → Sports and leagues**), tap a sport and switch on its leagues.
+**Sport buttons → All sports** fetches every league instead, which takes longer.
+
+- **The Sports page** — two rows of buttons filter it: sports (and ★ My teams), then that sport's
+  leagues; **⟳** at the end rebuilds the sports data (the status pill says **Rebuilding sports…**).
+  Rows: **Live now**, **Sport on your channels** (from your guide) and **Starting soon**.
+  Tap a match to open it; **long-press** to follow a side or set a reminder.
+- **A match** — score, venue, and the tabs **Watch live · Timeline · Stats · Line-ups · Table · Form ·
+  Broadcasts**. In **Watch live**, **Find channels** lists the channels in your guide that show it, from
+  30 minutes before kick-off. **Filter channels** narrows them by language, country, picture and
+  playlist; **Strict filtering** hides the rest, and **Remember for every match** keeps the choice.
+  Tap a channel to watch full screen; **Back** returns to the match. **Long-press** a channel for
+  **Always use for …**. **Broadcasts** lists the channels found, one per row by country.
+- **Live score card** on a match keeps its score in your notifications until full time.
+- **In the player** — the score shows under the channel name while the controls are up, and
+  **Other channels** switches to another channel showing the same match.
+- **Your own order** — in Sports and leagues, **long-press** a sport or a switched-on league →
+  **Move**, then the arrows and **Save**. The Sports page and the Home row follow it.
+- **Settings → App → Sports** — auto rebuild, live refresh, filters, My teams, **Goal alerts** (also
+  when OwnTV is closed: goals, kick-off and full time, half time, red cards; for My teams or every
+  followed league) and match reminders. A reminder with a channel found shows OwnTV's own prompt while
+  the app is open.
 
 ---
 
@@ -116,7 +144,7 @@ Choose per section whether Live, Movies and Series are fetched. A big import off
 background** so you can start using the app immediately; a status pill shows progress.
 
 ### 🗂️ Several playlists
-**Where:** the playlist chip in the top bar
+**Where:** the playlist button at the top right
 Show them all merged, or narrow the whole app to one. Rows carry the provider's name when more than
 one is loaded.
 
@@ -306,7 +334,7 @@ connection** so you can prove a key or a self-hosted server works.
 ## 🔎 Search · 🕐 History · ⭐ Favourites
 
 ### 🔎 Search
-**Where:** the magnifying glass in the top bar
+**Where:** the magnifying glass at the top right
 One field over channels, films and shows, grouped with a count for each. Once you type, filter
 chips — **Live TV / TV Shows / Movies / Series** — narrow the results; tap to turn one on or off,
 several at once, none for everything. Recent searches are kept,
@@ -398,7 +426,7 @@ channel. A **sleep timer** lives in the same menu — and on the full-screen pla
 
 ## 📺 Cast to a television
 
-**Where:** the cast button in the top bar or the player
+**Where:** the cast button at the top right or the player
 Appears only when there is a receiver on your network. The television plays the stream itself, so
 the phone's lock screen and notification then drive *it*.
 
@@ -464,7 +492,8 @@ Six font families for the interface and for popups, and interface zoom.
 ### 🗂️ Customize
 **Where:** Settings → Content & metadata → **Customize categories & items**
 Hide, rename, reorder and regroup categories and items, with **bulk rename** (rules, automatic
-cleanup, a review step and restore-originals), **custom categories**, span selection, and an optional
+cleanup, a review step and restore-originals — for category names too, from the categories page),
+**custom categories**, span selection, and an optional
 **PIN lock**.
 
 ### 🏠 Home & layout
@@ -485,6 +514,7 @@ finds any setting by its name, and **Quick** holds the rows you pin yourself by 
 | **Live TV player** (+ per playlist) | Player | Which engine opens a channel |
 | **Give up after** (+ per playlist) | Live TV | Bounds how long a dead channel can spin |
 | **Movies & Series player** (+ per playlist) | Player | Which engine opens films and episodes |
+| **Catch-up time zone** | Sources & guide | **Automatic** (default) uses the Xtream panel's own zone; Device or a fixed offset otherwise |
 | **Catch-up time zone per playlist** | Sources & guide | One provider's archive on a different clock (quarter-hour zones included) |
 | **Live latency** (+ per playlist) | Live TV | Closer to live, or steadier |
 | **Pre-buffer** (+ per playlist) | Live TV | Collect a few seconds first on a flaky provider |

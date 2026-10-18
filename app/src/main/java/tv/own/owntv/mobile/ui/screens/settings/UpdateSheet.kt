@@ -34,9 +34,9 @@ import org.koin.compose.koinInject
 import tv.own.owntv.core.update.UpdateManager
 import tv.own.owntv.mobile.R
 import tv.own.owntv.mobile.ui.components.MobileBottomSheet
-import tv.own.owntv.mobile.ui.components.MobileButton
-import tv.own.owntv.mobile.ui.components.MobileButtonStyle
 import tv.own.owntv.mobile.ui.theme.MobileDimens
+import tv.own.owntv.mobile.ui.stage.StageButton
+import tv.own.owntv.mobile.ui.stage.StageButtonStyle
 
 /**
  * The in-app updater, as a bottom sheet.
@@ -59,7 +59,7 @@ fun UpdateSheet(onDismiss: () -> Unit, checkOnOpen: Boolean = false) {
         if (checkOnOpen) manager.check()
     }
 
-    MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss) {
         tv.own.owntv.mobile.ui.stage.StageSheetHeader(stringResource(R.string.update_title))
         Column(Modifier.padding(horizontal = MobileDimens.ScreenPaddingH)) {
             when (val s = state) {
@@ -83,9 +83,10 @@ fun UpdateSheet(onDismiss: () -> Unit, checkOnOpen: Boolean = false) {
                     )
                     Spacer(Modifier.height(MobileDimens.GapMedium))
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                        MobileButton(
+                        StageButton(
                             text = stringResource(R.string.settings_close),
                             onClick = onDismiss,
+                            style = StageButtonStyle.PRIMARY,
                         )
                     }
                 }
@@ -128,15 +129,15 @@ fun UpdateSheet(onDismiss: () -> Unit, checkOnOpen: Boolean = false) {
                         Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(MobileDimens.GapSmall),
                     ) {
-                        MobileButton(
+                        StageButton(
                             text = stringResource(R.string.update_later),
                             onClick = onDismiss,
-                            style = MobileButtonStyle.SECONDARY,
                         )
                         Spacer(Modifier.weight(1f))
-                        MobileButton(
+                        StageButton(
                             text = stringResource(R.string.update_now),
                             onClick = { manager.downloadAndInstall() },
+                            style = StageButtonStyle.PRIMARY,
                         )
                     }
                 }
@@ -170,15 +171,15 @@ fun UpdateSheet(onDismiss: () -> Unit, checkOnOpen: Boolean = false) {
                         Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(MobileDimens.GapSmall),
                     ) {
-                        MobileButton(
+                        StageButton(
                             text = stringResource(R.string.settings_close),
                             onClick = onDismiss,
-                            style = MobileButtonStyle.SECONDARY,
                         )
                         Spacer(Modifier.weight(1f))
-                        MobileButton(
+                        StageButton(
                             text = stringResource(R.string.update_try_again),
                             onClick = { manager.retry() },
+                            style = StageButtonStyle.PRIMARY,
                         )
                     }
                 }

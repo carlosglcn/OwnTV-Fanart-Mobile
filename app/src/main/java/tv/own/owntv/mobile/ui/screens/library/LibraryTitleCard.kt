@@ -39,7 +39,7 @@ import tv.own.owntv.mobile.ui.stage.stageGlass
 import tv.own.owntv.mobile.ui.stage.stageText
 
 /**
- * Beside the grid (M12-02): the picked title in a glass card — its title art (48 dp), the name in 16 / 800, the
+ * Beside the grid: the picked title in a glass card — its title art (48 dp), the name in 16 / 800, the
  * meta line in 10.5, four lines of plot and Play. A show's button opens its page, where the episodes are.
  */
 @Composable

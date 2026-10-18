@@ -54,7 +54,7 @@ import tv.own.owntv.mobile.ui.screens.settings.RemoteSourceSheet
 import tv.own.owntv.mobile.ui.screens.settings.SettingsChoice
 import tv.own.owntv.mobile.ui.screens.settings.StageChoiceSheet
 import tv.own.owntv.mobile.ui.screens.settings.StageConfirmSheet
-import tv.own.owntv.mobile.ui.screens.settings.StageTextRow
+import tv.own.owntv.mobile.ui.stage.StageTextRow
 import tv.own.owntv.mobile.ui.stage.LocalStagePalette
 import tv.own.owntv.mobile.ui.stage.StageChevron
 import tv.own.owntv.mobile.ui.stage.StageRowValue
@@ -66,12 +66,12 @@ import tv.own.owntv.mobile.ui.stage.stageAccent
 import tv.own.owntv.mobile.ui.stage.stageText
 
 /**
- * The first-run wizard's own steps (M10-W1 … W7), the TV's sequence and words, each in a [WizardFrame]:
+ * The first-run wizard's own steps, the TV's sequence and words, each in a [WizardFrame]:
  * Welcome → Display → Before you start → Set up OwnTV → Who's watching? → Add a playlist. The TV's chooser
  * for a backup has no step here: a phone has its own file picker, so Restore goes straight to it.
  */
 
-/** W1: the language as a row (a tap opens the list), then Get started. */
+/** The language as a row (a tap opens the list), then Get started. */
 @Composable
 fun WelcomeStep(onNext: () -> Unit) {
     WizardFrame(
@@ -89,7 +89,7 @@ fun WelcomeStep(onNext: () -> Unit) {
 }
 
 /**
- * W2, how big everything is, before the first screen that is mostly words (#179): UI zoom and Font size as
+ * How big everything is, before the first screen that is mostly words: UI zoom and Font size as
  * steppers, written straight through — `MobileTheme` scales the whole step under the finger — the app icon, and
  * the sample row to judge them by. Below [UiZoom.LOW_RAM_WARN] the same accept-the-risk question Settings asks
  * comes first, once per visit.
@@ -148,7 +148,7 @@ fun DisplaySizeStep(onNext: () -> Unit, onBack: () -> Unit) {
             subtitle = stringResource(R.string.setup_line_app_icon_mobile),
             onClick = { pickIcon = true },
         ) { AppIconSwatches(appIcon) }
-        // The sample (W2): a row's own type at the size it will really be.
+        // The sample: a row's own type at the size it will really be.
         val palette = LocalStagePalette.current
         Row(
             Modifier
@@ -183,7 +183,7 @@ fun DisplaySizeStep(onNext: () -> Unit, onBack: () -> Unit) {
     }
 }
 
-/** The App icon row's value (W2): five icons from the chosen one's set, the chosen one ringed. */
+/** The App icon row's value: five icons from the chosen one's set, the chosen one ringed. */
 @Composable
 private fun AppIconSwatches(chosen: AppIcon) {
     val accent = stageAccent.accent
@@ -200,7 +200,7 @@ private fun AppIconSwatches(chosen: AppIcon) {
     }
 }
 
-/** W3: what the app is not — it ships no channels, the user brings their own sources. */
+/** What the app is not — it ships no channels, the user brings their own sources. */
 @Composable
 fun DisclaimerStep(onAgree: () -> Unit, onBack: () -> Unit) {
     WizardFrame(
@@ -214,7 +214,7 @@ fun DisclaimerStep(onAgree: () -> Unit, onBack: () -> Unit) {
 }
 
 /**
- * W4: start fresh, or bring everything back. Restoring first is why the profile step comes after this one — a
+ * Start fresh, or bring everything back. Restoring first is why the profile step comes after this one — a
  * restore brings its own profiles.
  */
 @Composable
@@ -235,7 +235,7 @@ fun SetupChoiceStep(onCreateProfile: () -> Unit, onRestore: () -> Unit, onSyncDe
 }
 
 /**
- * W6, Who's watching?: Name, Avatar (the letter first, a tap opens the pictures), Kids profile and an optional
+ * Who's watching?: Name, Avatar (the letter first, a tap opens the pictures), Kids profile and an optional
  * PIN, then Create profile. A blank name becomes the default one, as it always has on the phone. A
  * picture of the user's own is held until Create: before then there is no profile to store it under.
  */
@@ -301,7 +301,7 @@ fun ProfileStep(onCreate: (name: String, avatarId: Int, isKids: Boolean, pin: St
     if (pickAvatar) AvatarSheet(avatarId, onPick = { avatarId = it; pickAvatar = false }, onDismiss = { pickAvatar = false })
 }
 
-/** The Avatar row's value (W6): five pictures from the chosen one on, the chosen one ringed. */
+/** The Avatar row's value: five pictures from the chosen one on, the chosen one ringed. */
 @Composable
 private fun AvatarStrip(chosen: Int) {
     val accent = stageAccent.accent
@@ -322,7 +322,7 @@ private fun AvatarStrip(chosen: Int) {
 @Composable
 private fun AvatarSheet(chosen: Int, onPick: (Int) -> Unit, onDismiss: () -> Unit) {
     val accent = stageAccent.accent
-    MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss) {
         StageSheetHeader(stringResource(R.string.setup_avatar))
         LazyVerticalGrid(
             columns = GridCells.Adaptive(64.dp),
@@ -346,7 +346,7 @@ private fun AvatarSheet(chosen: Int, onPick: (Int) -> Unit, onDismiss: () -> Uni
 }
 
 /**
- * W7, Add a playlist: Remote first (a phone keyboard is slow for addresses too), Type it here, Existing when
+ * Add a playlist: Remote first (a phone keyboard is slow for addresses too), Type it here, Existing when
  * another profile has playlists, Import, then Skip for now.
  */
 @Composable
@@ -402,7 +402,7 @@ fun ExistingSourcesStep(sources: List<SourceEntity>, onAdd: (Set<Long>) -> Unit,
     ) {
         sources.forEach { source ->
             val checked = source.id in selected
-            // The name only: an address can carry a user name and password (F3).
+            // The name only: an address can carry a user name and password.
             StageSettingRow(
                 title = source.name,
                 icon = MobileIcons.PlaylistPlay,
@@ -413,7 +413,7 @@ fun ExistingSourcesStep(sources: List<SourceEntity>, onAdd: (Set<Long>) -> Unit,
     }
 }
 
-/** The language row (W1): "All 26 languages" under it, the chosen one on the right; a tap opens the list. */
+/** The language row: "All 26 languages" under it, the chosen one on the right; a tap opens the list. */
 @Composable
 private fun FirstRunLanguageRow(localeStore: LocaleStore = koinInject()) {
     val scope = rememberCoroutineScope()

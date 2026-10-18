@@ -76,7 +76,7 @@ internal data class GuideMarks(
 )
 
 /**
- * The grid (M4-01, M3-06): a 70 dp channel column (logo + number), then the programmes as rounded cells
+ * The grid: a 70 dp channel column (logo + number), then the programmes as rounded cells
  * with their times — the one on now a shade lighter, past ones at half strength, the picked one filled
  * with the accent; a bell for a reminder, a red dot for a recording, ↺ on a catch-up cell that has
  * started, and a dim "No program at this time." where the feed leaves a gap. The ruler and the accent
@@ -116,7 +116,7 @@ internal fun GuideGrid(
         val minutePx = with(LocalDensity.current) { minuteWidth.toPx() }
         fun x(ms: Long): Dp = minuteWidth * ((ms - window.start).toFloat() / MINUTE_MS)
         val nowIn = nowMs in window.start until window.end
-        // The now-line in the middle of the cells (owner, 11 Oct), so what is on now keeps its title in
+        // The now-line in the middle of the cells, so what is on now keeps its title in
         // view — measured from this grid's own width, which a rail or a turned phone makes narrower.
         val areaPx = with(LocalDensity.current) { area.toPx() }
         LaunchedEffect(nowRequests, window.start, minutePx, areaPx) {
@@ -474,7 +474,7 @@ private const val MINUTE_MS = 60_000L
 /** Half an hour is the unit every guide is drawn in, so it is what the ruler counts. */
 private const val TICK_MINUTES = 30
 
-/** Two hours across the cell area at Size 100 % (the mockup's 19:00 – 21:00 over 327 dp). */
+/** Two hours across the cell area at Size 100 % (19:00 – 21:00 over 327 dp). */
 private const val SPAN_MINUTES = 120f
 
 private val CHANNEL_COLUMN = 74.dp

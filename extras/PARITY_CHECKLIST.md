@@ -3,13 +3,12 @@
 **Status: complete. Every row below was checked against the code in this repository on 2026-09-14,
 not against a plan or a changelog.**
 
-The design mockup that governed Plan 4 carried a *Feature parity checklist*: every feature of
-[OwnTV for Android TV](https://github.com/ahXN00/OwnTV), with a status of **Port**, **Redesign**,
-**New** or **Dropped**. Phase 15 of the build plan required a final pass over it — every row
-accounted for, every drop justified in writing. This is that pass.
+Every feature of [OwnTV for Android TV](https://github.com/ahXN00/OwnTV), with its status on the
+phone: **Port**, **Redesign**, **New** or **Dropped** — every row accounted for, every drop justified
+in writing.
 
-Two rows ended somewhere other than where the mockup put them. Both are explained below, under
-[Deviations](#deviations-from-the-mockup).
+Two rows took a second look before they settled. Both are explained below, under
+[Two decisions worth recording](#two-decisions-worth-recording).
 
 ---
 
@@ -28,22 +27,24 @@ Two rows ended somewhere other than where the mockup put them. Both are explaine
 | Home rows, order, hidden set | ✅ | All six `HomeRow` values |
 | Trending (TMDB) | ✅ | Core, with a detailed-card or posters-only choice |
 | Search | ✅ | Grouped results with a count per kind. Scrolling to the end loads the next page — the television still stops at the first 40 of each kind |
-| Downloads | ✅ | With SAF for the folder, as the mockup required |
+| Downloads | ✅ | With SAF for the folder — no all-files permission |
 | Customize categories & items | ✅ | Including bulk rename, spans and the PIN lock |
 | Profiles, PIN, restrictions | ✅ | Plus a profile picture of your own, chosen while creating or editing — the phone from its photos, the television from a file or a photo sent from a phone |
 | Backup / restore | ✅ | Including the television→phone migration path, encrypted backups included |
-| Theme, accent, Glass Effect | ✅ | The same stored values; a colour picker was added for all three colour settings |
+| Theme, accent, Glass & background | ✅ | The same stored values; a colour picker was added for all three colour settings |
 | App icon (eight colours) | ✅ | The same stored choice and the same restart question; the phone has no banner or TV home channel |
-| Locales | ✅ | 26 packaged, inherited from core's resources — the mockup said 24, and the catalogue has grown since |
+| Locales | ✅ | 26 packaged, inherited from core's resources |
 | Player: engine ladder, mpv/Exo | ✅ | `:player-core`, untouched, including the per-channel compatibility pin. The phone ran **half** the ladder until 2026-09-14 — one engine was watched and the other was a terminus. It now walks core's own `LiveLadder`: four engine/format rungs, each at most once, with the whole-tune budget behind Settings → "Give up after" |
 | External player handoff | ✅ | Richer here than on the television, because a phone has more players installed |
 | Weather | ✅ | Core, in °C or °F |
-| **In-app update check** | ✅ | **Settings → App.** See [Deviations](#deviations-from-the-mockup) |
+| **In-app update check** | ✅ | **Settings → App.** See [Two decisions worth recording](#two-decisions-worth-recording) |
 
 ## Redesigned — same function, different shape
 
 | Feature | Done | Shape it took |
 |---|---|---|
+| Sports (hub, match page, Find channels, filters, Broadcasts, league order, Home row, player score) | ✅ | 2026-10-17. Phone-shaped: list → leagues page (two panes on a tablet), filter **sheet**, no preview pane (a tap plays full screen), reorder by long-press → Move → the app's reorder sheet. Goal alerts and the live score card also work with the app closed — the television schedules none |
+| Bottom bar with Sports | ✅ | 2026-10-17. Movies and Series share one **Library** tab (Movies \| Series switch) so Sports fits in five; the tablet rail keeps them apart |
 | Live TV browse | ✅ | Three panels became a crumb + categories sheet, the list, and a preview on top (beside the list when wide) |
 | EPG / Guide | ✅ | The grid was kept, and *On now* added as the portrait default; Timeline is a third shape |
 | Movies / Series browse | ✅ | Two tabs, as the television's rail; a glass title card beside the grid when wide |
@@ -80,31 +81,31 @@ being difficult, and none is deferred: the ship-complete policy applies here too
 
 ---
 
-## Deviations from the mockup
+## Two decisions worth recording
 
 **1. The in-app update check was nearly dropped, and should not have been.**
 
-The mockup listed it as a **Port**, with the note *"kept while sideloaded; removed if Play ships"*.
-During the build it was written out anyway: `SettingsAppPage` carried a comment saying there would
+Its parity status was always **Port**, with the note *"kept while sideloaded; removed if Play ships"*.
+It was nearly written out anyway: `SettingsAppPage` carried a comment saying there would
 never be an update check here, the manifest listed `REQUEST_INSTALL_PACKAGES` among permissions this
 app would never declare, and `CHANGELOG_APP.md` said the app had no update sheet. The reasoning was
 Google Play — the same reasoning that correctly chose SAF over `MANAGE_EXTERNAL_STORAGE`.
 
-It was restored in Phase 15, as the mockup always intended. Distribution is sideloaded, so nothing
+It was restored. Distribution is sideloaded, so nothing
 else was ever going to tell anyone a new version existed. The permission is declared for the updater
-and nothing else, and the manifest says so. **The mockup's own condition still stands: if this app
+and nothing else, and the manifest says so. **The original condition still stands: if this app
 ever ships on Play, the permission and the two Settings rows come out together.**
 
 Worth keeping as a lesson: three files had been made to agree with a decision, which made it look
-far more settled than it was. Only the mockup disagreed, and the mockup was right.
+far more settled than it was. Only the parity list disagreed, and it was right.
 
 **2. Auto frame-rate switching was dropped, then built.**
 
-The mockup dropped it on the grounds that phone panels do not switch refresh rate for content. Some
+It was first dropped on the grounds that phone panels do not switch refresh rate for content. Some
 now do. It exists as `autoFrameRate` on the Playback settings page, **off by default**, and it warns
 before turning on where the display cannot be asked — which is the honest shape for a setting whose
-hardware support cannot be detected reliably. Since P10 (2026-09-23) it acts: full screen only, seamless
-switches only (owner decision 7) — through the same core surface hint the television uses.
+hardware support cannot be detected reliably. Since 2026-09-23 it acts: full screen only, seamless
+switches only — through the same core surface hint the television uses.
 
 ---
 

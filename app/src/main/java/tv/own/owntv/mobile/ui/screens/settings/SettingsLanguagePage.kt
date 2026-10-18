@@ -38,10 +38,7 @@ import tv.own.owntv.core.i18n.SupportedLocale
 import tv.own.owntv.core.i18n.SupportedLocales
 import tv.own.owntv.mobile.R
 import tv.own.owntv.mobile.ui.components.MobileBottomSheet
-import tv.own.owntv.mobile.ui.components.MobileButton
-import tv.own.owntv.mobile.ui.components.MobileButtonStyle
 import tv.own.owntv.mobile.ui.components.MobileIcons
-import tv.own.owntv.mobile.ui.components.SettingRow
 import tv.own.owntv.mobile.ui.stage.LocalStagePalette
 import tv.own.owntv.mobile.ui.stage.StageRadio
 import tv.own.owntv.mobile.ui.stage.StageSearchField
@@ -49,6 +46,9 @@ import tv.own.owntv.mobile.ui.stage.StageSettingRow
 import tv.own.owntv.mobile.ui.stage.stageText
 import tv.own.owntv.mobile.ui.theme.MobileDimens
 import java.util.Locale
+import tv.own.owntv.mobile.ui.stage.StageRowValue
+import tv.own.owntv.mobile.ui.stage.StageChevron
+import tv.own.owntv.mobile.ui.stage.StageButton
 
 /**
  * Every language the app is packaged in, each in its own name, with how much of it is translated.
@@ -80,7 +80,7 @@ fun SettingsLanguagePage(
 
     SettingsPage(modifier) {
         item(key = "search") {
-            // The Settings search's field (M9-02), with its ✕.
+            // The Settings search's field, with its ✕.
             StageSearchField(
                 value = query,
                 onValueChange = { query = it },
@@ -92,13 +92,12 @@ fun SettingsLanguagePage(
         }
 
         settingsGroup(key = "help") {
-            SettingRow(
+            StageSettingRow(
                 title = stringResource(R.string.settings_language_help_translate),
                 subtitle = stringResource(R.string.settings_language_contribution_description),
                 icon = MobileIcons.Translate,
-                showChevron = true,
                 onClick = { helpSheet = true },
-            )
+            ) { StageRowValue("", StageChevron.FORWARD) }
         }
 
         settingsGroup(key = "languages") {
@@ -193,7 +192,7 @@ private fun TranslationContributionSheet(onDismiss: () -> Unit) {
         }
     }
 
-    MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss) {
         tv.own.owntv.mobile.ui.stage.StageSheetHeader(stringResource(R.string.settings_language_help_translate))
         Column(
             modifier = Modifier
@@ -233,17 +232,15 @@ private fun TranslationContributionSheet(onDismiss: () -> Unit) {
                     color = LocalStagePalette.current.dim,
                 )
             }
-            MobileButton(
+            StageButton(
                 text = url,
                 onClick = { open(url) },
                 modifier = Modifier.fillMaxWidth(),
-                style = MobileButtonStyle.SECONDARY,
             )
-            MobileButton(
+            StageButton(
                 text = stringResource(R.string.settings_language_request_new),
                 onClick = { open(requestUrl) },
                 modifier = Modifier.fillMaxWidth(),
-                style = MobileButtonStyle.SECONDARY,
             )
             status?.let {
                 Text(
@@ -253,7 +250,7 @@ private fun TranslationContributionSheet(onDismiss: () -> Unit) {
                 )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(MobileDimens.GapSmall)) {
-                MobileButton(
+                StageButton(
                     text = stringResource(R.string.settings_language_contribution_copy),
                     onClick = {
                         status = if (copyContributionLink(context, copyUrl)) {
@@ -262,12 +259,11 @@ private fun TranslationContributionSheet(onDismiss: () -> Unit) {
                             R.string.settings_language_contribution_copy_failed
                         }
                     },
-                    style = MobileButtonStyle.SECONDARY,
                 )
-                MobileButton(
+                StageButton(
                     text = stringResource(R.string.settings_close),
                     onClick = onDismiss,
-                    style = MobileButtonStyle.TEXT,
+                    small = true,
                 )
             }
         }

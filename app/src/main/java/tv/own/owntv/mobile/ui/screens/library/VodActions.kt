@@ -125,7 +125,7 @@ fun VodMenu(
     if (sheetOpen) {
         val canMove = vm.contextKeyOf(selected) != null
         val trailer = tv.own.owntv.core.metadata.TrailerKeys.split(meta?.trailerKey).firstOrNull()
-        // M5-04 / M5-08, the TV's P5-07: WATCH, LIBRARY, ORGANISE, DETAILS. What is not available for this
+        // WATCH, LIBRARY, ORGANISE, DETAILS. What is not available for this
         // title stays in its place, dimmed — Play trailer without a trailer, Remove from history when it is
         // not in History, details without a TMDB match, Delete subtitles with none downloaded.
         val actions = buildList {
@@ -294,7 +294,6 @@ fun VodMenu(
             title = item.name,
             actions = actions,
             onDismiss = { sheetOpen = false },
-            stage = true,
             groupLabels = mapOf(
                 GROUP_WATCH to stringResource(R.string.content_menu_group_watch),
                 GROUP_LIBRARY to stringResource(R.string.content_menu_group_library),
@@ -400,7 +399,7 @@ private fun SetTmdbNameDialog(
     }
     val heading = stringResource(R.string.setup_tmdb_name)
     // Stage sheet: the explanation, the title and year fields, Save and Cancel.
-    MobileBottomSheet(onDismissRequest = onDismiss, title = heading, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = heading) {
         StageSheetHeader(title = heading, subtitle = stringResource(R.string.setup_tmdb_description))
         Column(Modifier.padding(start = 6.dp, end = 6.dp, bottom = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             StageSearchField(
@@ -439,7 +438,7 @@ fun DeleteSubtitlesSheet(
     LaunchedEffect(Unit) { rows.addAll(load()) }
     val title = stringResource(R.string.content_delete_subtitles)
     // Stage sheet: one danger row per subtitle file; a tap deletes it and the row goes.
-    MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(title = title)
         LazyColumn(Modifier.heightIn(max = sheetListHeight())) {
             items(rows, key = { it.first }) { (cacheId, label) ->

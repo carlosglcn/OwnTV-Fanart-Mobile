@@ -62,9 +62,9 @@ import tv.own.owntv.mobile.ui.setup.SourceKind
 import tv.own.owntv.mobile.ui.setup.labelRes
 
 /**
- * Settings › Sources & guide › Playlists (M9-17): "+ Add source", then one row per playlist — its mark, its
+ * Settings › Sources & guide › Playlists: "+ Add source", then one row per playlist — its mark, its
  * name, the type with what it holds, when it synced and when it runs out — and on the right OK, Default, or the
- * import running. Addresses are never shown in the list (F3). A tap opens its actions (M9-18).
+ * import running. Addresses are never shown in the list. A tap opens its actions.
  */
 @Composable
 fun SettingsPlaylistsPage(
@@ -110,12 +110,12 @@ fun SettingsPlaylistsPage(
         }
     }
 
-    // M9-18: the playlist's header, then Re-sync · Re-sync and remove · Edit · Test · Auto refresh · Default · Delete.
+    // The playlist's header, then Re-sync · Re-sync and remove · Edit · Test · Auto refresh · Default · Delete.
     menuSource?.let { source ->
         val syncing = vm.syncState(source.id).collectAsStateWithLifecycle(CatalogSyncState.Idle).value.isActive
         val counts = vm.contentCounts(source.id).collectAsStateWithLifecycle(null).value
         val close = { menuSource = null }
-        MobileBottomSheet(onDismissRequest = close, stage = true) {
+        MobileBottomSheet(onDismissRequest = close) {
             StageSheetHeader(
                 source.displayName(),
                 subtitle = typeLine(source, counts?.breakdownText(LocalContext.current.resources)),
@@ -202,7 +202,7 @@ fun SettingsPlaylistsPage(
 
     test?.let { state ->
         val palette = LocalStagePalette.current
-        MobileBottomSheet(onDismissRequest = vm::dismissSourceTest, stage = true) {
+        MobileBottomSheet(onDismissRequest = vm::dismissSourceTest) {
             StageSheetHeader(state.sourceName, eyebrow = stringResource(R.string.settings_sources_test_title))
             Column(Modifier.padding(horizontal = 8.dp, vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 when (state) {
@@ -249,7 +249,7 @@ private fun TestReport(result: SourceTestResult, limit: tv.own.owntv.core.live.C
     result.detailLines(res, limit).forEach { line -> Text(line, style = stageText(12.5f, 500), color = palette.muted) }
 }
 
-/** "Xtream · 55K channels · 179K movies · 48K series" — the type and what it holds, never its address (F3). */
+/** "Xtream · 55K channels · 179K movies · 48K series" — the type and what it holds, never its address. */
 @Composable
 private fun typeLine(source: SourceEntity, counts: String?): String {
     val type = stringResource(

@@ -38,7 +38,7 @@ internal fun ReminderPrompt(reminder: ReminderEntity, onWatch: () -> Unit, onDis
     val accent = stageAccent.accent
     val nowMs by rememberClockTick()
     val programme = EpgProgrammeEntity(sourceId = 0, epgChannelId = "", startMs = reminder.startMs, stopMs = reminder.stopMs, title = reminder.title)
-    MobileBottomSheet(onDismissRequest = onDismiss, title = reminder.title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = reminder.title) {
         Column(Modifier.padding(start = 8.dp, end = 8.dp, top = 2.dp, bottom = 16.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
                 StageIcon(MobileIcons.Bell, 14.dp, accent)

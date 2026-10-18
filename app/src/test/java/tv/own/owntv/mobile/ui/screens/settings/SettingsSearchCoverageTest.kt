@@ -6,7 +6,7 @@ import org.junit.Test
 import java.io.File
 
 /**
- * Settings search (F4) finds a setting by its own name. The group pages' rows cannot drift from it — the
+ * Settings search finds a setting by its own name. The group pages' rows cannot drift from it — the
  * search reads the same `allGroupSections` the pages draw. The rows inside the full pages can: search
  * knows them only through the hand-kept `LEAF_ROWS` list, and a row added to a page but not to the list
  * is unfindable by name.

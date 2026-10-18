@@ -61,7 +61,7 @@ import tv.own.owntv.mobile.ui.stage.stageAccent
 import tv.own.owntv.mobile.ui.stage.stageText
 
 /**
- * Playing: the preview on top of Live TV (M3-02) — the TV's list + preview, stacked. The 16:9 video
+ * Playing: the preview on top of Live TV — the TV's list + preview, stacked. The 16:9 video
  * (radius 20) with the LIVE badge, the stream's facts (quality, frame rate, sound) and the channel in the
  * lower corner, ⤢ for full screen; under it the programme (20 / 800), its details line with the time left
  * at the end, the progress, and what is on next (accent time) and after it. A tap on the video, like a
@@ -75,9 +75,9 @@ internal fun LivePreview(
     nowMs: Long,
     onFullscreen: () -> Unit,
     modifier: Modifier = Modifier,
-    /** Beside the list (M12): the video at 16:9 across the pane instead of 212 dp, no side margin. */
+    /** Beside the list: the video at 16:9 across the pane instead of 212 dp, no side margin. */
     wide: Boolean = false,
-    /** A tablet's pane (M12-03): the bigger title and the programme's plot. */
+    /** A tablet's pane: the bigger title and the programme's plot. */
     tablet: Boolean = false,
 ) {
     val engine by tuner.activeEngine.collectAsStateWithLifecycle()
@@ -109,7 +109,7 @@ internal fun LivePreview(
             Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.55f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.72f))))
             if (dark) Box(Modifier.fillMaxSize().drawBehind { drawInnerRing(Color.White.copy(alpha = 0.08f), 1.dp.toPx(), StageRadii.Video.toPx()) })
             StageLiveBadge(stringResource(R.string.player_live), Modifier.align(Alignment.TopStart).padding(10.dp))
-            // The mockup's three facts; the aspect ratio and the declared bitrate are left out, as on the TV.
+            // Three facts; the aspect ratio and the declared bitrate are left out, as on the TV.
             val facts = chips.filterNot { it.contains(':') || it.endsWith("Mbps") }
             if (facts.isNotEmpty()) StageSpecChips(facts, Modifier.align(Alignment.TopEnd).padding(10.dp))
             Row(
@@ -136,8 +136,8 @@ internal fun LivePreview(
         }
         val now = nowNext?.now
         if (now != null) {
-            // Beside the list (M12-01/03) the block is title, line and progress — 18, or 26 with the plot on a
-            // tablet; what comes next is the phone's (M3-02), where the list is under it.
+            // Beside the list the block is title, line and progress — 18, or 26 with the plot on a
+            // tablet; what comes next is the phone's, where the list is under it.
             ProgrammeBlock(
                 now, nowNext.nowDetails, nowNext.next.takeIf { !wide }, nowNext.upcoming.firstOrNull(), nowMs,
                 titleSize = if (tablet) 26f else if (wide) 18f else 20f,

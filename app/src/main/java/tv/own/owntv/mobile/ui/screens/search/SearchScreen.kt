@@ -78,7 +78,7 @@ private const val ALL_TAB_CHANNELS = 4
 private const val MIN_QUERY = 2
 
 /**
- * Search (M8-09 … M8-11), the shipped television's: the field, then — once two characters are typed — the
+ * Search, the shipped television's: the field, then — once two characters are typed — the
  * tabs All · Live TV · Movies · Series with their counts and the results grouped LIVE TV (three, then "All n
  * channels"), ON TV (programmes from the guide), MOVIES, SERIES; the header's crumb is the query and how
  * much it found. Before typing: JUMP TO, the recent searches and the card that says what is searched.
@@ -363,7 +363,7 @@ private fun JumpTo(selected: SearchIntent?, onIntent: (SearchIntent?) -> Unit) {
     }
 }
 
-/** Before typing (M8-10): JUMP TO, RECENT SEARCHES with Clear, and the glass card that says what is searched. */
+/** Before typing: JUMP TO, RECENT SEARCHES with Clear, and the glass card that says what is searched. */
 @Composable
 private fun Launcher(recents: List<String>, onIntent: (SearchIntent?) -> Unit, onPick: (String) -> Unit, onClear: () -> Unit) {
     val palette = LocalStagePalette.current
@@ -387,7 +387,7 @@ private fun Launcher(recents: List<String>, onIntent: (SearchIntent?) -> Unit, o
     }
 }
 
-/** M8-11: "Nothing found for “qwzx”" (20 / 800) and what Search looks in. */
+/** "Nothing found for “qwzx”" (20 / 800) and what Search looks in. */
 @Composable
 private fun NothingFound(title: String, body: String?) {
     val palette = LocalStagePalette.current

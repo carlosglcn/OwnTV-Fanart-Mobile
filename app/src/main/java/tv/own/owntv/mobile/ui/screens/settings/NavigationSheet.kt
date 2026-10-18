@@ -35,7 +35,7 @@ import tv.own.owntv.mobile.ui.stage.stageAccent
 import tv.own.owntv.mobile.ui.stage.stageText
 
 /**
- * Settings › Layout › Navigation (M1-03), the phone's version of the television's Navigation popup: the
+ * Settings › Layout › Navigation, the phone's version of the television's Navigation popup: the
  * bottom bar with or without names, whether it slides away while scrolling, which places it shows
  * (Dynamic follows the playlist; Static lists the places to pick, right here), and counts in the sheets.
  */
@@ -49,7 +49,7 @@ fun NavigationSheet(vm: SettingsViewModel, onDismiss: () -> Unit) {
     val title = stringResource(R.string.settings_navigation)
     val dynamic = mode == SettingsRepository.NavMenuMode.DYNAMIC
 
-    MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(
             title = title,
             subtitle = stringResource(R.string.common_nav_settings) + " · " + stringResource(R.string.settings_group_layout),

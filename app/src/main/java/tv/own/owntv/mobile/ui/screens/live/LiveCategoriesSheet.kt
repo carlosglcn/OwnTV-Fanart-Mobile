@@ -42,7 +42,7 @@ import tv.own.owntv.mobile.ui.stage.StageTag
 import tv.own.owntv.mobile.ui.stage.stageText
 
 /**
- * The categories sheet (M3-03, the TV's P3-02): "Categories · Live TV", search, the fixed entries with
+ * The categories sheet: "Categories · Live TV", search, the fixed entries with
  * their icons — Favourites, Recently watched, Catch-up, All channels — then "GROUPS · DE" and the
  * provider groups by their parsed names, with tags, counts (Show counts) and playlist marks. The open
  * category is filled. A hold on a group opens its menu ([onHold]).
@@ -57,7 +57,7 @@ internal fun LiveCategoriesSheet(
     onSelect: (LiveKey) -> Unit,
     onHold: (LiveCategory) -> Unit,
     onDismiss: () -> Unit,
-    /** The TV Guide's "Guide category · Same list as Live TV" (M4-03); Live TV's own by default. */
+    /** The TV Guide's "Guide category · Same list as Live TV"; Live TV's own by default. */
     title: String = stringResource(R.string.content_category_browser_title),
     extra: String = stringResource(R.string.common_nav_live_tv),
 ) {
@@ -71,14 +71,14 @@ internal fun LiveCategoriesSheet(
     val labels = fixed.associateWith { it.label() }
     val q = query.trim()
     val shownFixed = fixed.filter { q.isEmpty() || labels.getValue(it).contains(q, ignoreCase = true) }
-    val shownGroups = groups.filter { q.isEmpty() || parsed.getValue(it).name.contains(q, ignoreCase = true) }
+    val shownGroups = groups.filter { q.isEmpty() || ProviderTags.groupLabel(parsed.getValue(it), country).contains(q, ignoreCase = true) }
     fun pick(key: LiveKey) {
         onSelect(key)
         onDismiss()
     }
     fun countOf(key: LiveKey) = counts[key]?.takeIf { showCounts }?.let(::formatCount)
 
-    MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(title = title, extra = extra)
         StageSearchField(
             value = query,
@@ -102,7 +102,7 @@ internal fun LiveCategoriesSheet(
             items(shownGroups, key = { it.key.toString() }) { c ->
                 val name = parsed.getValue(c)
                 StageMenuItem(
-                    label = name.name,
+                    label = ProviderTags.groupLabel(name, country),
                     onClick = { pick(c.key) },
                     onLongClick = { onHold(c) },
                     filled = c.key == selected,
@@ -123,7 +123,7 @@ private fun LiveCategory.icon() = when (builtIn) {
 }
 
 /**
- * Hold a category (M3-09): move it through the list, hide it, or restore it to the playlist's default
+ * Hold a category: move it through the list, hide it, or restore it to the playlist's default
  * ("Restore to default" for a combined category) — the TV's menu. Restore asks first ([CategoryRestoreConfirm]).
  */
 @Composable
@@ -135,7 +135,7 @@ internal fun LiveCategoryMenu(
     onRestore: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(title = title)
         listOf(
             Triple(R.string.settings_customize_move_top, MobileIcons.KeyboardDoubleArrowUp, MoveKind.TOP),
@@ -155,7 +155,7 @@ internal fun LiveCategoryMenu(
 }
 
 /**
- * The restore's confirmation (M3-09): the category, "This will:" and one line per change, then Restore
+ * The restore's confirmation: the category, "This will:" and one line per change, then Restore
  * (filled) and Cancel — or, with nothing to undo, the sentence saying it is already at the default.
  * [plan] is null while it is still being read.
  */
@@ -169,7 +169,7 @@ internal fun CategoryRestoreConfirm(
 ) {
     val palette = LocalStagePalette.current
     val lines = plan?.let { categoryRestoreSummary(it, LocalContext.current.resources) }
-    MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(title = title)
         if (lines != null && lines.isEmpty()) {
             Text(

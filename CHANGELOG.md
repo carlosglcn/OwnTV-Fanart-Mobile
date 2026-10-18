@@ -7,9 +7,16 @@
 > Issue numbers that are part of a title are fine; explanatory parentheticals are not. The detail —
 > what, why, files and verification — belongs in the commit message, never here.
 
-## Unreleased
+## v1.1.0 — 2026-10-17
 
 ### New features
+- **🏆 Sports: live scores, today's and tomorrow's matches and match pages, as on the television**
+- **🔎 Find channels: the channels in your guide that show a match, with a filter sheet**
+- **📺 Broadcasts tab, venue and round on every match page**
+- **🔔 Goal alerts and a live score card, also when OwnTV is closed**
+- **↕️ Long-press → Move to put your sports and leagues in your own order**
+- **🏠 Sports row on Home with a LIVE mark**
+- **📚 Library: Movies and Series share one tab, so Sports fits the bottom bar**
 - **🎭 Stage design: the television's new look on phone and tablet**
 - **🎨 Pixel app icon and Plus Jakarta Sans, the new default font**
 - **🔊 Volume swipe controls the phone's volume**
@@ -30,6 +37,24 @@
 - **🗂️ Downloads and recordings whose file is gone say "File missing"**
 
 ### Fixes
+- **🌍 Channels named "UK: …" or "IT: …" get their country and language, like "UK| …"**
+- **🖼️ Your own picture can be chosen while creating a profile**
+- **📺 Series no longer show "No episodes" when one episode is oddly written by the provider**
+- **💬 A series the provider refused says why instead of "No episodes"**
+- **📺 Live TV falls back to the other player and gives up on time again**
+- **🔊 Opening a previewed channel keeps its volume; unmute returns to the level before**
+- **🔈 Changing sound settings during a film no longer starts a second copy**
+- **🗣️ Audio language and the episode queue survive a reload**
+- **🚫 A dead film link shows its error in seconds**
+- **🕒 Catch-up time zone "Automatic" uses the playlist's own zone**
+- **⏪ M3U catch-up and Xtream rewind start at the right moment**
+- **▶️ External player starts where you left off**
+- **🏷️ Categories keep their country ("UK|") when a list mixes countries**
+- **✏️ Bulk rename and ✨ Auto cleanup for categories**
+- **🔁 Retry works after a live channel gives up**
+- **👤 "Account already in use" says so, instead of loading forever**
+- **📱 Films keep playing with the screen off**
+- **🔕 No skip buttons in the notification on live TV**
 - **📡 Pause and rewind live TV: a channel comes back by itself after a network outage**
 - **😴 The screen no longer turns off when a film stops to buffer**
 - **Custom categories in the player's channel list and the Multiview picker**
@@ -59,6 +84,9 @@
 - **▶️ Play on a new show starts at Season 1 Episode 1; Specials come after the last season**
 - **🔤 M3U episodes named "Season 1 Episode 5" or "S2019E05" are recognised**
 - **💾 Big downloads to a FAT32 USB stick fail with a clear reason**
+- **🎨 Every sheet, button and field in the Stage design, the player's sheets included**
+- **🔑 Metadata page shows your saved TMDB key, so Save no longer clears it**
+- **🔢 PIN fields open the number pad**
 
 ## v1.0.3 — 2026-09-26
 

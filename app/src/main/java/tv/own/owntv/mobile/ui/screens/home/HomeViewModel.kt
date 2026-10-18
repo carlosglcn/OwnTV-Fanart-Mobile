@@ -135,7 +135,7 @@ class HomeViewModel(
         reloads.tryEmit(Unit)
     }
 
-    // --- Keep watching stills (G12) -------------------------------------------------------------------
+    // --- Keep watching stills -------------------------------------------------------------------
 
     /**
      * The TV's lookup, card for card: a film's backdrop, a show's (or, with none, its episode's still).

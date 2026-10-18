@@ -21,6 +21,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.res.stringResource
+import tv.own.owntv.mobile.R
+import tv.own.owntv.mobile.ui.components.MobileBottomSheet
+import tv.own.owntv.mobile.ui.components.StageConfirmItems
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,7 +71,7 @@ internal fun Modifier.stageClickable(
 
 /**
  * A Stage list row (16 dp corners, 12 dp sides): channel rows, setting rows, result rows. [current] is
- * the open / playing item (`.fx`), [selected] the left accent bar (`.selbar`). The mockup draws no filled
+ * the open / playing item (`.fx`), [selected] the left accent bar (`.selbar`). There is no filled
  * press on a row (`.f` is for menu items), so a pressed row takes the fx look while the finger is down.
  */
 @Composable
@@ -116,7 +123,7 @@ fun StageSettingRow(
     minHeight: Dp = 60.dp,
     /** Drawn in the icon's 34 dp place instead (a profile's avatar, a playlist's mark). */
     leading: (@Composable () -> Unit)? = null,
-    /** Above the title, 11.5 muted: a search result's path (M9-02). */
+    /** Above the title, 11.5 muted: a search result's path. */
     overline: String? = null,
     /** The title as styled text (a search result with its match in the accent). */
     styledTitle: androidx.compose.ui.text.AnnotatedString? = null,
@@ -278,7 +285,7 @@ fun StageMenuItem(
     tags: (@Composable RowScope.() -> Unit)? = null,
     mark: tv.own.owntv.core.ui.stage.PlaylistMark? = null,
     onLongClick: (() -> Unit)? = null,
-    /** More's rows (M8-01) are 48 high and end in a dim 13 dp chevron. */
+    /** More's rows are 48 high and end in a dim 13 dp chevron. */
     height: Dp = 46.dp,
     chevron: Boolean = false,
 ) {
@@ -300,7 +307,7 @@ fun StageMenuItem(
         modifier
             .fillMaxWidth()
             .height(height)
-            // Not available here (no trailer, not in history): the whole row at 45%, as the mockup dims it.
+            // Not available here (no trailer, not in history): the whole row at 45%.
             .then(if (enabled) Modifier else Modifier.alpha(0.45f))
             .clip(shape)
             .then(if (pressed) Modifier.background(accent.accent) else Modifier)
@@ -333,6 +340,70 @@ fun StageMenuItem(
             // On a filled row the playlist's own colour would vanish into the accent: it takes the row's text colour.
             mark?.let { StagePlaylistMark(it, Modifier.padding(start = 2.dp), tint = if (pressed) accent.onAccent else null) }
             if (chevron) StageIcon(MobileIcons.KeyboardArrowRight, 13.dp, sideTint)
+        }
+    }
+}
+
+/**
+ * A form field as a row: the field's name, under it what is typed (or the example, dim), and a tap opens
+ * a sheet with the field — Save keeps it. [password] shows dots in the row and masks the field.
+ */
+@Composable
+fun StageTextRow(
+    icon: ImageVector,
+    label: String,
+    value: String,
+    onSave: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    placeholder: String = "",
+    password: Boolean = false,
+    keyboardType: androidx.compose.ui.text.input.KeyboardType = androidx.compose.ui.text.input.KeyboardType.Text,
+    current: Boolean = false,
+    trailing: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit = {},
+) {
+    var editing by remember { mutableStateOf(false) }
+    val palette = LocalStagePalette.current
+    StageSettingRow(
+        title = label,
+        modifier = modifier,
+        icon = icon,
+        subtitle = when {
+            value.isBlank() -> placeholder.ifBlank { null }
+            password -> "•".repeat(value.length.coerceAtMost(12))
+            else -> value
+        },
+        subtitleColor = if (value.isBlank()) palette.dim else palette.text,
+        current = current,
+        onClick = { editing = true },
+        trailing = trailing,
+    )
+    if (editing) {
+        var text by remember { mutableStateOf(value) }
+        // The field takes the keyboard as the sheet opens: a sheet for one field is there to type in.
+        val focus = remember { androidx.compose.ui.focus.FocusRequester() }
+        androidx.compose.runtime.LaunchedEffect(Unit) {
+            kotlinx.coroutines.delay(150)
+            runCatching { focus.requestFocus() }
+        }
+        MobileBottomSheet(onDismissRequest = { editing = false }) {
+            StageSheetHeader(label)
+            StageSearchField(
+                value = text,
+                onValueChange = { text = it },
+                placeholder = placeholder,
+                icon = null,
+                password = password,
+                keyboardType = keyboardType,
+                imeAction = androidx.compose.ui.text.input.ImeAction.Done,
+                onSearch = { onSave(text.trim()); editing = false },
+                modifier = Modifier.padding(horizontal = 6.dp).focusRequester(focus),
+            )
+            StageConfirmItems(
+                confirm = stringResource(R.string.common_save),
+                confirmEnabled = true,
+                onConfirm = { onSave(text.trim()) },
+                onDismiss = { editing = false },
+            )
         }
     }
 }

@@ -70,7 +70,7 @@ GPLv3, like OwnTV. All credit for the app itself goes to **ahXN00** and the OwnT
 ---
 
 OwnTV Mobile is the phone and tablet member of the OwnTV family: a native Android IPTV **player**
-built with Kotlin and Jetpack Compose (Material 3), sharing its **entire engine** with
+built with Kotlin and Jetpack Compose, sharing its **entire engine** with
 [OwnTV for Android TV](https://github.com/ahXN00/OwnTV) through the
 [OwnTV core library](https://github.com/ahXN00/OwnTV_Core). Two interfaces, one database, one sync,
 one playback stack — a **dual playback engine** of **libmpv (FFmpeg)** for films and series and
@@ -215,7 +215,8 @@ app/                     the phone & tablet UI: navigation, screens, player chro
   src/main/java/tv/own/owntv/mobile/
     ui/screens/          home · live · library · guide · search · downloads ·
                          recordings · multiview · settings
-    ui/components/       the shared surface language (buttons, rows, sheets, glass)
+    ui/stage/            the Stage parts every screen is built from (buttons, rows, fields, glass)
+    ui/components/       the sheet host, icons, logos and the shared menus and pickers
     di/                  Koin modules
 tools/i18n/              the locale catalogue and the consumer-side string checks
 extras/                  logos, credits artwork, and the TV parity checklist

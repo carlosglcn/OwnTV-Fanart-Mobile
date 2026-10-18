@@ -85,7 +85,7 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
     val sep = stringResource(R.string.content_epg_bits_separator)
 
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(start = 18.dp, end = 18.dp, top = 35.dp, bottom = 24.dp)) {
-        // The app icon on its dark tile (radius 24 %), the #227 wordmark, the version with what the last
+        // The app icon on its dark tile (radius 24 %), the wordmark, the version with what the last
         // check found, and when that was.
         Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
@@ -175,7 +175,7 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
 }
 
 /**
- * More › Error log (M8-06): what it is, Export · Clear log, then the entries newest first — the kind as a tag
+ * More › Error log: what it is, Export · Clear log, then the entries newest first — the kind as a tag
  * (EVENT ink, ERROR danger, REPORT warn), what happened (13.5 / 700), the engine · Live or VOD · stream line
  * and when. A tap selects an entry (`.fx`) and shows the provider's own words and the device. Its own page,
  * not a dialog: this is the screen a user is asked to screenshot when they report a problem.

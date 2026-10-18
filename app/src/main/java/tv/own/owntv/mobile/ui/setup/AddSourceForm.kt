@@ -27,11 +27,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.ui.unit.dp
 import tv.own.owntv.mobile.ui.components.MobileIcons
-import tv.own.owntv.mobile.ui.components.SettingRow
 import tv.own.owntv.mobile.ui.screens.settings.PageNote
 import tv.own.owntv.mobile.ui.screens.settings.SettingsChoice
 import tv.own.owntv.mobile.ui.screens.settings.StageChoiceSheet
-import tv.own.owntv.mobile.ui.screens.settings.StageTextRow
+import tv.own.owntv.mobile.ui.stage.StageTextRow
 import tv.own.owntv.mobile.ui.stage.LocalStagePalette
 import tv.own.owntv.mobile.ui.stage.StageButton
 import tv.own.owntv.mobile.ui.stage.StageButtonStyle
@@ -40,6 +39,10 @@ import tv.own.owntv.mobile.ui.stage.StageSectionHead
 import tv.own.owntv.mobile.ui.stage.StageSegmented
 import tv.own.owntv.mobile.ui.stage.StageSettingRow
 import tv.own.owntv.mobile.ui.stage.stageText
+import tv.own.owntv.mobile.ui.stage.StageSwitch
+import tv.own.owntv.mobile.ui.stage.StageRowValue
+import tv.own.owntv.mobile.ui.stage.StageChevron
+import androidx.compose.ui.semantics.Role
 
 /** Which kind of provider the form is asking about. */
 enum class SourceKind { XTREAM, M3U, STALKER }
@@ -177,7 +180,7 @@ fun AddSourceForm(
         preferHls = preferHls,
     )
 
-    // M9-20: the type as a segmented control, the fields as rows (a tap opens the field), OPTIONAL, Start import.
+    // The type as a segmented control, the fields as rows (a tap opens the field), OPTIONAL, Start import.
     val palette = LocalStagePalette.current
     LazyColumn(
         modifier = modifier.fillMaxSize().imePadding(),
@@ -221,13 +224,13 @@ fun AddSourceForm(
                     )
                 }
                 item(key = "hls") {
-                    SettingRow(
+                    StageSettingRow(
                         icon = MobileIcons.LiveTv,
                         title = stringResource(R.string.setup_prefer_hls_live_tv),
                         subtitle = stringResource(R.string.setup_prefer_hls_description),
-                        checked = preferHls,
-                        onCheckedChange = { preferHls = it },
-                    )
+                        role = Role.Switch,
+                        onClick = { preferHls = !preferHls },
+                    ) { StageSwitch(preferHls) }
                 }
             }
             SourceKind.M3U -> {
@@ -268,12 +271,11 @@ fun AddSourceForm(
                 item(key = "dev2") { StageTextRow(MobileIcons.Edit, stringResource(R.string.setup_stalker_device_id2_optional), deviceId2, { deviceId2 = it }) }
                 item(key = "sig") { StageTextRow(MobileIcons.Edit, stringResource(R.string.setup_stalker_signature_optional), signature, { signature = it }) }
                 item(key = "model") {
-                    SettingRow(
+                    StageSettingRow(
                         icon = MobileIcons.Phone,
                         title = stringResource(R.string.setup_device_model_preset),
-                        value = stringResource(MAG_USER_AGENTS.firstOrNull { it.userAgent == userAgent }?.labelRes ?: MAG_USER_AGENTS.first().labelRes),
                         onClick = { showDeviceSheet = true },
-                    )
+                    ) { StageRowValue(stringResource(MAG_USER_AGENTS.firstOrNull { it.userAgent == userAgent }?.labelRes ?: MAG_USER_AGENTS.first().labelRes), StageChevron.DOWN) }
                 }
             }
         }
@@ -285,12 +287,11 @@ fun AddSourceForm(
             StageTextRow(MobileIcons.Edit, stringResource(R.string.setup_referer_optional), httpReferer, { httpReferer = it }, placeholder = stringResource(R.string.setup_referer_example))
         }
         item(key = "refresh") {
-            SettingRow(
+            StageSettingRow(
                 icon = MobileIcons.Schedule,
                 title = stringResource(R.string.setup_auto_refresh),
-                value = stringResource(refreshMode.labelRes()),
                 onClick = { showRefreshSheet = true },
-            )
+            ) { StageRowValue(stringResource(refreshMode.labelRes()), StageChevron.DOWN) }
         }
         if (refreshMode == PlaylistAutoRefresh.MANUAL) {
             item(key = "days") {
@@ -361,19 +362,18 @@ fun AddSourceForm(
 @Composable
 private fun ScopeRow(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, description: String, value: SyncScopeChoice, onChange: (SyncScopeChoice) -> Unit) {
     val options = listOf(SyncScopeChoice.Now, SyncScopeChoice.Later, SyncScopeChoice.Off)
-    SettingRow(
+    StageSettingRow(
         icon = icon,
         title = label,
         subtitle = description,
-        value = stringResource(
+        onClick = { onChange(options[(options.indexOf(value) + 1) % options.size]) },
+    ) { StageRowValue(stringResource(
             when (value) {
                 SyncScopeChoice.Now -> R.string.setup_now
                 SyncScopeChoice.Later -> R.string.setup_later
                 SyncScopeChoice.Off -> R.string.setup_off
             },
-        ),
-        onClick = { onChange(options[(options.indexOf(value) + 1) % options.size]) },
-    )
+        ), StageChevron.DOWN) }
 }
 
 internal fun PlaylistAutoRefresh.labelRes(): Int = when (this) {

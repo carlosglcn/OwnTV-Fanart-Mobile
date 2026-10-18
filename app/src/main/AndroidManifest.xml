@@ -74,7 +74,7 @@
                 tools:node="remove" />
         </provider>
 
-        <!-- More › Backup › Share (M8-04): the system share sheet reads the backup through this, and
+        <!-- More › Backup › Share: the system share sheet reads the backup through this, and
              res/xml/share_paths.xml exposes the one cache folder the backup is written to — nothing else. -->
         <provider
             android:name="androidx.core.content.FileProvider"

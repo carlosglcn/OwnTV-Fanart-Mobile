@@ -37,7 +37,7 @@ fun CustomizeItemsPane(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // The page's crumb stays while a folder is open (#22): "‹ Settings · Content & metadata".
+    // The page's crumb stays while a folder is open: "‹ Settings · Content & metadata".
     tv.own.owntv.mobile.ui.screens.settings.SettingsCrumb(null, tv.own.owntv.mobile.ui.screens.settings.SettingsGroup.CONTENT)
     val catInfo by vm.catInfo.collectAsStateWithLifecycle()
     val items = vm.items.collectAsLazyPagingItems()
@@ -101,7 +101,7 @@ fun CustomizeItemsPane(
             key = items.itemKey { it.key },
         ) { index ->
             val row = items[index] ?: return@items
-            // A Stage row (#22): a tick while it is in a span, the span itself drawn as the current rows.
+            // A Stage row: a tick while it is in a span, the span itself drawn as the current rows.
             val inSpan = row.key in selectedKeys
             tv.own.owntv.mobile.ui.stage.StageSettingRow(
                 title = row.displayName,

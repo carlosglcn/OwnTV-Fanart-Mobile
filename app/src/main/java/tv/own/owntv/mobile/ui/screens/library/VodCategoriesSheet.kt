@@ -28,7 +28,7 @@ import tv.own.owntv.mobile.ui.stage.StageSheetHeader
 import tv.own.owntv.mobile.ui.stage.StageTag
 
 /**
- * The categories sheet of Movies and Series (M5-03, the TV's P5-04): "Categories · Movies", search, the fixed
+ * The categories sheet of Movies and Series: "Categories · Movies", search, the fixed
  * entries with their icons — Favourites, History, All movies — then PROVIDERS and the provider folders by their
  * parsed names, with tags, counts (Show counts) and playlist marks. The open category is filled. A hold on a
  * folder opens its menu ([onHold]).
@@ -53,7 +53,7 @@ internal fun VodCategoriesSheet(
     val labels = fixed.associateWith { it.label(tab) }
     val q = query.trim()
     val shownFixed = fixed.filter { q.isEmpty() || labels.getValue(it).contains(q, ignoreCase = true) }
-    val shownGroups = groups.filter { q.isEmpty() || parsed.getValue(it).name.contains(q, ignoreCase = true) }
+    val shownGroups = groups.filter { q.isEmpty() || ProviderTags.groupLabel(parsed.getValue(it), headingCountry = null).contains(q, ignoreCase = true) }
     fun pick(key: LiveKey) {
         onSelect(key)
         onDismiss()
@@ -61,7 +61,7 @@ internal fun VodCategoriesSheet(
     fun countOf(key: LiveKey) = counts[key]?.takeIf { showCounts }?.let(::formatCount)
 
     val title = stringResource(R.string.content_category_browser_title)
-    MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(
             title = title,
             extra = stringResource(if (tab == LibraryTab.MOVIES) R.string.common_nav_movies else R.string.common_nav_series),
@@ -92,7 +92,7 @@ internal fun VodCategoriesSheet(
             items(shownGroups, key = { it.key.toString() }) { c ->
                 val name = parsed.getValue(c)
                 StageMenuItem(
-                    label = name.name,
+                    label = ProviderTags.groupLabel(name, headingCountry = null),
                     onClick = { pick(c.key) },
                     onLongClick = { onHold(c) },
                     filled = c.key == selected,

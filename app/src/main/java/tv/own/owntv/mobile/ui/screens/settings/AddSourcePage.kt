@@ -35,7 +35,7 @@ import tv.own.owntv.mobile.ui.stage.stageFx
 import tv.own.owntv.mobile.ui.stage.stageText
 
 /**
- * Settings › Playlists › Add a source (M9-19), the TV wizard's own choices as cards: Remote (fill the form in a
+ * Settings › Playlists › Add a source, the TV wizard's own choices as cards: Remote (fill the form in a
  * browser on another device), Type it here, Import (a backup file), Existing (another profile's playlists, only
  * when there are any). Remote opens the companion server; what the other device sends fills the form, and the
  * user still presses Start import — as on the TV.
@@ -78,7 +78,7 @@ fun AddSourcePage(onSetup: (SetupEntry) -> Unit, modifier: Modifier = Modifier, 
 }
 
 /**
- * Remote, open (M9-19, and the wizard's W7): the companion server's address and code. A submission stops the
+ * Remote, open (from here or the wizard's Add a playlist step): the companion server's address and code. A submission stops the
  * server and [onReceived] opens the form it fills in. The caller starts the server as it opens this.
  */
 @Composable

@@ -33,7 +33,7 @@ import tv.own.owntv.mobile.ui.stage.StagePalette
  * The app's theme, driven entirely by the settings the user already has.
  *
  * Every value is core's, so the choices made on the TV app — dark or light, the accent, the zoom,
- * the font, the Glass Effect — come across with a backup restore and apply here unchanged.
+ * the font, Glass & background — come across with a backup restore and apply here unchanged.
  */
 @Composable
 fun MobileTheme(content: @Composable () -> Unit) {
@@ -64,7 +64,7 @@ fun MobileTheme(content: @Composable () -> Unit) {
     )
 }
 
-/** The same theme with its inputs supplied directly — for previews and for the theme gallery. */
+/** The same theme with its inputs supplied directly. */
 @Composable
 fun MobileTheme(
     themeMode: ThemeMode,
@@ -96,9 +96,8 @@ fun MobileTheme(
         LocalGlass provides glass,
         LocalAnimations provides animations,
         LocalAccentOnVideo provides accentOnVideo(accent, customAccent),
-        LocalSurfaceTones provides mobileSurfaceTones(isDark),
         LocalMobileMotion provides remember(animations) { MobileMotion(animations) },
-        // Stage (the redesign's look): its palette follows the same resolved theme; the focus highlight and
+        // Stage: its palette follows the same resolved theme; the focus highlight and
         // Glass & background are core's, so a TV backup brings them across unchanged.
         LocalStagePalette provides glcnPalette(if (isDark) StagePalette.Dark else StagePalette.Light, glcnStyle),
         LocalFocusHighlight provides remember(focusHighlight) { parseAccentHex(focusHighlight)?.let { Color(it) } },
@@ -131,14 +130,6 @@ val LocalAnimations = staticCompositionLocalOf { AnimationLevel.FULL }
  * a dark scene.
  */
 val LocalAccentOnVideo = staticCompositionLocalOf { Color(AccentColor.TEAL.roles(isDark = true).primary) }
-
-/**
- * What each glass material's surface is when the effect is off — see [MobileSurfaceTones].
- *
- * A composition local rather than a lookup on the colour scheme, because three of the four are the
- * shell's per-region fills and those are not M3 roles.
- */
-val LocalSurfaceTones = staticCompositionLocalOf { mobileSurfaceTones(isDark = true) }
 
 /**
  * glcn: a ready-made style's own tones over the theme's palette — only while the theme in force is the

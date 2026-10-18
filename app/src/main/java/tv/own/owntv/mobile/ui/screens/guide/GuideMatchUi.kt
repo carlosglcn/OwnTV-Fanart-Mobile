@@ -61,7 +61,7 @@ import tv.own.owntv.mobile.ui.screens.live.EpgOffsetDialog
 internal enum class GuideChannelDialog { MATCH_EPG, EPG_OFFSET }
 
 /**
- * What auto-matching left uncertain (M4-05): "✦ Auto-match EPG · 41 channels matched", "Review 3 matches",
+ * What auto-matching left uncertain: "✦ Auto-match EPG · 41 channels matched", "Review 3 matches",
  * the line under it, then one row per channel — logo, name, "→ guide channel · 82 %" (the score in the
  * accent), Accept and ✕ — and Skip all · Accept all · Done.
  *
@@ -83,7 +83,7 @@ fun EpgReviewSheet(
     val accent = stageAccent.accent
     val title = pluralStringResource(R.plurals.content_epg_review_count, suggestions.size, suggestions.size)
     val sep = stringResource(R.string.content_epg_bits_separator)
-    MobileBottomSheet(onDismissRequest = onDone, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDone, title = title) {
         Column(Modifier.padding(start = 8.dp, end = 8.dp, top = 2.dp, bottom = 10.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
                 StageIcon(MobileIcons.AutoAwesome, 13.dp, accent)
@@ -170,7 +170,7 @@ fun GuideChannelSheet(
     var dialog by remember { mutableStateOf<GuideChannelDialog?>(null) }
     val name = remember(channel.name) { ProviderTags.parse(channel.name).name }
     if (dialog == null) {
-        MobileBottomSheet(onDismissRequest = onDismiss, title = name, stage = true) {
+        MobileBottomSheet(onDismissRequest = onDismiss, title = name) {
             StageSheetHeader(
                 title = name,
                 leading = {

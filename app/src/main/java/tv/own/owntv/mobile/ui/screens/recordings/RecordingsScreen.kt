@@ -21,12 +21,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,41 +42,29 @@ import tv.own.owntv.core.database.entity.RecordingEntity
 import tv.own.owntv.mobile.ui.components.ExportDocument
 import tv.own.owntv.core.model.RecordingStatus
 import tv.own.owntv.core.recording.RecordingRules
-import tv.own.owntv.core.recording.RecordingStorageInfo
 import tv.own.owntv.mobile.R
-import tv.own.owntv.mobile.ui.components.FilterChipRow
 import tv.own.owntv.mobile.ui.components.MobileBottomSheet
 import tv.own.owntv.mobile.ui.components.MobileIcons
-import tv.own.owntv.mobile.ui.theme.MobileDimens
-import java.text.NumberFormat
 
 /**
- * Live TV recorded onto this phone.
+ * Live TV recorded onto this phone: the list, grouped under its status headings — what is happening
+ * now, what will happen, what can be watched, and what went wrong. **Missed and failed share the last
+ * group**, because from the user's side both mean "this is not going to be there", and each row
+ * still says which it was and why.
  *
- * Four chips rather than the television's five groups — a phone list is scrolled, not scanned, and
- * the question a user opens this with is one of four: what is happening now, what will happen, what
- * can I watch, and what went wrong. **Missed and failed share the last chip**, because from the
- * user's side both mean "this is not going to be there", and each row still says which it was and
- * why.
+ * Downloads hosts this as its **Live TV** tab and owns the storage bar and the type chips — a
+ * recording is a download of a live channel, so it shares that screen rather than repeating it.
  */
 @Composable
 fun RecordingsScreen(
     onPlayerOpened: () -> Unit,
     modifier: Modifier = Modifier,
-    /**
-     * Draw only the list, grouped under its status headings. Downloads hosts this as its **Live TV**
-     * tab and already owns the storage bar and the type chips — a recording is a download of a live
-     * channel, so it shares that screen rather than repeating it inside it.
-     */
-    embedded: Boolean = false,
     vm: RecordingsViewModel = koinViewModel(),
 ) {
     val rows by vm.rows.collectAsStateWithLifecycle()
     val missing by vm.missingFiles.collectAsStateWithLifecycle()
-    val storage by vm.storage.collectAsStateWithLifecycle()
     val playing by vm.playing.collectAsStateWithLifecycle()
 
-    var tab by remember { mutableStateOf(RecordingTab.ACTIVE) }
     var menuFor by remember { mutableStateOf<RecordingEntity?>(null) }
     var savingCopyOf by remember { mutableStateOf<RecordingEntity?>(null) }
 
@@ -100,25 +85,14 @@ fun RecordingsScreen(
         }
     }
 
-    // Embedded there are no chips, so every recording is shown at once under its own heading —
-    // the television's shape, and the one that lets a running recording be seen without hunting
-    // for the chip it is hiding behind.
+    // Every recording at once under its own heading — the television's shape, and the one that lets
+    // a running recording be seen without hunting for it.
     val sections = RecordingTab.entries
         .map { section -> section to rows.filter { section.holds(it.status) } }
         .filter { it.second.isNotEmpty() }
-    val shown = if (embedded) rows else rows.filter { tab.holds(it.status) }
 
     Column(modifier.fillMaxSize()) {
-        if (!embedded) {
-            storage?.let { StorageHeader(it, vm.timersAreExact) }
-            FilterChipRow(
-                labels = RecordingTab.entries.map { stringResource(it.labelRes) },
-                selectedIndex = RecordingTab.entries.indexOf(tab),
-                onSelect = { tab = RecordingTab.entries[it] },
-            )
-        }
-
-        if (shown.isEmpty()) {
+        if (rows.isEmpty()) {
             // The Downloads list's own empty line (Stage), under the tabs rather than centred on the page.
             Text(
                 text = stringResource(R.string.recording_empty),
@@ -128,25 +102,11 @@ fun RecordingsScreen(
             )
         } else {
             LazyColumn(Modifier.fillMaxSize()) {
-                if (embedded) {
-                    sections.forEach { (section, items) ->
-                        item(key = "header_${section.name}") {
-                            StageLabel(stringResource(section.labelRes), Modifier.padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 6.dp))
-                        }
-                        items(items, key = { it.id }) { recording ->
-                            RecordingRow(
-                                recording = recording,
-                                gone = recording.status == RecordingStatus.COMPLETED && recording.filePath in missing,
-                                onClick = {
-                                    if (recording.status == RecordingStatus.COMPLETED && recording.filePath !in missing) vm.play(recording)
-                                    else menuFor = recording
-                                },
-                                onLongClick = { menuFor = recording },
-                            )
-                        }
+                sections.forEach { (section, items) ->
+                    item(key = "header_${section.name}") {
+                        StageLabel(stringResource(section.labelRes), Modifier.padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 6.dp))
                     }
-                } else {
-                    items(shown, key = { it.id }) { recording ->
+                    items(items, key = { it.id }) { recording ->
                         RecordingRow(
                             recording = recording,
                             gone = recording.status == RecordingStatus.COMPLETED && recording.filePath in missing,
@@ -176,7 +136,7 @@ fun RecordingsScreen(
     }
 }
 
-/** Missed and failed are one chip: both mean "not going to be there". */
+/** Missed and failed are one group: both mean "not going to be there". */
 private enum class RecordingTab(val labelRes: Int) {
     ACTIVE(R.string.recording_group_now),
     SCHEDULED(R.string.recording_group_scheduled),
@@ -189,61 +149,6 @@ private enum class RecordingTab(val labelRes: Int) {
         SCHEDULED -> status == RecordingStatus.SCHEDULED
         COMPLETED -> status == RecordingStatus.COMPLETED
         FAILED -> status == RecordingStatus.FAILED || status == RecordingStatus.MISSED
-    }
-}
-
-@Composable
-private fun StorageHeader(storage: RecordingStorageInfo, timersAreExact: Boolean) {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .padding(
-                start = MobileDimens.ScreenPaddingH,
-                end = MobileDimens.ScreenPaddingH,
-                top = MobileDimens.GapSmall,
-            ),
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = stringResource(R.string.content_downloads_storage),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
-                text = stringResource(
-                    R.string.content_downloads_storage_free,
-                    gigabytes(storage.freeBytes),
-                    gigabytes(storage.totalBytes),
-                ),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = MobileDimens.GapSmall),
-            )
-        }
-        val used = (storage.totalBytes - storage.freeBytes).coerceAtLeast(0L)
-        val fraction = if (storage.totalBytes > 0) {
-            (used.toFloat() / storage.totalBytes).coerceIn(0f, 1f)
-        } else {
-            0f
-        }
-        LinearProgressIndicator(
-            progress = { fraction },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = MobileDimens.GapSmall, bottom = MobileDimens.GapSmall),
-        )
-        // Said on the screen the consequence shows up on, not buried in settings: this is where a
-        // user wonders why a recording began at 20:03.
-        if (!timersAreExact) {
-            Text(
-                text = stringResource(R.string.settings_recording_timers_inexact),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(bottom = MobileDimens.GapSmall),
-            )
-        }
     }
 }
 
@@ -326,7 +231,7 @@ private fun RecordingMenu(
     onSaveCopy: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    MobileBottomSheet(onDismissRequest = onDismiss, title = recording.title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = recording.title) {
         StageSheetHeader(title = recording.title, subtitle = recording.channelName)
         fun act(block: () -> Unit) = { block(); onDismiss() }
         when (recording.status) {
@@ -372,11 +277,6 @@ private fun recordedMinutes(recording: RecordingEntity): Int {
     }
     return (span / 60_000L).toInt().coerceAtLeast(1)
 }
-
-private fun gigabytes(bytes: Long): String = NumberFormat.getNumberInstance().apply {
-    minimumFractionDigits = 1
-    maximumFractionDigits = 1
-}.format(bytes.coerceAtLeast(0) / 1_073_741_824.0)
 
 /** A row's folder is shown from the media folder down (`…/TV/Das Erste`). */
 private const val PATH_ELLIPSIS = "…/"

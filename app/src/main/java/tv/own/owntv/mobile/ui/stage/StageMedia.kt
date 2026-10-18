@@ -164,7 +164,7 @@ fun StageRatingChip(rating: String, modifier: Modifier = Modifier) {
 }
 
 /**
- * The cast (`cast()` of the mockup): a row of 56 dp columns 12 apart — the TMDB photo in a 46 dp circle with a
+ * The cast (`cast()`): a row of 56 dp columns 12 apart — the TMDB photo in a 46 dp circle with a
  * 1.5 dp ink rim, the name under it (10.5 / 600 muted, two lines). Home's ⓘ sheet and the movie page.
  */
 @Composable

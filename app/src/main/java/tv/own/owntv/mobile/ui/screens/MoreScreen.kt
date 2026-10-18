@@ -61,7 +61,7 @@ import tv.own.owntv.mobile.ui.stage.stageText
 import tv.own.owntv.player.PlaybackErrorLog
 
 /**
- * More (M8-01), opened from the avatar: the profile card with **Switch**, then Settings and Downloads, YOUR
+ * More, opened from the avatar: the profile card with **Switch**, then Settings and Downloads, YOUR
  * THINGS (Favourites, History), KEEP IT SAFE (Backup & Restore, Local sync) and APP (Error log, About) — each
  * row with what it holds before you go and look. Two layers: More, then a page.
  *
@@ -73,10 +73,9 @@ fun MoreScreen(
     scrollToTop: SharedFlow<String>,
     onNavigate: (MobileDestination) -> Unit,
     onOpenLeaf: (MoreLeaf) -> Unit,
-    /** The profile card opens Settings › Profile (M9-04). */
+    /** The profile card opens Settings › Profile. */
     onOpenProfiles: () -> Unit,
     onSwitchProfile: () -> Unit,
-    onDevRoute: (DevRoute) -> Unit,
     modifier: Modifier = Modifier,
     counts: MoreCountsViewModel = koinViewModel(),
     profilesVm: ProfilesViewModel = koinViewModel(),
@@ -152,10 +151,8 @@ fun MoreScreen(
                 MoreItem(R.string.settings_playback_error_log, MobileIcons.Warning, logCount.toString()) { onOpenLeaf(MoreLeaf.ERROR_LOG) }
                 MoreItem(R.string.settings_about, MobileIcons.Info, BuildConfig.VERSION_NAME) { onOpenLeaf(MoreLeaf.ABOUT) }
 
-                // Dev-only, and English-only by the same rule the harness itself lives under: R8 removes
-                // both rows and both screens from a published build.
+                // Dev-only and English-only: R8 removes the row from a published build.
                 if (BuildConfig.DEV_TOOLS) {
-                    StageMenuItem(label = "Theme gallery", onClick = { onDevRoute(DevRoute.GALLERY) }, icon = MobileIcons.Build, height = 48.dp, chevron = true)
                     RebuildTrendingRow()
                 }
             }
@@ -204,7 +201,7 @@ private fun relativeShort(at: Long): String =
 /**
  * The television's "Rebuild Now Trending", on the phone.
  *
- * Trending is read-only on mobile by Plan 4's own rule — the row shows what core last stored, and the
+ * Trending is read-only on mobile — the row shows what core last stored, and the
  * refresh is scheduled a few days apart. That timer is the problem when a trending bug is being
  * chased: reproducing it means waiting days, or driving the television. This forces the download for
  * every playlist on the active profile, right now, ignoring the timer.
@@ -245,17 +242,4 @@ private fun RebuildTrendingRow(
             }
         },
     )
-}
-
-/**
- * The Phase 1 component gallery, reachable only in a dev build.
- *
- * The Plan 3 import harness stood beside it until Plan 4 was finished. It existed to drive a sync
- * and a restore before there were real screens to do either, and there are now: the setup flow adds
- * a playlist, Settings → Playlists re-syncs one, and More → Backup restores. It was also the last
- * English-only text in the app, so deleting it empties `tools/i18n/hardcoded_baseline.txt` and makes
- * the translation gate absolute — a literal can no longer be excused by a file that already lists it.
- */
-enum class DevRoute(val route: String) {
-    GALLERY("dev_gallery"),
 }

@@ -9,16 +9,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import tv.own.owntv.core.database.entity.RecordingEntity
 import tv.own.owntv.core.model.RecordingStatus
 import tv.own.owntv.core.recording.RecordingManager
-import tv.own.owntv.core.recording.RecordingStorageInfo
 import tv.own.owntv.core.settings.SettingsRepository
 import tv.own.owntv.core.storage.MediaTarget
 import tv.own.owntv.core.storage.StorageAccess
@@ -77,12 +74,6 @@ class RecordingsViewModel(
         .map { list -> list.filter { it.status == tv.own.owntv.core.model.RecordingStatus.COMPLETED }.map { it.filePath } }
         .missingFiles(context)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
-
-    /** Keyed on the download root as well as on the list — see the Downloads screen's own note. */
-    val storage: StateFlow<RecordingStorageInfo?> =
-        combine(rows, settings.downloadRoot) { _, _ -> Unit }
-            .mapLatest { recordings.storageInfo() }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     /** False when Android will not let the app set exact alarms, so a recording may begin late. */
     val timersAreExact: Boolean = recordings.timersAreExact()

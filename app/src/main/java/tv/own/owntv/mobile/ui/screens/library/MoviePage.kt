@@ -76,7 +76,7 @@ import tv.own.owntv.mobile.ui.stage.stageAccent
 import tv.own.owntv.mobile.ui.stage.stageText
 
 /**
- * The movie page (M5-06): the backdrop across the top (lent to the shell, behind the ‹ pill and the cluster),
+ * The movie page: the backdrop across the top (lent to the shell, behind the ‹ pill and the cluster),
  * the TMDB title art — or the title — at 230 dp, "Movies · **category**", the meta line (year · genres ·
  * length · ★ rating, then the quality tags), the plot, Play · Trailer · ⋯, Favourite · Download · versions,
  * the cast, and "More in <category>" — four more of its posters.
@@ -317,5 +317,5 @@ private val ART_TOP = 230.dp
 /** "More in …" is one row of four posters. */
 private const val MORE_COLUMNS = 4
 
-/** The mockup's `#ffcc4d`. */
+/** The rating's gold, `#ffcc4d`. */
 private val RatingGold = Color(0xFFFFCC4D)

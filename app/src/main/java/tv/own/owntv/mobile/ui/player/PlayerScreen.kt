@@ -125,7 +125,7 @@ fun PlayerScreen(
     val player = tuner.player
     val downloadWatchPrompt by downloadWatchGuard.prompt.collectAsStateWithLifecycle()
 
-    // L2 - live now has two engines. `liveOnExo` says which one holds the picture, so the stage knows
+    // Live now has two engines. `liveOnExo` says which one holds the picture, so the stage knows
     // whose surface to draw and the HUD's engine button knows which way it flips.
     val liveOnExo by tuner.liveOnExo.collectAsStateWithLifecycle()
 
@@ -208,7 +208,7 @@ fun PlayerScreen(
         }
         if (multiviewPickFor == null) multiviewCategory = null
     }
-    // Channels kept from the Live list (B5's second entry point). Playing any channel is what says
+    // Channels kept from the Live list (the second way into the grid). Playing any channel is what says
     // "now": the grid opens with them already in it, and the selection is spent.
     val multiviewSelection by tuner.multiviewSelection.collectAsStateWithLifecycle()
     LaunchedEffect(channel?.id, multiviewSelection.size, multiviewEnabled) {
@@ -217,7 +217,7 @@ fun PlayerScreen(
             val kept = multiviewSelection
             tuner.clearMultiviewSelection()
             // BOTH engines, exactly as the HUD button does. This is the *other* way into the grid —
-            // the one the owner actually uses — and it stopped only mpv, so a channel playing on the
+            // the one most used — and it stopped only mpv, so a channel playing on the
             // ExoPlayer engine carried on underneath: a second sound, and a connection spent on a
             // stream nobody could see.
             player.stop()
@@ -287,7 +287,7 @@ fun PlayerScreen(
     val autoSkipIntro by settings.autoSkipIntro.collectAsStateWithLifecycle(false)
     val isLive = channel != null && !replaying
 
-    // "Go back to…", for a live channel whose provider keeps an archive — or its own saved copy (N4),
+    // "Go back to…", for a live channel whose provider keeps an archive — or its own saved copy,
     // which exists only once the tune has started saving. Recomputed per channel, since the depth of
     // the archive is the channel's, not the playlist's.
     val hasLocalCopy by tuner.hasLocalCopy.collectAsStateWithLifecycle()
@@ -297,7 +297,7 @@ fun PlayerScreen(
         }
     }
 
-    // N4 — back on a channel whose saved copy was kept: continue from there, or stay live.
+    // Back on a channel whose saved copy was kept: continue from there, or stay live.
     val timeshiftResumeAt by tuner.timeshiftResumeAt.collectAsStateWithLifecycle()
     if (timeshiftResumeAt != null) {
         // Resume clears the offer itself, so the sheet's dismiss after it is a no-op.
@@ -317,7 +317,6 @@ fun PlayerScreen(
         var rememberAnswer by remember(p) { mutableStateOf(false) }
         MobileBottomSheet(
             onDismissRequest = { downloadWatchGuard.answer(watch = true, remember = rememberAnswer) },
-            stage = true,
         ) {
             StageSheetHeader(stringResource(R.string.content_download_watch_title))
             SheetText(stringResource(R.string.content_download_watch_body, p.playlistName))
@@ -369,6 +368,13 @@ fun PlayerScreen(
     // Pure except for the channel (and the cast route) it reads: recompute on those, not on ticks.
     val archiveWindowSec = remember(isLive, channel?.id, castDevice) { tuner.archiveWindowSec() }
     var sheet by remember { mutableStateOf<PlayerSheet?>(null) }
+    // Sports Hub: the extras exist only while the playing channel is one of the match's it was started from.
+    val sportsPlayback: tv.own.owntv.mobile.ui.screens.sports.SportsPlayback = koinInject()
+    val sportsSession by sportsPlayback.session.collectAsStateWithLifecycle()
+    val sportsConfig by koinInject<tv.own.owntv.core.settings.SettingsRepository>().activeSportsConfig
+        .collectAsStateWithLifecycle(tv.own.owntv.core.sports.SportsConfig())
+    val matchSession = sportsSession?.takeIf { s -> isLive && s.options.any { it.channel.id == channel?.id } }
+    var otherChannels by remember { mutableStateOf(false) }
     // Closing the sheet forgets which category was open, so the next press starts at the categories.
     LaunchedEffect(sheet) { if (sheet != PlayerSheet.CHANNELS) playerCategory = null }
     val recordWatchingEnabled by settings.recordWhatImWatching.collectAsStateWithLifecycle(initialValue = false)
@@ -662,7 +668,7 @@ fun PlayerScreen(
             PlayerToast(Modifier.align(Alignment.Center)) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(32.dp))
-                    // M3-11 (the TV's PR #237): a live channel that had been playing and has stalled for
+                    // As on the TV, a live channel that had been playing and has stalled for
                     // 10 s says so under the spinner; gone as soon as the picture returns.
                     val stalledSince = stalledSinceMs
                     if (isLive && stalledSince != null) {
@@ -711,7 +717,7 @@ fun PlayerScreen(
             logoUrl = channel?.displayLogoUrl ?: film?.posterUrl,
             // Nothing is drawn over the picture in the little window: it is a thumbnail, and the
             // system draws its own buttons on top of it.
-            // Held sideways the channel list is a panel over the picture alone (M3-10): the controls step aside.
+            // Held sideways the channel list is a panel over the picture alone: the controls step aside.
             visible = controlsVisible && !inPip && !(sheet == PlayerSheet.CHANNELS && landscape),
             isLive = isLive,
             offsetSec = offsetSecState,
@@ -721,7 +727,7 @@ fun PlayerScreen(
             timelineProgrammes = timelineProgrammes,
             channelNumber = channel?.number?.takeIf { showChannelNumbers },
             liveOnExo = liveOnExo,
-            // L3 - offered only where a swap makes sense. Rewound into the archive, a swap would
+            // Offered only where a swap makes sense. Rewound into the archive, a swap would
             // re-open the channel at the live edge and throw the user out of the rewind; a protected
             // channel has only one engine that can obtain its key, so swapping would trade a playing
             // picture for a guaranteed failure. `isLive` already excludes a replay.
@@ -772,7 +778,7 @@ fun PlayerScreen(
                     // The fullscreen stream goes first: tile 1 opens its own engine, and a playlist
                     // that allows two streams would otherwise be asked for three.
                     val current = channel
-                    // BOTH engines. Live plays on the ExoPlayer engine (L2) whenever that is the
+                    // BOTH engines. Live plays on the ExoPlayer engine whenever that is the
                     // chosen engine, and stopping only mpv left that stream running behind the grid —
                     // audible, and holding one of the provider's connections, while a tile played the
                     // same or another channel over the top of it. Two sounds at once.
@@ -810,16 +816,30 @@ fun PlayerScreen(
             },
             onToast = { toast = it },
             gestureScrubMs = scrubFraction?.takeIf { duration > 0 }?.let { (it * duration).toLong() },
-            // H1 — Report is offered only while Info is open, the television's rule on both apps.
+            // Report is offered only while Info is open, the television's rule on both apps.
             infoOpen = sheet == PlayerSheet.INFO,
-            // D3 — live channels only, and only once the setting is on. Null hides the button.
+            // Live channels only, and only once the setting is on. Null hides the button.
             onRecordThis = if (recordWatchingEnabled && isLive && channel != null) {
                 { tuner.togglePlayerRecording() }
             } else {
                 null
             },
             recordingThis = playerRecording != null,
+            matchLine = matchSession?.takeIf { sportsConfig.scoreInInfoBar }?.let { session ->
+                { tv.own.owntv.mobile.ui.screens.sports.MatchScoreLine(sportsPlayback, session.match, sportsConfig.spoilerFree) }
+            },
+            onOtherChannels = matchSession?.takeIf { it.options.size > 1 }?.let { { otherChannels = true } },
         )
+        if (otherChannels) {
+            val session = matchSession
+            if (session == null) otherChannels = false
+            else tv.own.owntv.mobile.ui.screens.sports.OtherChannelsSheet(
+                session = session,
+                playingId = channel?.id,
+                onSwitch = { tuner.switchTo(it); otherChannels = false },
+                onDismiss = { otherChannels = false },
+            )
+        }
 
         // glcn: "Skip intro" on a series episode.
         GlcnIntroSkip.Chip(
@@ -873,7 +893,7 @@ fun PlayerScreen(
                 grid.releaseAll()
                 multiview = null
                 multiviewPickFor = null
-                // Leaving the grid leaves *playback*, by the owner's decision (2026-09-13).
+                // Leaving the grid leaves *playback*, by design.
                 //
                 // It used to promote whichever tile had the sound to the single stream. In use that
                 // is wrong twice over: a grid is put away by someone who has finished watching, and
@@ -903,7 +923,6 @@ fun PlayerScreen(
                     onDismiss = { multiviewPickFor = null },
                     // Two steps: choosing a category opens its channels, it does not close the sheet.
                     dismissOnSelect = false,
-                    stage = true,
                 )
             } else {
                 PlayerSheetHost(
@@ -959,7 +978,6 @@ fun PlayerScreen(
             },
             onDismiss = { sheet = null },
             dismissOnSelect = false,
-            stage = true,
         )
     }
 

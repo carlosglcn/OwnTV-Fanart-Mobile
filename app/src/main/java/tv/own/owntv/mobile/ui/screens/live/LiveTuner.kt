@@ -39,6 +39,7 @@ import tv.own.owntv.core.customize.railCategories
 import tv.own.owntv.core.live.LiveKey
 import tv.own.owntv.core.model.MediaType
 import tv.own.owntv.core.player.AudioOnlyStore
+import tv.own.owntv.core.player.catchupPinKey
 import tv.own.owntv.core.player.enginePinKey
 import tv.own.owntv.core.repository.ActiveProfileSources
 import tv.own.owntv.core.repository.activeProfileSources
@@ -94,7 +95,7 @@ class LiveTuner(
     private val cast: CastController,
     private val recordings: tv.own.owntv.core.recording.RecordingManager,
     /**
-     * The second live engine (L2). Live played on mpv and nothing else here, which is why the HUD's
+     * The second live engine. Live played on mpv and nothing else here, which is why the HUD's
      * engine button was hidden for live: there was no engine to swap to. This is the same
      * [LivePreviewEngine] the television runs live on, and the same one Multiview gives each tile.
      */
@@ -111,7 +112,7 @@ class LiveTuner(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
 
-    // --- "Record what I'm watching" (Plan D, D3 mode b) -----------------------------------------
+    // --- "Record what I'm watching" --------------------------------------------------------------
 
 
     /**
@@ -230,7 +231,7 @@ class LiveTuner(
      */
     private val engine by lazy { MpvPlaybackEngine(player) }
 
-    // --- Which engine is playing live (L2) -------------------------------------------------------
+    // --- Which engine is playing live -------------------------------------------------------
 
     /**
      * Routing, the fallback ladder, the handovers and the give-up alarm — core's, the same code the
@@ -341,7 +342,7 @@ class LiveTuner(
     /** The channel on screen, with the user's own name for it. */
     val channel: StateFlow<ChannelEntity?> = _channel
 
-    /** N2 — the channel watched before the one on screen; null hides the player's "previous channel". */
+    /** The channel watched before the one on screen; null hides the player's "previous channel". */
     val previousChannel: StateFlow<ChannelEntity?> = combine(live.previousChannel, ctx) { p, c ->
         p?.takeIf { it.sourceId in c.sourceIds }
     // UI-only (the player's back button), so it sleeps with the screen. ctx/custom/activeEngine
@@ -470,11 +471,11 @@ class LiveTuner(
         },
         loadArchive = ::loadArchiveStream,
         onLiveEdge = { goToLive() },
-        // N4 — a channel without catch-up rewinds into its own saved copy.
+        // A channel without catch-up rewinds into its own saved copy.
         local = live.localRewind,
     )
 
-    /** N4 — the user came back to a channel whose copy was kept: where they were, for "Resume from
+    /** The user came back to a channel whose copy was kept: where they were, for "Resume from
      *  buffer / Go live". Null when there is nothing to offer. */
     val timeshiftResumeAt: StateFlow<Long?> = live.localTimeshift.map { it?.resumeAtWallMs }
         // UI-only (the resume offer); sleeps with the screen.
@@ -488,10 +489,10 @@ class LiveTuner(
 
     fun dismissTimeshiftResume() = live.dismissResumeOffer()
 
-    /** N4 — the wall-clock holes in the saved copy on screen, for the live bar. */
+    /** The wall-clock holes in the saved copy on screen, for the live bar. */
     fun timeshiftGaps(): List<LongRange> = live.localGaps()
 
-    /** N4 — the channel on screen is playing from its saved copy, so it can be rewound. */
+    /** The channel on screen is playing from its saved copy, so it can be rewound. */
     val hasLocalCopy: StateFlow<Boolean> = live.localTimeshift.map { it != null }
         // Read by the engine-flip button and the live bar, both on screen together with this flow.
         .stateIn(scope, SharingStarted.WhileSubscribed(5_000), false)
@@ -712,7 +713,7 @@ class LiveTuner(
             live.start(named, source, resolved = url)
             applyAudioOnlyDefault(channel)
         } else {
-            live.noteWatched(named) // "previous channel" follows a cast zap too (N2)
+            live.noteWatched(named) // "previous channel" follows a cast zap too
         }
         recordHistory(pid, channel.id)
         _nowNext.value = epgReader.nowNext(channel, custom.value, settings.epgOffsetMinutes.first())
@@ -731,7 +732,7 @@ class LiveTuner(
     fun toggleLiveEngine() {
         // A replay is a recorded programme, not the live stream: re-tuning here would swap what the
         // user is watching for whatever is on that channel now.
-        // A copy saved on this device (N4) is the exception: the other engine continues it at the same moment.
+        // A copy saved on this device is the exception: the other engine continues it at the same moment.
         if (_replaying.value || (timeshift.isRewound && !hasLocalCopy.value)) return
         live.toggleEngine()
     }
@@ -964,6 +965,10 @@ class LiveTuner(
                     isArchive = true,
                     userAgent = source?.userAgent,
                     httpHeaders = SourceOverrides.headersWithReferer(channel.httpHeaders, source),
+                    // Keyed on the channel's archive, not the time-specific URL; a Stalker archive
+                    // gets a fresh create_link on Retry.
+                    contentKey = catchupPinKey(channel),
+                    reconnectProvider = archiveUrls.reconnectFor(channel, programme),
                 )
                 publishToSystem()
             }
@@ -1089,10 +1094,11 @@ class LiveTuner(
 
     /**
      * Turn one point in the archive into a playing stream — the "URL out" half of [LiveTimeshift].
-     * False when no archive URL can be built, or the user reached live while it was being resolved.
+     * Returns the instant the archive really starts at (on the minute for Xtream), or null when no
+     * archive URL can be built, or the user reached live while it was being resolved.
      */
-    private suspend fun loadArchiveStream(ch: ChannelEntity, startMs: Long, offsetSec: Int): Boolean {
-        val (url, source) = withContext(Dispatchers.IO) {
+    private suspend fun loadArchiveStream(ch: ChannelEntity, startMs: Long, offsetSec: Int): Long? {
+        val (archive, source) = withContext(Dispatchers.IO) {
             val source = sourceDao.getById(ch.sourceId) ?: return@withContext null
             val tz = settings.resolveCatchupTimeZone(source)
             archiveUrls.forTimeshift(ch, source, startMs, offsetSec, tz)?.let { it to source }
@@ -1100,9 +1106,9 @@ class LiveTuner(
             // The timeshift hands back to the live edge from here, which on its own is indistinguishable
             // from "Go back to…" doing nothing at all.
             catchupUnavailable()
-            return false
+            return null
         }
-        if (timeshift.offsetSec.value == null) return false // user jumped back to live meanwhile
+        if (timeshift.offsetSec.value == null) return null // user jumped back to live meanwhile
         // The rewind plays out of the archive on mpv, so the live ExoPlayer engine stops first. This
         // is the one that cost two connections and made two sounds: drag the bar back ten minutes and
         // the live stream went on playing behind the archive. A live tune still in flight is cancelled
@@ -1110,16 +1116,18 @@ class LiveTuner(
         live.cancelTune()
         live.releaseForArchive()
         player.play(
-            url = url,
+            url = archive.url,
             title = ch.name,
             logoUrl = ch.displayLogoUrl,
             isArchive = true,
             userAgent = source.userAgent,
             httpHeaders = SourceOverrides.headersWithReferer(ch.httpHeaders, source),
-            rewindStartMs = startMs,
+            rewindStartMs = archive.startMs,
+            contentKey = catchupPinKey(ch),
+            reconnectProvider = archive.reconnect,
         )
         publishToSystem()
-        return true
+        return archive.startMs
     }
 
     /** Stop playing altogether — the mini player's swipe-down, and nothing else. */

@@ -93,8 +93,8 @@ internal fun SpanHideDialog(
     onShow: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    // A Stage sheet (M9B): how many are chosen, then Hide · Show · Cancel.
-    tv.own.owntv.mobile.ui.components.MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+    // A Stage sheet: how many are chosen, then Hide · Show · Cancel.
+    tv.own.owntv.mobile.ui.components.MobileBottomSheet(onDismissRequest = onDismiss) {
         tv.own.owntv.mobile.ui.stage.StageSheetHeader(
             title,
             subtitle = pluralStringResource(
@@ -128,7 +128,7 @@ internal fun RowActionsSheet(
     onRemoveFromCategory: (() -> Unit)? = null,
     onDelete: (() -> Unit)? = null,
 ) {
-    MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss) {
         tv.own.owntv.mobile.ui.stage.StageSheetHeader(title)
         if (onRename != null) {
             tv.own.owntv.mobile.ui.stage.StageMenuItem(stringResource(R.string.settings_customize_rename), onClick = onRename, icon = MobileIcons.Edit)
@@ -164,7 +164,7 @@ internal fun SortSheet(
     onSelect: (SettingsRepository.SortMode) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss) {
         tv.own.owntv.mobile.ui.stage.StageSheetHeader(stringResource(R.string.settings_customize_sort_categories))
         listOf(
             SettingsRepository.SortMode.PLAYLIST to R.string.content_provider,
@@ -182,7 +182,7 @@ internal fun FilterSheet(
     onSelect: (CustomizeVisibilityFilter) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss) {
         tv.own.owntv.mobile.ui.stage.StageSheetHeader(stringResource(R.string.settings_customize_filter_title))
         CustomizeVisibilityFilter.entries.forEach { filter ->
             tv.own.owntv.mobile.ui.screens.settings.ChoiceRow(stringResource(filter.labelRes()), filter == current) { onSelect(filter); onDismiss() }
@@ -197,7 +197,7 @@ internal fun NewCategoryBehaviorSheet(
     onSelect: (Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss) {
         tv.own.owntv.mobile.ui.stage.StageSheetHeader(stringResource(R.string.settings_customize_new_category_behavior))
         listOf(
             false to R.string.settings_customize_behavior_show,

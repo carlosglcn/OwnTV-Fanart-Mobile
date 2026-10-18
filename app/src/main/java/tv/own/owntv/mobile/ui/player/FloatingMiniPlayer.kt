@@ -52,7 +52,7 @@ import org.koin.compose.koinInject
 import tv.own.owntv.core.settings.SettingsRepository
 import tv.own.owntv.mobile.R
 import tv.own.owntv.mobile.ui.components.MobileBottomSheet
-import tv.own.owntv.mobile.ui.components.MobileListRow
+import tv.own.owntv.mobile.ui.stage.StageMenuItem
 import tv.own.owntv.mobile.ui.screens.live.LiveTuner
 import tv.own.owntv.player.OwnTVPlayer
 import tv.own.owntv.player.PlaybackEngine
@@ -187,7 +187,7 @@ fun FloatingMiniPlayer(
                     windowWidth = it.width.toFloat()
                     windowHeight = it.height.toFloat()
                 }
-                // `.ph` floating window (M1-05): 16 dp corners, a deep shadow and a 1 dp light rim.
+                // `.ph` floating window: 16 dp corners, a deep shadow and a 1 dp light rim.
                 .stageShadow(Color.Black.copy(alpha = 0.6f), 40.dp, 18.dp, WindowShape)
                 .drawWithContent {
                     drawContent()
@@ -255,7 +255,7 @@ fun FloatingMiniPlayer(
                     Modifier
                         .fillMaxSize()
                         .background(Color.Black.copy(alpha = 0.35f)),
-                    // The mockup's 14 dp between the icons; four buttons (a film) pack tighter so they
+                    // 14 dp between the icons; four buttons (a film) pack tighter so they
                     // still fit the smallest window.
                     horizontalArrangement = Arrangement.spacedBy(if (isLive) 4.dp else 0.dp, Alignment.CenterHorizontally),
                     verticalAlignment = Alignment.CenterVertically,
@@ -407,48 +407,43 @@ fun FloatingWindowMenu(
     onDismiss: () -> Unit,
 ) {
     MobileBottomSheet(onDismissRequest = onDismiss) {
-        MobileListRow(
-            title = stringResource(
+        StageMenuItem(
+            stringResource(
                 if (isFavorite) R.string.content_remove_favourite else R.string.content_add_favourite,
             ),
-            leading = {
-                Icon(
-                    imageVector = if (isFavorite) MobileIcons.Star else MobileIcons.StarBorder,
-                    contentDescription = null,
-                )
-            },
+            icon = if (isFavorite) MobileIcons.Favorite else MobileIcons.FavoriteBorder,
             onClick = {
                 onToggleFavorite()
                 onDismiss()
             },
         )
-        MobileListRow(
-            title = stringResource(R.string.player_tool_audio_only),
-            leading = { Icon(MobileIcons.MusicNote, contentDescription = null) },
+        StageMenuItem(
+            stringResource(R.string.player_tool_audio_only),
+            icon = MobileIcons.MusicNote,
             onClick = {
                 onAudioOnly()
                 onDismiss()
             },
         )
-        MobileListRow(
-            title = stringResource(R.string.player_sleep_timer),
-            leading = { Icon(MobileIcons.Bedtime, contentDescription = null) },
+        StageMenuItem(
+            stringResource(R.string.player_sleep_timer),
+            icon = MobileIcons.Bedtime,
             onClick = {
                 onDismiss()
                 onSleepTimer()
             },
         )
-        MobileListRow(
-            title = stringResource(R.string.player_pip_expand),
-            leading = { Icon(MobileIcons.OpenInFull, contentDescription = null) },
+        StageMenuItem(
+            stringResource(R.string.player_pip_expand),
+            icon = MobileIcons.OpenInFull,
             onClick = {
                 onDismiss()
                 onExpand()
             },
         )
-        MobileListRow(
-            title = stringResource(R.string.content_close),
-            leading = { Icon(MobileIcons.Close, contentDescription = null) },
+        StageMenuItem(
+            stringResource(R.string.content_close),
+            icon = MobileIcons.Close,
             onClick = {
                 onDismiss()
                 onStop()

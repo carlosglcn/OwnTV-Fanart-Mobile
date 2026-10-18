@@ -40,7 +40,7 @@ import tv.own.owntv.mobile.ui.stage.stageAccent
 import tv.own.owntv.mobile.ui.stage.stageText
 
 /**
- * App icon (M11-02), from Settings › App and the wizard's Display step: "App" over the title, its line, then the
+ * App icon, from Settings › App and the wizard's Display step: "App" over the title, its line, then the
  * nine icons three to a row — 64 dp tiles, the name under each; the chosen one ringed in the focus colour with a
  * gap, its name in the accent. With [askRestart] a pick the launcher does not show yet turns this sheet into the
  * restart question; the wizard passes false, as the TV does — nothing is on the home screen to update yet.
@@ -52,7 +52,7 @@ fun AppIconSheet(chosen: AppIcon, onPick: (AppIcon) -> Unit, onDismiss: () -> Un
     restartFor?.let { AppIconRestartSheet(it, onDismiss); return }
     val palette = LocalStagePalette.current
     val accent = stageAccent
-    MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss) {
         StageSheetHeader(stringResource(R.string.settings_app_icon), eyebrow = stringResource(R.string.settings_group_app))
         SheetText(stringResource(R.string.settings_app_icon_sheet_mobile))
         SheetOrder.chunked(3).forEach { row ->
@@ -95,7 +95,7 @@ fun AppIconSheet(chosen: AppIcon, onPick: (AppIcon) -> Unit, onDismiss: () -> Un
     }
 }
 
-/** The mockup's order: the default first, then the colours, the dark ones, Pixel last. */
+/** In order: the default first, then the colours, the dark ones, Pixel last. */
 private val SheetOrder = listOf(
     AppIcon.EGGSHELL, AppIcon.OLIVE, AppIcon.OLIVE_CREAM,
     AppIcon.PETROL, AppIcon.COBALT, AppIcon.TOMATO,

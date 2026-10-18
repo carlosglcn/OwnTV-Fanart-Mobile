@@ -71,7 +71,7 @@ fun ProfileGate(
 
     fun enter(profile: ProfileEntity) = vm.switchTo(profile) { onEntered(profile) }
 
-    // M8-08: the brand on top, the question and its line, then two columns of 104 dp avatars — the
+    // The brand on top, the question and its line, then two columns of 104 dp avatars — the
     // current profile ringed — and the outlined Add profile, on the Stage background.
     val palette = LocalStagePalette.current
     val activeProfileId by vm.activeProfileId.collectAsStateWithLifecycle()

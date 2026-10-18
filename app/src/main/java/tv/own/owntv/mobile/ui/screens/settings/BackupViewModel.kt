@@ -79,7 +79,7 @@ class BackupViewModel(
         val wrongPassword: Boolean = false,
     )
 
-    // ---- Remote (M8-04): the television's companion server, core's. Another device on the same Wi-Fi
+    // ---- Remote: the television's companion server, core's. Another device on the same Wi-Fi
     // opens the address, enters the PIN, and downloads this phone's backup or sends one to restore. ----
 
     /** Idle / Starting / Listening with the PIN and QR / Failed / Locked, for the Remote sheets. */

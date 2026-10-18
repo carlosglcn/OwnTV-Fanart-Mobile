@@ -6,31 +6,27 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -38,12 +34,17 @@ import tv.own.owntv.core.database.entity.ProfileEntity
 import tv.own.owntv.core.profile.PROFILE_AVATAR_COUNT
 import tv.own.owntv.mobile.R
 import tv.own.owntv.mobile.ui.components.MobileBottomSheet
-import tv.own.owntv.mobile.ui.components.MobileButton
-import tv.own.owntv.mobile.ui.components.MobileButtonStyle
-import tv.own.owntv.mobile.ui.components.MobileSwitch
-import tv.own.owntv.mobile.ui.components.MobileTextField
+import tv.own.owntv.mobile.ui.components.MobileIcons
 import tv.own.owntv.mobile.ui.components.sheetListHeight
-import tv.own.owntv.mobile.ui.theme.MobileDimens
+import tv.own.owntv.mobile.ui.stage.StageButton
+import tv.own.owntv.mobile.ui.stage.StageButtonStyle
+import tv.own.owntv.mobile.ui.stage.StageField
+import tv.own.owntv.mobile.ui.stage.StageGroupLabel
+import tv.own.owntv.mobile.ui.stage.StageMenuItem
+import tv.own.owntv.mobile.ui.stage.StageSettingRow
+import tv.own.owntv.mobile.ui.stage.StageSheetHeader
+import tv.own.owntv.mobile.ui.stage.StageSwitch
+import tv.own.owntv.mobile.ui.stage.stageAccent
 
 /** A PIN is four to six digits — long enough to be a lock, short enough to type one-handed. */
 private const val PIN_MIN = 4
@@ -78,35 +79,27 @@ fun ProfilePinSheet(
             if (!onSubmit(pin)) { wrong = true; pin = "" } else keyboard?.hide()
         }
     }
-    MobileBottomSheet(
-        onDismissRequest = onDismiss,
-        title = stringResource(R.string.profiles_enter_pin, profileName),
-    ) {
-        Column(
-            modifier = Modifier
-                .heightIn(max = sheetListHeight())
-                .verticalScroll(rememberScrollState())
-                .imePadding()
-                .padding(horizontal = MobileDimens.ScreenPaddingH),
-        ) {
-            MobileTextField(
-                value = pin,
-                onValueChange = {
-                    if (it.length <= PIN_MAX && it.all(Char::isDigit)) {
-                        pin = it
-                        wrong = false
-                    }
-                },
-                label = stringResource(R.string.profiles_pin),
-                placeholder = stringResource(R.string.profiles_pin_placeholder),
-                isPassword = true,
-                keyboardType = KeyboardType.NumberPassword,
-                imeAction = ImeAction.Done,
-                isError = wrong,
-                supportingText = if (wrong) stringResource(R.string.profiles_wrong_pin) else null,
-                onImeDone = { submit() },
-            )
-        }
+    val title = stringResource(R.string.profiles_enter_pin, profileName)
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
+        StageSheetHeader(title)
+        StageField(
+            value = pin,
+            onValueChange = {
+                if (it.length <= PIN_MAX && it.all(Char::isDigit)) {
+                    pin = it
+                    wrong = false
+                }
+            },
+            label = stringResource(R.string.profiles_pin),
+            placeholder = stringResource(R.string.profiles_pin_placeholder),
+            password = true,
+            keyboardType = KeyboardType.NumberPassword,
+            imeAction = ImeAction.Done,
+            isError = wrong,
+            supportingText = if (wrong) stringResource(R.string.profiles_wrong_pin) else null,
+            onImeDone = { submit() },
+            modifier = Modifier.padding(horizontal = 8.dp),
+        )
         SheetButtons(
             confirm = stringResource(R.string.common_ok),
             confirmEnabled = pin.length >= PIN_MIN,
@@ -154,20 +147,18 @@ fun ProfileEditorSheet(
     val autofill = LocalAutofillManager.current
     var removePin by remember { mutableStateOf(false) }
     val nameTaken = name.trim().isNotEmpty() && name.trim().lowercase() in takenNames
+    val accent = stageAccent.accent
+    val title = stringResource(if (initial == null) R.string.profiles_new else R.string.profiles_edit)
 
-    MobileBottomSheet(
-        onDismissRequest = onDismiss,
-        title = stringResource(if (initial == null) R.string.profiles_new else R.string.profiles_edit),
-    ) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
+        StageSheetHeader(title)
         Column(
             modifier = Modifier
                 .heightIn(max = sheetListHeight())
                 .verticalScroll(rememberScrollState())
-                .imePadding()
-                .padding(horizontal = MobileDimens.ScreenPaddingH),
-            verticalArrangement = Arrangement.spacedBy(MobileDimens.GapSmall),
+                .imePadding(),
         ) {
-            MobileTextField(
+            StageField(
                 value = name,
                 onValueChange = { name = it },
                 label = stringResource(R.string.profiles_name),
@@ -175,77 +166,52 @@ fun ProfileEditorSheet(
                 imeAction = ImeAction.Next,
                 isError = nameTaken,
                 supportingText = if (nameTaken) stringResource(R.string.profiles_name_taken) else null,
+                modifier = Modifier.padding(horizontal = 8.dp),
             )
-            Text(
-                text = stringResource(R.string.profiles_avatar),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            StageGroupLabel(stringResource(R.string.profiles_avatar))
             if (onPickPicture != null || initial == null) {
                 val picker = androidx.activity.compose.rememberLauncherForActivityResult(
                     androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia(),
                 ) { uri -> if (uri != null) onPickPicture?.invoke(uri) ?: run { pendingPicture = uri } }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(MobileDimens.GapSmall),
-                    verticalAlignment = Alignment.CenterVertically,
+                StageSettingRow(
+                    title = stringResource(R.string.profiles_avatar_own_picture),
+                    minHeight = 48.dp,
+                    leading = {
+                        ProfileAvatar(avatarId = avatarId, imagePath = picturePath, modifier = Modifier.size(34.dp).clip(CircleShape))
+                    },
+                    onClick = {
+                        picker.launch(
+                            androidx.activity.result.PickVisualMediaRequest(
+                                androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly,
+                            ),
+                        )
+                    },
                 ) {
-                    ProfileAvatar(
-                        avatarId = avatarId,
-                        imagePath = picturePath,
-                        modifier = Modifier
-                            .size(AVATAR_PICK_SIZE - 8.dp)
-                            .clip(CircleShape)
-                            .clickable {
-                                picker.launch(
-                                    androidx.activity.result.PickVisualMediaRequest(
-                                        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly,
-                                    ),
-                                )
-                            },
-                    )
-                    MobileButton(
-                        text = stringResource(R.string.profiles_avatar_own_picture),
-                        onClick = {
-                            picker.launch(
-                                androidx.activity.result.PickVisualMediaRequest(
-                                    androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly,
-                                ),
-                            )
-                        },
-                        style = MobileButtonStyle.TEXT,
-                    )
                     if (pendingPicture != null || (customPath.isNotBlank() && onClearPicture != null)) {
-                        MobileButton(
-                            text = stringResource(R.string.common_clear),
+                        StageButton(
                             onClick = { if (pendingPicture != null) pendingPicture = null else onClearPicture?.invoke() },
-                            style = MobileButtonStyle.TEXT,
+                            text = stringResource(R.string.common_clear),
+                            style = StageButtonStyle.PLAIN,
+                            small = true,
                         )
                     }
                 }
             }
             // -1 is "no picture", and it is offered first so a profile can be left plain.
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(MobileDimens.GapSmall)) {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+            ) {
                 // Count + key instead of a materialized range: no list per recomposition, and an
-                // avatar keeps its composition (and its ripple) across avatar-count changes.
+                // avatar keeps its composition across avatar-count changes.
                 items(count = PROFILE_AVATAR_COUNT + 1, key = { it - 1 }) { index ->
                     val id = index - 1
-                    val selected = id == avatarId
                     Box(
                         modifier = Modifier
                             .size(AVATAR_PICK_SIZE)
                             .clip(CircleShape)
-                            .then(
-                                if (selected) {
-                                    Modifier.border(
-                                        width = 3.dp,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        shape = CircleShape,
-                                    )
-                                } else {
-                                    Modifier
-                                },
-                            )
-                            .clickable { avatarId = id }
+                            .then(if (id == avatarId) Modifier.border(3.dp, accent, CircleShape) else Modifier)
+                            .clickable(role = Role.RadioButton) { avatarId = id }
                             .padding(4.dp),
                     ) {
                         ProfileAvatar(
@@ -255,14 +221,14 @@ fun ProfileEditorSheet(
                     }
                 }
             }
-            ToggleRow(
+            SwitchRow(
                 label = stringResource(R.string.profiles_kids),
                 description = stringResource(R.string.profiles_kids_description),
                 checked = isKids,
                 onToggle = { isKids = it },
             )
             if (initial?.pinHash != null) {
-                ToggleRow(
+                SwitchRow(
                     label = stringResource(R.string.profiles_remove_pin),
                     description = stringResource(R.string.profiles_no_pin),
                     checked = removePin,
@@ -270,16 +236,17 @@ fun ProfileEditorSheet(
                 )
             }
             if (!removePin) {
-                MobileTextField(
+                StageField(
                     value = pin,
                     onValueChange = { if (it.length <= PIN_MAX && it.all(Char::isDigit)) pin = it },
                     label = stringResource(
                         if (initial?.pinHash != null) R.string.profiles_change_pin else R.string.profiles_optional_pin,
                     ),
                     placeholder = stringResource(R.string.profiles_pin_digits),
-                    isPassword = true,
+                    password = true,
                     keyboardType = KeyboardType.NumberPassword,
                     imeAction = ImeAction.Done,
+                    modifier = Modifier.padding(horizontal = 8.dp),
                 )
             }
         }
@@ -293,8 +260,8 @@ fun ProfileEditorSheet(
                 onDismiss()
             },
             onDismiss = onDismiss,
-            // Delete stands beside Cancel rather than under the fields, where a thumb reaching for
-            // the PIN box would find it.
+            // Delete is last, under Cancel and away from the fields, where a thumb reaching for the
+            // PIN box will not find it.
             destructive = extraAction,
         )
     }
@@ -302,33 +269,18 @@ fun ProfileEditorSheet(
 
 /** A label, a line of explanation and a switch — the whole row is the button. */
 @Composable
-private fun ToggleRow(
+private fun SwitchRow(
     label: String,
     description: String,
     checked: Boolean,
     onToggle: (Boolean) -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            // Flat: a sheet is already a pane of glass, so a second surface inside it only muddies it.
-            .clickable { onToggle(!checked) }
-            .padding(vertical = MobileDimens.GapSmall),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text(label, style = MaterialTheme.typography.bodyLarge)
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        MobileSwitch(checked = checked)
+    StageSettingRow(title = label, subtitle = description, minHeight = 48.dp, role = Role.Switch, onClick = { onToggle(!checked) }) {
+        StageSwitch(checked)
     }
 }
 
-/** Cancel, an optional destructive action and confirm — the shape every sheet here ends in. */
+/** Confirm (✓, filled once it can be used), Cancel (✕) and an optional Delete — how these sheets end. */
 @Composable
 private fun SheetButtons(
     confirm: String,
@@ -337,25 +289,16 @@ private fun SheetButtons(
     onDismiss: () -> Unit,
     destructive: (() -> Unit)? = null,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = MobileDimens.ScreenPaddingH),
-        horizontalArrangement = Arrangement.spacedBy(MobileDimens.GapSmall, Alignment.End),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (destructive != null) {
-            MobileButton(
-                text = stringResource(R.string.common_delete),
-                onClick = destructive,
-                style = MobileButtonStyle.TEXT,
-            )
-        }
-        MobileButton(
-            text = stringResource(R.string.common_cancel),
-            onClick = onDismiss,
-            style = MobileButtonStyle.TEXT,
-        )
-        MobileButton(text = confirm, onClick = onConfirm, enabled = confirmEnabled)
+    StageMenuItem(
+        confirm,
+        onClick = onConfirm,
+        icon = MobileIcons.Check,
+        filled = confirmEnabled,
+        enabled = confirmEnabled,
+        modifier = Modifier.padding(top = 6.dp),
+    )
+    StageMenuItem(stringResource(R.string.common_cancel), onClick = onDismiss, icon = MobileIcons.Close)
+    if (destructive != null) {
+        StageMenuItem(stringResource(R.string.common_delete), onClick = destructive, icon = MobileIcons.Delete, danger = true)
     }
 }

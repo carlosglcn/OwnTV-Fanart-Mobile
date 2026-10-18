@@ -75,13 +75,13 @@ fun VideoStage(
      */
     zoomOverride: ZoomMode? = null,
     /**
-     * Settings → Auto frame rate, seamless switches only (M9, owner decision 7). Passed only by the full
+     * Settings → Auto frame rate, seamless switches only. Passed only by the full
      * screen player, as the setting's description says: the smaller views keep the screen's own rate,
      * and leaving full screen hands it back.
      */
     autoFrameRate: Boolean = false,
 ) {
-    // L2 — which engine holds the picture. Resolved HERE rather than passed in, and that is the whole
+    // Which engine holds the picture. Resolved HERE rather than passed in, and that is the whole
     // point: this composable is used at four sizes (Live TV's preview, full screen, the
     // docked mini player and the floating window) and the first attempt passed the engine to ONE of
     // them. The other three drew mpv's surface while ExoPlayer held the stream, so ExoPlayer had no
@@ -213,7 +213,7 @@ private class MpvSurfaceView(context: Context, private val player: OwnTVPlayer) 
         holder.addCallback(this)
     }
 
-    /** Seamless-only frame-rate hint (M9); re-applied on each fps change and on a surface re-create. */
+    /** Seamless-only frame-rate hint; re-applied on each fps change and on a surface re-create. */
     fun applyVideoFrameRate(fps: Float) {
         pendingFps = fps
         val surface = holder.surface ?: return

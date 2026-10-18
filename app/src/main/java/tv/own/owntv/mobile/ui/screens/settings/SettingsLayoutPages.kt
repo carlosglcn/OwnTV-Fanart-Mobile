@@ -40,7 +40,7 @@ import tv.own.owntv.mobile.ui.stage.stageAccent
 import tv.own.owntv.mobile.ui.theme.labelRes
 
 /**
- * Appearance › Selection highlight (M9B): the ring's thickness as a stepper, then its colour — the accent, each
+ * Appearance › Selection highlight: the ring's thickness as a stepper, then its colour — the accent, each
  * preset, or any colour from the picker. Blank colour means "follow the accent", the default.
  */
 @Composable
@@ -111,7 +111,7 @@ private fun ColourRow(label: String, color: Color?, on: Boolean, onClick: () -> 
 }
 
 /**
- * Layout › Browsing & lists (M9B): for Live TV, Movies and Series, whether a section reopens on the category and
+ * Layout › Browsing & lists: for Live TV, Movies and Series, whether a section reopens on the category and
  * the item last used.
  */
 @Composable
@@ -145,7 +145,7 @@ fun SettingsBrowsingPage(modifier: Modifier = Modifier, vm: SettingsViewModel = 
 
 private fun SettingItem.unpinnable() = SettingItem(key, icon, title, line, value, onClick, sheet, pinnable = false)
 
-/** Layout › Long-press menus (M9B): Live TV, Movies, Series, Episodes — each opens its actions to rearrange. */
+/** Layout › Long-press menus: Live TV, Movies, Series, Episodes — each opens its actions to rearrange. */
 @Composable
 fun SettingsMenusPage(modifier: Modifier = Modifier, vm: SettingsViewModel = koinViewModel()) {
     var menu by remember { mutableStateOf<ContentMenu?>(null) }
@@ -166,7 +166,7 @@ private fun MenuOrderSheet(vm: SettingsViewModel, menu: ContentMenu, onDismiss: 
     val key = menu.name.lowercase()
     val saved = remember(menu) { vm.settings.menuOrder(key) }.pref(emptyList())
     val actions = applyMenuOrder(catalogue(menu), saved) { it.key }
-    MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss) {
         StageSheetHeader(stringResource(menu.titleRes()), eyebrow = stringResource(R.string.settings_content_menus_title))
         androidx.compose.foundation.layout.Column(Modifier.sheetScroll()) {
             actions.forEachIndexed { index, action ->

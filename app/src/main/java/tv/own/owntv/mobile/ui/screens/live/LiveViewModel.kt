@@ -107,7 +107,7 @@ class LiveViewModel(
     private val syncScheduler: CatalogSyncScheduler,
     private val startupSelection: StartupLiveSelection,
     epgDao: EpgDao,
-    /** The app-wide reader the Guide uses too (T18) — one now/next cache, not two. */
+    /** The app-wide reader the Guide uses too — one now/next cache, not two. */
     private val epgReader: LiveEpgReader,
 ) : ViewModel(), org.koin.core.component.KoinComponent {
 
@@ -246,7 +246,7 @@ class LiveViewModel(
     val sheetCounts: StateFlow<Boolean> = settings.sheetCounts
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
 
-    /** List or the guide grid (M3-06) — core's "Live TV opens in", remembered from the Guide view tool. */
+    /** List or the guide grid — core's "Live TV opens in", remembered from the Guide view tool. */
     val liveView: StateFlow<SettingsRepository.LiveView> = settings.liveView
         .stateIn(viewModelScope, SharingStarted.Eagerly, SettingsRepository.LiveView.LIST)
 
@@ -268,7 +268,7 @@ class LiveViewModel(
         }
     }
 
-    /** Back to the playlist's order and contents (core's restoreCategoryToDefault, the TV's PR #235). */
+    /** Back to the playlist's order and contents (core's restoreCategoryToDefault). */
     fun restoreCategory(key: LiveKey) {
         val contextKey = categoryContextKey(key) ?: return
         viewModelScope.launch {
@@ -334,7 +334,7 @@ class LiveViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
 
     /**
-     * The Stage playlist mark per source (decision D4), coloured by the playlist's position in the
+     * The Stage playlist mark per source, coloured by the playlist's position in the
      * profile's list — the TV's rule. Empty with one playlist, like [providerNames].
      */
     val playlistMarks: StateFlow<Map<Long, PlaylistMark>> = ctx

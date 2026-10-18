@@ -34,7 +34,7 @@ import tv.own.owntv.core.settings.SettingsRepository
 import tv.own.owntv.core.ui.stage.PlaylistMark
 
 /**
- * Search (M8-09 … M8-11), the shipped television's: one field over channels, films, shows and the guide.
+ * Search, the shipped television's: one field over channels, films, shows and the guide.
  *
  * The searching itself is core's [SearchReader] — the same rules the television searches by, so a hidden
  * title stays hidden and a renamed channel keeps its new name on both. What is here is the phone's part:
@@ -85,7 +85,7 @@ class SearchViewModel(
     val recentSearches: StateFlow<List<String>> = settings.recentSearches
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    /** Which playlist a row comes from, as on the browse screens; empty with one playlist (rule D4). */
+    /** Which playlist a row comes from, as on the browse screens; empty with one playlist. */
     val playlistMarks: StateFlow<Map<Long, PlaylistMark>> = ctx
         .map { c -> if (c.sources.size < 2) emptyMap() else c.sources.withIndex().associate { (i, s) -> s.id to PlaylistMark.of(s.name, i) } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())

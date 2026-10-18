@@ -56,7 +56,7 @@ import java.text.SimpleDateFormat
 private enum class FavFilter { ALL, LIVE, MOVIES, SERIES }
 
 /**
- * More › Favourites (M8-02): All · Live TV · Movies · Series with their counts, then LIVE TV · ON NOW — the
+ * More › Favourites: All · Live TV · Movies · Series with their counts, then LIVE TV · ON NOW — the
  * channel rows of Live TV, with what is on — and MOVIES & SERIES as three-column posters labelled Movie or
  * Series. A tap goes to the item (Live TV on that channel, the film's or the show's page); a hold offers
  * Remove from Favorites.
@@ -150,7 +150,7 @@ fun FavoritesScreen(
     }
 
     menu?.let { (type, id, name) ->
-        MobileBottomSheet(onDismissRequest = { menu = null }, title = name, stage = true) {
+        MobileBottomSheet(onDismissRequest = { menu = null }, title = name) {
             StageSheetHeader(title = name)
             StageMenuItem(
                 stringResource(R.string.content_remove_favourite),
@@ -166,7 +166,7 @@ private data class VodFav(val type: MediaType, val id: Long, val name: String, v
 private enum class HistTab(val type: MediaType) { LIVE(MediaType.LIVE), MOVIES(MediaType.MOVIE), SERIES(MediaType.SERIES) }
 
 /**
- * More › History (M8-03): Live TV · Movies · Series with counts and the red Clear tool, then the type's
+ * More › History: Live TV · Movies · Series with counts and the red Clear tool, then the type's
  * rows, newest first — a 100 dp still with the progress, the title and "Movie · 2026 · Today 18:40 ·
  * 48 min left". A tap selects a row (`.fx`) and shows Resume (Watch for a channel) · Remove. Opens on the
  * type watched most recently.
@@ -224,7 +224,7 @@ fun WatchHistoryScreen(
             val key = e.type.name + e.id
             val left = when {
                 e.durationMs > 0 && e.positionMs > 0 -> timeLeftText(((e.durationMs - e.positionMs).coerceAtLeast(0L) + 59_999L) / 60_000L)
-                // "0:14 watched": hours and minutes, as the mockup writes it.
+                // "0:14 watched": hours and minutes.
                 e.positionMs > 0 -> (e.positionMs / 60_000L).let { m ->
                     stringResource(R.string.content_watched_duration, String.format(java.util.Locale.ROOT, "%d:%02d", m / 60, m % 60))
                 }
@@ -310,7 +310,7 @@ private fun EmptyNote(title: String, body: String?) {
     }
 }
 
-/** "Today 18:40", "Yesterday", "28 Sep" — when it was watched, as the mockup writes it. */
+/** "Today 18:40", "Yesterday", "28 Sep" — when it was watched. */
 @Composable
 private fun watchedWhen(atMs: Long): String {
     val locale = LocalConfiguration.current.locales[0]

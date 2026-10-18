@@ -24,7 +24,7 @@ import java.text.DateFormat
 import java.util.Date
 
 /**
- * Programme reminders reaching a phone that is not looking (G6).
+ * Programme reminders reaching a phone that is not looking.
  *
  * Core wakes the app when a reminder is due ([ReminderManager.due]); the television draws its prompt
  * over whatever is on screen, because a television is always looking. A phone is mostly in a pocket, so

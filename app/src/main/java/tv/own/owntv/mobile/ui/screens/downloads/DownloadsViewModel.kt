@@ -143,7 +143,7 @@ class DownloadsViewModel(
             .mapLatest { downloadManager.storageInfo() }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    /** The one transfer running now, with its speed — the running row's "12.4 MB/s · 3 min left" (G7). */
+    /** The one transfer running now, with its speed — the running row's "12.4 MB/s · 3 min left". */
     val active: StateFlow<DownloadActivityTracker.ActiveDownload?> = tracker.active
 
     /**

@@ -85,7 +85,7 @@ import tv.own.owntv.mobile.ui.stage.stageAccent
 import tv.own.owntv.mobile.ui.stage.stageText
 
 /*
- * Now Trending, Stage (M2-01 … M2-05) — the TV's P2-01 hero turned upright. The backdrop is the page's,
+ * Now Trending, Stage — the TV's hero turned upright. The backdrop is the page's,
  * drawn by the shell behind the header (see HomeChrome); this file draws what sits over it: the eyebrow,
  * the title art, one meta line, three lines of plot, Play · Trailer · versions · ⓘ · ♥ and the pager dots.
  * A sideways swipe changes the title, the dots say where you are, and every 10 s the next one comes — not
@@ -265,7 +265,7 @@ fun TrendingHero(
                     }
                 }
                 // Versions keeps its own width like ⓘ and ♥: when the estimate above is short, only Trailer's word
-                // shortens — the count was the one squeezed to "…" (M5 check).
+                // shortens — the count was the one squeezed to "…".
                 val versionsLabel = stringResource(R.string.home_trending_all_versions)
                 StageButton(
                     onClick = onVersions,
@@ -346,7 +346,7 @@ private fun PagerDots(count: Int, active: Int) {
 }
 
 /**
- * Trending layout = Posters (M2-03): the eyebrow and the 32 / 800 title of the poster at the front of the
+ * Trending layout = Posters: the eyebrow and the 32 / 800 title of the poster at the front of the
  * row, then the row itself — the first poster in view is the one the line above names. Lower down the page
  * ([withTitle] off) it is just the row under its heading, as the TV draws it there.
  */
@@ -408,7 +408,7 @@ fun TrendingPosters(
 }
 
 /**
- * Hold on the hero (M2-04): WATCH (Play, Trailer, All versions), LIBRARY (favourites, download) and
+ * Hold on the hero: WATCH (Play, Trailer, All versions), LIBRARY (favourites, download) and
  * DETAILS (More details, Why this title is here — both open the ⓘ sheet, which holds the why).
  */
 @Composable
@@ -430,7 +430,7 @@ fun TrendingMenuSheet(
         action()
         onDismiss()
     }
-    MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(
             title = title,
             subtitle = listOfNotNull(item.snapshot.year?.let { formatYear(it) }, trendingRank(item)).joinToString(" · "),
@@ -480,7 +480,7 @@ fun TrendingMenuSheet(
 }
 
 /**
- * The ⓘ sheet (M2-05): poster, title, the meta line with the tags, the genres in the accent, the plot, the
+ * The ⓘ sheet: poster, title, the meta line with the tags, the genres in the accent, the plot, the
  * cast, and "Why this item appears" — the sentence that used to sit on the hero card.
  */
 @OptIn(ExperimentalLayoutApi::class)
@@ -508,7 +508,7 @@ fun TrendingInfoSheet(
     val signals = ProviderVariantParser.displaySignals(snapshot.providerRawName)
     val tags = listOfNotNull(signals.quality.label) + signals.capabilities
 
-    MobileBottomSheet(onDismissRequest = onDismiss, title = snapshot.localizedTitle, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = snapshot.localizedTitle) {
         Column(Modifier.heightIn(max = (LocalConfiguration.current.screenHeightDp * 3 / 4).dp).verticalScroll(rememberScrollState())) {
             Row(Modifier.padding(start = 8.dp, end = 8.dp, bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 AsyncImage(
@@ -579,5 +579,5 @@ private const val SWIPE_SLOP_PX = 60f
 /** `.pc` on Home is 104 wide. */
 internal val PosterWidth = 104.dp
 
-/** The rating chip's gold, the mockup's `#ffcc4d`. */
+/** The rating chip's gold, `#ffcc4d`. */
 private val RatingGold = Color(0xFFFFCC4D)

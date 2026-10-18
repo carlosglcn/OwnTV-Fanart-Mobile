@@ -16,9 +16,8 @@ import androidx.compose.ui.unit.sp
 import tv.own.owntv.core.theme.BackgroundConfig
 
 /*
- * Design tokens of Stage for phone, copied from the frozen mockup (`future-plan/ui-audit-mobile`,
- * `phone.css`). At UI Zoom 100% one mockup pixel is one dp (decision M1), so every value is the
- * mockup's number unchanged: a 66 px channel row is `66.dp`, 14.5 px type is `14.5.sp`.
+ * Design tokens of Stage for phone. At UI Zoom 100% one design pixel is one dp, so every value is
+ * the design's number unchanged: a 66 px channel row is `66.dp`, 14.5 px type is `14.5.sp`.
  */
 
 /**
@@ -62,7 +61,7 @@ data class StagePalette(
     val controlFill: Color get() = ink.copy(alpha = 0.06f)
 
     companion object {
-        // ok / warn / danger are the television's StageColors (plan §3: the mockup's are approximations).
+        // ok / warn / danger are the television's StageColors.
         val Dark = StagePalette(
             isLight = false,
             text = Color(0xFFF1F5F3),
@@ -133,16 +132,14 @@ val stageAccent: StageAccent
         return StageAccent(scheme.primary, scheme.onPrimary, focus)
     }
 
-/** Glass & background, resolved by core (Stage / Picture / Plain). Read here; drawn from M11 on. */
+/** Glass & background, resolved by core (Stage / Picture / Plain). Read here and drawn by the backdrop. */
 val LocalStageBackground = staticCompositionLocalOf { BackgroundConfig() }
 
-/** Corner radii (plan §3). */
+/** Corner radii. */
 object StageRadii {
     val BottomBar = 26.dp
     val Sheet = 28.dp
-    val Wizard = 26.dp
     val Video = 20.dp
-    val Card = 18.dp
     val Row = 16.dp
     val Button = 16.dp
     val Search = 14.dp
@@ -157,8 +154,8 @@ object StageRadii {
 }
 
 /**
- * Stage type: a mockup size (px = sp) and weight in the user's main font (Plus Jakarta Sans by default).
- * The mockup's `line-height: 1.35`, with the leading split above and below the text as a browser does.
+ * Stage type: a design size (px = sp) and weight in the user's main font (Plus Jakarta Sans by default).
+ * The design's `line-height: 1.35`, with the leading split above and below the text as a browser does.
  */
 @Composable
 @ReadOnlyComposable

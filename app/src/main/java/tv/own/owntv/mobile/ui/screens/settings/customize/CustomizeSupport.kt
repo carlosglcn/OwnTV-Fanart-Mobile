@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -64,7 +63,7 @@ fun TextPromptDialog(
 ) {
     var text by remember { mutableStateOf(initial) }
     val enabled = allowBlank || text.isNotBlank()
-    MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss) {
         StageSheetHeader(title)
         SheetText(description)
         StageSearchField(
@@ -133,7 +132,7 @@ fun MoveToCategoryDialog(
 ) {
     var selectedTarget by remember { mutableStateOf<String?>(null) }
     var keepInOrigin by remember { mutableStateOf(false) }
-    MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss) {
         StageSheetHeader(stringResource(R.string.settings_move_category_title))
         SheetText(stringResource(R.string.settings_move_category_description, originName))
         Column(Modifier.heightIn(max = 280.dp).verticalScroll(rememberScrollState())) {

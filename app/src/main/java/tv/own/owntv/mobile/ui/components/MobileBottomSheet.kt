@@ -61,29 +61,27 @@ fun SheetScroll(content: @Composable ColumnScope.() -> Unit) {
  * at the top of the app's own window. That is what lets it frost the same wallpaper the rest of the
  * app frosts; a separate dialog window cannot.
  *
- * [stage] draws it as a Stage sheet (`.ph .sheet`): edge to edge, Stage glass, the content laid out with
- * the Stage parts (StageSheetHeader, StageGroupLabel, StageMenuItem). Every sheet moves to it in its
- * screen's phase; until then the default keeps today's look.
+ * It is drawn as a Stage sheet (`.ph .sheet`): edge to edge, Stage glass, the content laid out with the
+ * Stage parts (StageSheetHeader, StageGroupLabel, StageMenuItem). [title] only names the pane for a
+ * screen reader; the sheet's own header is a StageSheetHeader in [content].
  */
 @Composable
 fun MobileBottomSheet(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     title: String? = null,
-    stage: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val host = checkNotNull(LocalSheetHost.current) {
         "MobileBottomSheet needs a MobileSheetHost above it"
     }
-    val entry = remember { SheetEntry(onDismissRequest, modifier, title, stage, content) }
+    val entry = remember { SheetEntry(onDismissRequest, modifier, title, content) }
     // The caller recomposes with new lambdas and a new title on every frame it feels like; the entry
     // is the same open sheet throughout, so it is updated in place rather than replaced.
     SideEffect {
         entry.onDismissRequest = onDismissRequest
         entry.modifier = modifier
         entry.title = title
-        entry.stage = stage
         entry.content = content
     }
     DisposableEffect(host) {

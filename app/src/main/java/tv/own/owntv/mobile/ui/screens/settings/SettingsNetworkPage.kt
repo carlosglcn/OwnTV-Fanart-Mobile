@@ -25,9 +25,10 @@ import tv.own.owntv.mobile.ui.stage.StageButton
 import tv.own.owntv.mobile.ui.stage.StageButtonStyle
 import tv.own.owntv.mobile.ui.stage.StageTool
 import tv.own.owntv.mobile.ui.stage.stageText
+import tv.own.owntv.mobile.ui.stage.StageTextRow
 
 /*
- * Settings › App › Proxy and DNS (M9B), the group-page pattern: a switch, the fields as rows, then Save and Test.
+ * Settings › App › Proxy and DNS, the group-page pattern: a switch, the fields as rows, then Save and Test.
  * Both are forms with a Save, not live-writing rows: a proxy written on every keystroke goes through "prox",
  * "proxy.", "proxy.e"… and each half-address takes the whole app offline while it stands. Test uses what is
  * typed, so a setting can be proven before it is kept.

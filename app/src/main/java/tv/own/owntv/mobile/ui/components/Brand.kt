@@ -77,7 +77,7 @@ private fun PixelMark(triangle: Color, modifier: Modifier) {
 }
 
 /**
- * The #227 wordmark by @m3th0d93 (D5, the TV's `Wordmark`): lowercase "own" in cream on a dark page (the
+ * The wordmark (the TV's `Wordmark`): lowercase "own" in cream on a dark page (the
  * text colour on a light one), "tv" in the accent, drawn from core's two vectors at [width]; its height
  * follows the 988 × 182 drawing.
  */

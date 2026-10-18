@@ -46,9 +46,9 @@ import tv.own.owntv.mobile.ui.stage.stageClickable
 import tv.own.owntv.mobile.ui.stage.stageText
 
 /**
- * Settings (M9-01): the line "Hold a row to pin it to Quick" under the title, the search over every setting,
+ * Settings: the line "Hold a row to pin it to Quick" under the title, the search over every setting,
  * then the twelve groups as cards in two columns — icon, count, name and what the group holds. Searching
- * (M9-02) lists every setting whose own name matches (F4: names only), its path above it and its value beside.
+ * lists every setting whose own name matches (names only), its path above it and its value beside.
  */
 @Composable
 fun SettingsScreen(
@@ -159,7 +159,7 @@ private fun highlighted(title: String, query: String): AnnotatedString {
 private class SearchHit(val title: String, val path: String, val value: String?, val icon: androidx.compose.ui.graphics.vector.ImageVector, val route: String)
 
 /**
- * Settings search (F4): every word must be in the setting's own name — not a bag of keywords, which listed whole
+ * Settings search: every word must be in the setting's own name — not a bag of keywords, which listed whole
  * groups for "subt". The rows of every group page, then the rows inside the full pages.
  */
 @Composable
@@ -236,7 +236,7 @@ private fun quickRows(all: Map<SettingsGroup, List<SettingSection>>, pins: Quick
         .distinctBy { it.second }
         .mapNotNull { (stored, key) ->
             val row = byKey[key] ?: return@mapNotNull null
-            // The six Quick starts with keep Quick's own short words (M9-03, the TV's); anything else pinned
+            // The six Quick starts with keep Quick's own short words (the TV's); anything else pinned
             // says where it lives, so a pin never loses its home.
             val words = QUICK_WORDS[stored]
             if (words != null) {
@@ -260,7 +260,7 @@ private val QUICK_WORDS: Map<String, Pair<Int, Int>> = mapOf(
 )
 
 /**
- * A group page (M9-03 … M9-14): "‹ Settings · 13 settings" under the title, then its sections. Quick is the
+ * A group page: "‹ Settings · 13 settings" under the title, then its sections. Quick is the
  * pinned rows of every other group, or a line saying how to pin one.
  */
 @Composable
@@ -272,7 +272,7 @@ fun SettingsGroupScreen(group: SettingsGroup, modifier: Modifier = Modifier, vm:
     } else {
         groupSections(group, vm)
     }
-    // Every row counts, Add a profile included ("Settings · 4 settings", M9-04).
+    // Every row counts, Add a profile included ("Settings · 4 settings").
     val count = sections.sumOf { it.items.size }
     SettingsCrumb(pluralStringResource(R.plurals.settings_setting_count, count, count))
     val open = rememberOpenSheet()

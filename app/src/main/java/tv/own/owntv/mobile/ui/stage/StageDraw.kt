@@ -50,7 +50,7 @@ import tv.own.owntv.mobile.ui.theme.LocalGlass
 import tv.own.owntv.mobile.ui.theme.LocalGlassBackdrop
 
 /*
- * The CSS the phone mockup is written in, drawn the same way: `box-shadow` glows and rings, the glass
+ * The CSS effects the phone's Stage design uses, drawn the same way: `box-shadow` glows and rings, the glass
  * panel, the page background, and the two marks of the selected ladder (fx and the selected bar).
  */
 
@@ -106,8 +106,8 @@ private fun CacheDrawScope.outlinePath(shape: Shape): Path =
  * Content stays flat.
  *
  * Glass on: first the slice of what is behind it, blurred — the wallpaper's frost when there is a picture,
- * then the page content from [LocalStageBackdrop] (`backdrop-filter: blur(22px) saturate(150%)`, decision
- * M7) — then the tint at 0.55 + 0.45 × the user's Glass opacity, a 1 dp top highlight, a 1 dp rim and the
+ * then the page content from [LocalStageBackdrop] (`backdrop-filter: blur(22px) saturate(150%)`)
+ * — then the tint at 0.55 + 0.45 × the user's Glass opacity, a 1 dp top highlight, a 1 dp rim and the
  * drop shadow `0 16 40`. Glass off: the solid glass-off colour, a fainter rim and a stronger shadow.
  */
 @Composable
@@ -207,7 +207,7 @@ private val Saturate150 = ColorFilter.colorMatrix(ColorMatrix().apply { setToSat
  * - Stage colours: three soft lights over a dark wash, re-anchored for a tall screen (the accent light is
  *   the switchable one);
  * - Plain: a flat page, with Accent light a faint accent glow at the top left;
- * - Picture: only the Accent light — the picture itself is the backdrop root's (M11).
+ * - Picture: only the Accent light — the picture itself is the backdrop root's.
  * The 170° wash runs between near-identical stops, so it is drawn as a vertical fade.
  */
 @Composable

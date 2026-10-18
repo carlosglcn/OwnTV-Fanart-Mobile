@@ -19,7 +19,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -50,9 +49,9 @@ import tv.own.owntv.mobile.ui.stage.stageClickable
 import tv.own.owntv.mobile.ui.stage.stageText
 
 /*
- * Stage Settings (M9): a group page is sections of rows (`.srow`). A row says on its right what it is set to
+ * Stage Settings: a group page is sections of rows (`.srow`). A row says on its right what it is set to
  * and what a tap does — a switch flips, a stepper steps, a segmented control picks, ▾ opens the choices in a
- * sheet with the TV panel's explanation (M9-15), › opens a page. Every row is one [SettingItem], so the group
+ * sheet with the TV panel's explanation, › opens a page. Every row is one [SettingItem], so the group
  * page, Quick, the root's counts and the settings search all read the same list.
  */
 
@@ -80,7 +79,7 @@ sealed interface SettingValue {
     class Action(val text: String) : SettingValue
     /** An accent tag (a profile's IN USE). */
     class Tag(val text: String) : SettingValue
-    /** Anything else the mockup draws there (the accent swatches). */
+    /** Anything else drawn there (the accent swatches). */
     class Custom(val content: @Composable () -> Unit) : SettingValue
 }
 
@@ -199,7 +198,7 @@ fun OpenSheetHost(open: androidx.compose.runtime.MutableState<SettingItem?>, sec
 }
 
 /**
- * The TV's context panel as a sheet (M9-15): the group as the eyebrow, the row's name, its explanation, then
+ * The TV's context panel as a sheet: the group as the eyebrow, the row's name, its explanation, then
  * CHOICES — a radio each, RECOMMENDED beside the default. A pick applies and closes.
  */
 @Composable
@@ -214,7 +213,7 @@ fun <T> StageChoiceSheet(
     recommended: T? = null,
     footer: (@Composable () -> Unit)? = null,
 ) {
-    MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss) {
         StageSheetHeader(title, eyebrow = eyebrow)
         SheetText(text)
         StageGroupLabel(stringResource(R.string.settings_panel_choices))
@@ -275,7 +274,7 @@ internal fun ChoiceItem(label: String, description: String?, on: Boolean, recomm
 }
 
 /**
- * A question before something is forgotten or switched on (M9-26's shape): the title, what will happen, then
+ * A question before something is forgotten or switched on: the title, what will happen, then
  * Cancel and the action side by side.
  */
 @Composable
@@ -290,7 +289,7 @@ fun StageConfirmSheet(
     confirmIcon: ImageVector? = null,
     cancel: String = stringResource(R.string.common_cancel),
 ) {
-    MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss) {
         StageSheetHeader(title, eyebrow = eyebrow)
         SheetText(text)
         Row(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -319,7 +318,7 @@ class QuickPins(val keys: List<String>, private val save: (List<String>) -> Unit
     /** The rows Quick draws, in order — set by the Quick page; moves step over keys it does not draw. */
     var shown: List<String> = emptyList()
 
-    /** The stored positions of the drawn rows: a TV-only pin in between is never a step (#28). */
+    /** The stored positions of the drawn rows: a TV-only pin in between is never a step. */
     private fun shownIndices() = keys.indices.filter { (QUICK_ALIASES[keys[it]] ?: keys[it]) in shown }
     fun position(key: String): Int = shownIndices().indexOfFirst { (QUICK_ALIASES[keys[it]] ?: keys[it]) == key }
     fun canStep(key: String, delta: Int): Boolean = position(key).let { it >= 0 && it + delta in shownIndices().indices }
@@ -359,7 +358,7 @@ fun QuickPinSheet(pins: QuickPins) {
     val row = pins.menuFor ?: return
     val close = { pins.menuFor = null }
     val at = pins.indexOf(row.key)
-    MobileBottomSheet(onDismissRequest = close, stage = true) {
+    MobileBottomSheet(onDismissRequest = close) {
         StageSheetHeader(row.title, eyebrow = stringResource(R.string.settings_group_quick))
         if (at < 0) {
             StageMenuItem(stringResource(R.string.settings_row_menu_pin), onClick = { pins.pin(row.key); close() }, icon = MobileIcons.Add)
@@ -387,97 +386,4 @@ fun PageNote(text: String, modifier: Modifier = Modifier) {
         color = LocalStagePalette.current.dim,
         modifier = modifier.padding(horizontal = 12.dp, vertical = 10.dp),
     )
-}
-
-/**
- * A form field as a row (M9-20): the field's name, under it what is typed (or the example, dim), and a tap opens
- * a sheet with the field — Save keeps it. [password] shows dots in the row and masks the field.
- */
-@Composable
-fun StageTextRow(
-    icon: ImageVector,
-    label: String,
-    value: String,
-    onSave: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    placeholder: String = "",
-    password: Boolean = false,
-    keyboardType: androidx.compose.ui.text.input.KeyboardType = androidx.compose.ui.text.input.KeyboardType.Text,
-    current: Boolean = false,
-    trailing: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit = {},
-) {
-    var editing by remember { mutableStateOf(false) }
-    val palette = LocalStagePalette.current
-    StageSettingRow(
-        title = label,
-        modifier = modifier,
-        icon = icon,
-        subtitle = when {
-            value.isBlank() -> placeholder.ifBlank { null }
-            password -> "•".repeat(value.length.coerceAtMost(12))
-            else -> value
-        },
-        subtitleColor = if (value.isBlank()) palette.dim else palette.text,
-        current = current,
-        onClick = { editing = true },
-        trailing = trailing,
-    )
-    if (editing) {
-        var text by remember { mutableStateOf(value) }
-        // The field takes the keyboard as the sheet opens: a sheet for one field is there to type in (#11).
-        val focus = remember { androidx.compose.ui.focus.FocusRequester() }
-        androidx.compose.runtime.LaunchedEffect(Unit) {
-            kotlinx.coroutines.delay(150)
-            runCatching { focus.requestFocus() }
-        }
-        MobileBottomSheet(onDismissRequest = { editing = false }, stage = true) {
-            StageSheetHeader(label)
-            tv.own.owntv.mobile.ui.stage.StageSearchField(
-                value = text,
-                onValueChange = { text = it },
-                placeholder = placeholder,
-                icon = null,
-                password = password,
-                keyboardType = keyboardType,
-                imeAction = androidx.compose.ui.text.input.ImeAction.Done,
-                onSearch = { onSave(text.trim()); editing = false },
-                modifier = Modifier.padding(horizontal = 6.dp).focusRequester(focus),
-            )
-            tv.own.owntv.mobile.ui.components.StageConfirmItems(
-                confirm = stringResource(R.string.common_save),
-                confirmEnabled = true,
-                onConfirm = { onSave(text.trim()) },
-                onDismiss = { editing = false },
-            )
-        }
-    }
-}
-
-/**
- * A dialog's four slots as a Stage sheet (F20: every popup is a sheet) — for the tools whose dialogs hold their
- * own controls (bulk rename): the title in the sheet's 18 / 800, the content in body text, the buttons at the end.
- */
-@Composable
-fun StageDialogSheet(
-    onDismissRequest: () -> Unit,
-    title: @Composable () -> Unit,
-    text: @Composable () -> Unit,
-    confirmButton: @Composable () -> Unit,
-    dismissButton: (@Composable () -> Unit)? = null,
-) {
-    val palette = LocalStagePalette.current
-    MobileBottomSheet(onDismissRequest = onDismissRequest, stage = true) {
-        androidx.compose.runtime.CompositionLocalProvider(androidx.compose.material3.LocalContentColor provides palette.text) {
-            Box(Modifier.padding(start = 8.dp, end = 8.dp, top = 2.dp, bottom = 10.dp)) {
-                androidx.compose.material3.ProvideTextStyle(stageText(18f, 800), title)
-            }
-            Box(Modifier.padding(horizontal = 8.dp)) {
-                androidx.compose.material3.ProvideTextStyle(stageText(12.5f, 500, lineHeight = 1.5f), text)
-            }
-            Row(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
-                dismissButton?.invoke()
-                confirmButton()
-            }
-        }
-    }
 }

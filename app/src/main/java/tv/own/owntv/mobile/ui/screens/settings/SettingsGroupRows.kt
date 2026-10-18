@@ -160,10 +160,14 @@ private fun sourcesSections(vm: SettingsViewModel): List<SettingSection> {
     val reminderMode = s.reminderMode.pref(SettingsRepository.ReminderMode.ASK)
     val lead = s.reminderLeadMinutes.pref(ReminderSchedule.DEFAULT_LEAD_MINUTES)
     val guideDays = s.guideDaysToKeep.pref(GuideRetention.DEFAULT_DAYS)
-    val tz = s.catchupTimezone.pref(SettingsRepository.CatchupTimezone.DEVICE)
+    val tz = s.catchupTimezone.pref(SettingsRepository.CatchupTimezone.AUTOMATIC)
     val tzOffset = s.catchupOffsetMinutes.pref(0)
 
-    val catchupValue = if (tz == SettingsRepository.CatchupTimezone.DEVICE) stringResource(R.string.settings_catchup_timezone_device) else utcOffsetLabel(tzOffset)
+    val catchupValue = when (tz) {
+        SettingsRepository.CatchupTimezone.AUTOMATIC -> stringResource(R.string.settings_catchup_timezone_automatic)
+        SettingsRepository.CatchupTimezone.DEVICE -> stringResource(R.string.settings_catchup_timezone_device)
+        SettingsRepository.CatchupTimezone.MANUAL -> utcOffsetLabel(tzOffset)
+    }
     return listOfNotNull(
         SettingSection(
             stringResource(R.string.settings_sources_title),
@@ -186,7 +190,7 @@ private fun sourcesSections(vm: SettingsViewModel): List<SettingSection> {
                 choiceItem(
                     "epg_offset", MobileIcons.Schedule, g, stringResource(R.string.content_epg_time_offset),
                     stringResource(R.string.settings_line_epg_offset), stringResource(R.string.settings_epg_offset_dialog_description),
-                    // Whole hours: the guide shift keeps hours, only catch-up went to quarter hours (N20).
+                    // Whole hours: the guide shift keeps hours, only catch-up went to quarter hours.
                     (-12..14).map { SettingsChoice(it * 60, offsetOrOff(it * 60)) },
                     offset, 0, { m -> vm.edit { setEpgOffsetMinutes(m) } },
                     valueText = offsetOrOff(offset),
@@ -229,22 +233,29 @@ private fun sourcesSections(vm: SettingsViewModel): List<SettingSection> {
 private fun offsetOrOff(minutes: Int): String = if (minutes == 0) stringResource(R.string.common_off) else utcOffsetLabel(minutes)
 
 /**
- * Catch-up: the zone the archives run on (the phone's own, or a fixed offset) and which player opens a programme
- * from the past — two questions of one setting, in one sheet.
+ * Catch-up: the zone the archives run on (the one the provider reports, the phone's own, or a fixed offset) and
+ * which player opens a programme from the past — two questions of one setting, in one sheet.
  */
 @Composable
 private fun CatchupSheet(vm: SettingsViewModel, onDismiss: () -> Unit) {
     val s = vm.settings
-    val tz = s.catchupTimezone.pref(SettingsRepository.CatchupTimezone.DEVICE)
+    val tz = s.catchupTimezone.pref(SettingsRepository.CatchupTimezone.AUTOMATIC)
     val offset = s.catchupOffsetMinutes.pref(0)
     val player = s.catchupPlayer.pref(SettingsRepository.CatchupPlayer.INTERNAL)
     val manual = tz == SettingsRepository.CatchupTimezone.MANUAL
-    MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss) {
         StageSheetHeader(stringResource(R.string.settings_catchup), eyebrow = stringResource(SettingsGroup.SOURCES.titleRes))
-        SheetText(stringResource(R.string.settings_catchup_description))
+        SheetText(stringResource(R.string.settings_catchup_timezone_description))
         Column(Modifier.sheetScroll()) {
             StageGroupLabel(stringResource(R.string.settings_catchup_timezone_label))
-            ChoiceRow(stringResource(R.string.settings_catchup_timezone_device), !manual, recommended = true) {
+            ChoiceRow(
+                stringResource(R.string.settings_catchup_timezone_automatic),
+                tz == SettingsRepository.CatchupTimezone.AUTOMATIC,
+                recommended = true,
+            ) {
+                vm.edit { setCatchupTimezone(SettingsRepository.CatchupTimezone.AUTOMATIC) }
+            }
+            ChoiceRow(stringResource(R.string.settings_catchup_timezone_device), tz == SettingsRepository.CatchupTimezone.DEVICE) {
                 vm.edit { setCatchupTimezone(SettingsRepository.CatchupTimezone.DEVICE) }
             }
             s.catchupOffsetChoicesMinutes.forEach { m ->
@@ -285,7 +296,7 @@ private fun appearanceSections(vm: SettingsViewModel): List<SettingSection> {
     val sep = stringResource(R.string.content_epg_bits_separator)
     val nav = LocalSettingsNav.current
 
-    // The zoom a step below the low-memory point is waiting on; asked once a visit (#51).
+    // The zoom a step below the low-memory point is waiting on; asked once a visit.
     var pendingZoom by remember { mutableStateOf<Int?>(null) }
     var lowZoomAccepted by remember { mutableStateOf(false) }
     pendingZoom?.let { target ->
@@ -305,7 +316,7 @@ private fun appearanceSections(vm: SettingsViewModel): List<SettingSection> {
     val setPopup = { pct: Int -> vm.edit { setFontCustomization(fonts.copy(popupSizePercent = PopupSizeScale.clamp(pct))) } }
 
     val themes = ThemeMode.entries
-    // The presets' own (dark) colours in both themes, as the mockup draws them; only the colour in force follows the theme.
+    // The presets' own (dark) colours in both themes; only the colour in force follows the theme.
     val presets = AccentColor.entries.map { Color(it.roles(true).primary) }
     return listOf(
         SettingSection(
@@ -390,7 +401,7 @@ private fun AccentSwatches(presets: List<Color>, current: Color) {
     }
 }
 
-/** M9-16: the presets with their names and Yours, then the picker — Cancel or Use this colour. */
+/** The presets with their names and Yours, then the picker — Cancel or Use this colour. */
 @Composable
 private fun AccentSheet(vm: SettingsViewModel, isDark: Boolean, onDismiss: () -> Unit) {
     val custom = vm.settings.customAccent.pref("")
@@ -584,6 +595,10 @@ private fun appSections(vm: SettingsViewModel): List<SettingSection> {
             stringResource(R.string.settings_app_group),
             listOf(
                 pageItem(
+                    "tab_SPORTS", MobileIcons.Sports, stringResource(R.string.sports_title), stringResource(R.string.sports_leagues),
+                    null, SettingsLeaf.SPORTS.route,
+                ),
+                pageItem(
                     "tab_LANGUAGE", MobileIcons.Translate, stringResource(R.string.settings_language), stringResource(R.string.settings_language_description),
                     localeLabel(tag), SettingsLeaf.LANGUAGE.route,
                 ),
@@ -632,7 +647,7 @@ private fun appSections(vm: SettingsViewModel): List<SettingSection> {
         SettingSection(
             stringResource(R.string.common_nav_downloads),
             listOf(
-                // The folder is chosen on Downloads (M7's folder tool), where it is shown; this row goes there.
+                // The folder is chosen on Downloads (its folder tool), where it is shown; this row goes there.
                 SettingItem(
                     "download_folder", MobileIcons.Folder, stringResource(R.string.settings_download_folder),
                     stringResource(R.string.settings_line_download_folder_mobile), SettingValue.Opens(volume),
@@ -671,7 +686,7 @@ private fun StartupChannelSheet(vm: SettingsViewModel, onPick: (ChannelEntity) -
     var debounced by remember { mutableStateOf(query) }
     LaunchedEffect(Unit) { snapshotFlow { query }.debounce(300L).collect { debounced = it } }
     LaunchedEffect(debounced) { results = vm.searchChannels(debounced) }
-    MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss) {
         StageSheetHeader(stringResource(R.string.settings_startup_specific_channel), eyebrow = stringResource(R.string.settings_app_startup))
         StageSearchField(query, { query = it }, stringResource(R.string.common_search), Modifier.padding(horizontal = 6.dp))
         results.forEach { channel -> StageMenuItem(channel.name, onClick = { onPick(channel) }, icon = MobileIcons.LiveTv) }

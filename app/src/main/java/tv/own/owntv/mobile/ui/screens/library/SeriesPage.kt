@@ -113,7 +113,7 @@ import tv.own.owntv.mobile.ui.stage.stageText
 import java.text.NumberFormat
 
 /**
- * The series page (M6-01 … M6-04): the backdrop across the top (lent to the shell), "Series · **category**",
+ * The series page: the backdrop across the top (lent to the shell), "Series · **category**",
  * the 36 / 800 title, the meta line (year · genres · N seasons · ★ rating, then the quality tags), two lines
  * of plot, Resume S1 · E3 · 12 min left · ♥ · ⬇ season · ⋯, the season tabs with their episode counts
  * (Specials after the numbered seasons), Grid | List and the order tool, then the episodes — rows with a
@@ -629,7 +629,7 @@ private fun episodeLine(aired: String?, durationSecs: Long?, secondsLeft: Long?,
     if (watched) stringResource(R.string.content_episode_watched) else null,
 ).joinToString(stringResource(R.string.content_epg_bits_separator))
 
-/** M6-03: seasons and episodes each oldest or newest first, remembered for this series, and Hide watched. */
+/** Seasons and episodes each oldest or newest first, remembered for this series, and Hide watched. */
 @Composable
 private fun EpisodeOrderSheet(
     order: DetailViewModel.SeriesOrder,
@@ -640,7 +640,7 @@ private fun EpisodeOrderSheet(
 ) {
     val title = stringResource(R.string.content_episode_order)
     val choices = listOf(stringResource(R.string.content_oldest_first), stringResource(R.string.content_newest_first))
-    MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(title = title, subtitle = stringResource(R.string.content_episode_order_hint))
         StageGroupLabel(stringResource(R.string.content_seasons))
         StageChoiceRow(choices, if (order.seasonsDescending) 1 else 0, { onChange(it == 1, order.episodesDescending) })
@@ -661,7 +661,7 @@ private fun EpisodeOrderSheet(
 private enum class EpisodeDialog { DETAILS, SUBTITLES }
 
 /**
- * M6-04, the TV's P6-04: WATCH (Play from start, Play in external player), LIBRARY (Download, Mark as
+ * WATCH (Play from start, Play in external player), LIBRARY (Download, Mark as
  * watched), DETAILS (Episode details, Update details, Delete OpenSubtitles subtitles) — in the order of
  * Settings › Long-press menus, the keys the TV's. Details without a TMDB match and Delete subtitles with
  * none downloaded stay in their place, dimmed. The still and "3. Title" / "Show · Season 1" on top.
@@ -766,7 +766,6 @@ private fun EpisodeOptions(
             title = title,
             actions = actions,
             onDismiss = { sheetOpen = false },
-            stage = true,
             groupLabels = mapOf(
                 GROUP_WATCH to stringResource(R.string.content_menu_group_watch),
                 GROUP_LIBRARY to stringResource(R.string.content_menu_group_library),

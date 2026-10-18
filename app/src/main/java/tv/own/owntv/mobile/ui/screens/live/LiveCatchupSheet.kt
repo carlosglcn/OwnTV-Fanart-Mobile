@@ -48,7 +48,7 @@ internal fun CatchupSheet(
     val separator = stringResource(R.string.content_epg_bits_separator)
     val title = stringResource(R.string.content_catchup_title, channelName)
 
-    MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(title = title)
         val list = programmes
         if (list != null && list.isEmpty()) {

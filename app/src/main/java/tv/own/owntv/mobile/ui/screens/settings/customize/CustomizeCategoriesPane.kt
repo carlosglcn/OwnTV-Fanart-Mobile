@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -83,7 +82,7 @@ fun CustomizeCategoriesPane(
     SettingsCrumb(tv.own.owntv.mobile.ui.screens.home.groupedCountText(R.plurals.settings_customize_categories_count, rows.size), SettingsGroup.CONTENT)
 
     SettingsStagePage(modifier) {
-        // M9-22: the sections as tools with ⋯ at the end, then Sort · Filter · +.
+        // The sections as tools with ⋯ at the end, then Sort · Filter · +.
         item(key = "sections") {
             Row(Modifier.fillMaxWidth().padding(start = 8.dp, end = 8.dp, bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 SECTIONS.forEach { s -> StageTool(onClick = { vm.selectSection(s) }, label = stringResource(s.labelRes()), on = s == section) }
@@ -112,6 +111,9 @@ fun CustomizeCategoriesPane(
                     label = plainLabel(stringResource(R.string.settings_customize_filter_button, stringResource(visibilityFilter.labelRes()))),
                 )
                 StageTool(onClick = { creatingCategory = true }, icon = MobileIcons.Add, contentDescription = stringResource(R.string.settings_customize_new_category))
+                // Bulk rename over every listed category, as the items page has it (the long-press span stays).
+                StageTool(onClick = { vm.bulkRenameAll(autocleanup = false) }, label = stringResource(R.string.settings_bulk_rename_title))
+                StageTool(onClick = { vm.bulkRenameAll(autocleanup = true) }, label = stringResource(R.string.settings_bulk_rename_auto_cleanup))
             }
         }
         if (anchorKey != null) {
@@ -172,10 +174,10 @@ fun CustomizeCategoriesPane(
         item(key = "hold-note") { PageNote(stringResource(R.string.settings_customize_hold_note_mobile)) }
     }
 
-    // ⋯: what the TV's More popup holds — new categories, the PIN lock, and Restore playlist defaults (M9-26).
+    // ⋯: what the TV's More popup holds — new categories, the PIN lock, and Restore playlist defaults.
     if (moreMenu) {
         val close = { moreMenu = false }
-        MobileBottomSheet(onDismissRequest = close, stage = true) {
+        MobileBottomSheet(onDismissRequest = close) {
             StageSheetHeader(stringResource(R.string.settings_customize_title), eyebrow = stringResource(section.labelRes()))
             StageMenuItem(
                 plainLabel(
@@ -196,7 +198,7 @@ fun CustomizeCategoriesPane(
             StageMenuItem(stringResource(R.string.settings_customize_restore_defaults), onClick = { close(); restoring = true }, icon = MobileIcons.Refresh)
         }
     }
-    // M9-26: asks first, naming the section and the playlist(s) shown; combined categories are left alone.
+    // Asks first, naming the section and the playlist(s) shown; combined categories are left alone.
     if (restoring) {
         StageConfirmSheet(
             title = stringResource(
@@ -243,9 +245,12 @@ fun CustomizeCategoriesPane(
                 null
             } else {
                 {
-                    TextButton(onClick = { renaming = null; deleting = row }) {
-                        Text(stringResource(R.string.common_delete))
-                    }
+                    StageMenuItem(
+                        stringResource(R.string.common_delete),
+                        onClick = { renaming = null; deleting = row },
+                        icon = MobileIcons.Delete,
+                        danger = true,
+                    )
                 }
             },
         )
@@ -381,6 +386,6 @@ private fun CategoryActionsSheet(
 
 /**
  * A TV label without the TV's own decorations — the 🔒 and the ▾ it draws in text — for a row that has a Stage
- * icon and chevron of its own (#21).
+ * icon and chevron of its own.
  */
 internal fun plainLabel(text: String): String = text.replace("🔒", "").replace("▾", "").trim()

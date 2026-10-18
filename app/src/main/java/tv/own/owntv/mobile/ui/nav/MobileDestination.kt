@@ -27,9 +27,12 @@ enum class MobileDestination(
 ) {
     HOME("home", R.string.common_nav_home, MobileIcons.Home, setOf(MainSection.HOME)),
     LIVE("live", R.string.common_nav_live_tv, MobileIcons.LiveTv, setOf(MainSection.LIVE_TV)),
+    SPORTS("sports", R.string.sports_title, MobileIcons.Sports, setOf(MainSection.SPORTS)),
     GUIDE("guide", R.string.common_nav_guide, MobileIcons.Guide, setOf(MainSection.EPG), R.string.common_nav_guide_short),
     MOVIES("movies", R.string.common_nav_movies, MobileIcons.Movie, setOf(MainSection.MOVIES)),
     SERIES("series", R.string.common_nav_series, MobileIcons.Series, setOf(MainSection.SERIES)),
+    /** Movies and Series as one place, for the phone's five-wide bar; the rail keeps them apart. */
+    LIBRARY("library", R.string.common_nav_library, MobileIcons.Movie, setOf(MainSection.MOVIES, MainSection.SERIES)),
     MORE("more", R.string.common_nav_more, MobileIcons.MoreHoriz, emptySet()),
     DOWNLOADS(
         "downloads",
@@ -41,17 +44,31 @@ enum class MobileDestination(
 
     companion object {
         /**
-         * The bottom bar, in order — the TV rail's order (decision M2). More is not on it: the avatar at
-         * the top right opens it, as the TV rail ends in the profile.
+         * The bottom bar, in order — the TV rail's order, with Movies and Series as one
+         * Library so Sports fits in five. More is not on it: the avatar at the top right opens it, as the
+         * TV rail ends in the profile.
          */
-        val bottomBar: List<MobileDestination> = listOf(HOME, LIVE, GUIDE, MOVIES, SERIES)
+        val bottomBar: List<MobileDestination> = listOf(HOME, LIVE, SPORTS, GUIDE, LIBRARY)
 
         /**
-         * The rail (M12, the mockup's `railH`), in order: the five places, Downloads, then More as the last
+         * The rail (`railH`), in order: the places, Downloads, then More as the last
          * item. Settings is not on it — it is what More is for, on every width.
          */
         val rail: List<MobileDestination> =
-            listOf(HOME, LIVE, GUIDE, MOVIES, SERIES, DOWNLOADS, MORE)
+            listOf(HOME, LIVE, SPORTS, GUIDE, MOVIES, SERIES, DOWNLOADS, MORE)
+
+        /**
+         * The place selected for [route] when its own is not shown: a film under Movies keeps Library lit on
+         * the bar, and a page under Library keeps Movies lit on the rail, so turning the phone keeps a place.
+         */
+        fun List<MobileDestination>.standingFor(route: String?): MobileDestination? {
+            val place = route?.substringBefore('/') ?: return null
+            return when (place) {
+                MOVIES.route, SERIES.route -> firstOrNull { it == LIBRARY }
+                LIBRARY.route -> firstOrNull { it == MOVIES || it == SERIES }
+                else -> null
+            }
+        }
 
         /**
          * Filters a bar or rail to what the active playlist actually offers. A destination with no

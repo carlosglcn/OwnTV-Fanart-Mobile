@@ -111,7 +111,7 @@ fun ChannelMenu(
 
     if (sheetOpen && multiviewSetting != null) {
         val canMove = vm.contextKeyOf(selected) != null
-        // Group ids = the TV's four groups, in its order (M3-04).
+        // Group ids = the TV's four groups, in its order.
         val watch = 0; val chan = 1; val guide = 2; val organise = 3
         val catchupValue = channel.catchupDays.takeIf { it > 0 }
             ?.let { pluralStringResource(R.plurals.settings_epg_guide_days_value, it, it) }
@@ -179,7 +179,6 @@ fun ChannelMenu(
             subtitle = listOfNotNull(originName.takeIf { it.isNotBlank() }, providerName).joinToString(sep).takeIf { it.isNotEmpty() },
             actions = actions,
             onDismiss = { sheetOpen = false },
-            stage = true,
             groupLabels = mapOf(
                 watch to stringResource(R.string.content_menu_group_watch),
                 chan to stringResource(R.string.content_menu_group_channel),
@@ -271,7 +270,7 @@ private fun RenameChannelDialog(
     val title = stringResource(R.string.content_rename_channel)
     val save = { onSet(text.trim().takeIf { it.isNotEmpty() }); onDismiss() }
     // Stage sheet: the name field, Save, Reset (the provider's name back), Cancel.
-    MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(title = title, subtitle = remember(channel.name) { ProviderTags.parse(channel.name).name })
         StageSearchField(
             value = text,
@@ -320,7 +319,7 @@ internal fun EpgMatchSheet(
 
     val palette = LocalStagePalette.current
     val title = stringResource(R.string.content_match_epg)
-    MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(
             title = title,
             subtitle = if (currentMatch != null) {
@@ -390,7 +389,7 @@ internal fun EpgOffsetDialog(
     val palette = LocalStagePalette.current
     var minutes by remember { mutableStateOf(currentMinutes ?: globalMinutes) }
     val title = stringResource(R.string.content_epg_time_offset)
-    MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(
             title = title,
             subtitle = stringResource(R.string.content_epg_offset_channel_description, channelName),

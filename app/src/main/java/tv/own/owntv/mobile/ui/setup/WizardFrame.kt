@@ -51,11 +51,11 @@ import tv.own.owntv.mobile.ui.stage.stageFx
 import tv.own.owntv.mobile.ui.stage.stageGlass
 import tv.own.owntv.mobile.ui.stage.stageText
 
-/** The five steps the dots show (M10-W1 … W9), the TV's `WizardStep`. */
+/** The five steps the dots show, the TV's `WizardStep`. */
 internal enum class WizardStep { LANGUAGE, DISPLAY, PROFILE, PLAYLIST, READY }
 
 /**
- * Every setup step's frame (M10-W1 … W9): the Stage page, the app's mark and wordmark top left, the step dots top
+ * Every setup step's frame: the Stage page, the app's mark and wordmark top left, the step dots top
  * right, then one glass panel 16 dp in from the sides at y 120 — a 24 / 800 title, its 12.5 line, the step's rows
  * or cards, and the buttons: [onBack] as a plain "Back" on the left, [next] filled with › on the right. System
  * Back is [SetupFlow]'s, one table for every step (Importing ignores it: a stray swipe must not cancel a sync).
@@ -146,7 +146,7 @@ private fun StepDots(current: WizardStep) {
     }
 }
 
-/** A step's choice (`.card`, W4 / W7): the icon, a 14 / 800 name and its 11 line; pressed takes the fx look. */
+/** A step's choice (`.card`): the icon, a 14 / 800 name and its 11 line; pressed takes the fx look. */
 @Composable
 internal fun WizardCard(icon: ImageVector, title: String, line: String, onClick: () -> Unit) {
     val palette = LocalStagePalette.current
@@ -206,7 +206,7 @@ internal fun WizardSweepBar(modifier: Modifier = Modifier) {
     )
 }
 
-/** A plain text link in the panel (W7's "Skip for now": 12.5 / 700, muted). */
+/** A plain text link in the panel ("Skip for now": 12.5 / 700, muted). */
 @Composable
 internal fun WizardLink(text: String, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }

@@ -23,6 +23,18 @@ import tv.own.owntv.mobile.ui.screens.home.formatYear
 import tv.own.owntv.mobile.ui.screens.live.LiveChannelRow
 import tv.own.owntv.mobile.ui.screens.live.LiveTuner
 import tv.own.owntv.mobile.ui.stage.StageSheetHeader
+import tv.own.owntv.mobile.ui.stage.LocalStagePalette
+import tv.own.owntv.mobile.ui.stage.StageButton
+import tv.own.owntv.mobile.ui.stage.StageGroupLabel
+import tv.own.owntv.mobile.ui.stage.StageMenuItem
+import tv.own.owntv.mobile.ui.stage.StageSettingRow
+import tv.own.owntv.mobile.ui.stage.StageSizeBar
+import tv.own.owntv.mobile.ui.stage.StageStepper
+import tv.own.owntv.mobile.ui.stage.StageSwitch
+import tv.own.owntv.mobile.ui.stage.stageText
+import tv.own.owntv.mobile.ui.components.MobileIcons
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.ui.semantics.Role
 import tv.own.owntv.mobile.ui.stage.stageSelectedBar
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -36,9 +48,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
@@ -55,19 +65,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import tv.own.owntv.core.database.entity.ChannelEntity
 import tv.own.owntv.mobile.ui.screens.live.DirectTune
 import tv.own.owntv.mobile.R
-import tv.own.owntv.mobile.ui.components.MobileSlider
 import tv.own.owntv.mobile.ui.components.MobileBottomSheet
-import tv.own.owntv.mobile.ui.components.MobileListRow
 import tv.own.owntv.mobile.ui.components.SheetScroll
 import tv.own.owntv.mobile.ui.components.sheetListHeight
-import tv.own.owntv.mobile.ui.theme.MobileDimens
 import tv.own.owntv.player.PlaybackEngine
 import tv.own.owntv.player.StreamInfoRow
 import tv.own.owntv.player.ZoomMode
@@ -101,7 +107,7 @@ fun PlayerSheetHost(
     onDismiss: () -> Unit,
     /** When the programme on air ends, for the sleep timer's "End of programme"; null offers no such row. */
     programmeEndMs: Long? = null,
-    /** The category the channel list shows, for its header (M3-10); null names it "Channels". */
+    /** The category the channel list shows, for its header; null names it "Channels". */
     channelsTitle: String? = null,
 ) {
     when (sheet) {
@@ -130,23 +136,28 @@ fun PlayerSheetHost(
 @Composable
 private fun VolumeSheet(player: PlaybackEngine, onDismiss: () -> Unit) {
     val volume by player.volume.collectAsStateWithLifecycle()
-    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.player_tool_volume)) {
+    val title = stringResource(R.string.player_tool_volume)
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
+        StageSheetHeader(title)
         SliderRow(
             value = volume / 150f,
             label = stringResource(R.string.player_percent, volume),
             onChange = { player.adjustVolumeByUser((it * 150).toInt() - player.volume.value) },
         )
         // The two-finger tap mutes as well; this row is the button every gesture must have.
-        MobileListRow(
-            title = stringResource(if (volume > 0) R.string.player_mute else R.string.player_unmute),
+        StageMenuItem(
+            stringResource(if (volume > 0) R.string.player_mute else R.string.player_unmute),
             onClick = { player.toggleMute() },
+            icon = if (volume > 0) MobileIcons.VolumeOff else MobileIcons.VolumeUp,
         )
     }
 }
 
 @Composable
 private fun BrightnessSheet(brightness: Float, onBrightness: (Float) -> Unit, onDismiss: () -> Unit) {
-    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.player_tool_brightness)) {
+    val title = stringResource(R.string.player_tool_brightness)
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
+        StageSheetHeader(title)
         SliderRow(
             value = brightness,
             label = stringResource(R.string.player_percent, (brightness * 100).toInt()),
@@ -160,12 +171,12 @@ private fun SliderRow(value: Float, label: String, onChange: (Float) -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
-            .padding(horizontal = MobileDimens.ScreenPaddingH, vertical = MobileDimens.GapSmall),
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(MobileDimens.GapMedium),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        MobileSlider(value = value, onValueChange = onChange, modifier = Modifier.weight(1f))
-        Text(text = label, style = MaterialTheme.typography.labelLarge)
+        StageSizeBar(fraction = value, onChange = onChange, modifier = Modifier.weight(1f))
+        Text(text = label, style = stageText(13f, 700), color = LocalStagePalette.current.text)
     }
 }
 
@@ -186,33 +197,38 @@ private fun SubtitleSheet(
 ) {
     val tracks = remember { player.textTracks() }
     val timing = remember { player.subtitleTimingAvailable() }
-    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.player_subtitles)) {
+    val title = stringResource(R.string.player_subtitles)
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
+        StageSheetHeader(title)
         SheetScroll {
-            MobileListRow(
-                title = stringResource(R.string.common_off),
+            // Off is the choice when no track is on.
+            StageMenuItem(
+                stringResource(R.string.common_off),
                 onClick = { player.disableSubtitles(); onDismiss() },
+                checked = tracks.none { it.selected },
             )
             if (tracks.isEmpty()) {
                 EmptyNote(stringResource(R.string.player_no_tracks))
             }
             tracks.forEach { track ->
                 val label = track.displayLabel()
-                MobileListRow(
-                    title = if (track.image) stringResource(R.string.player_image_track, label) else label,
-                    subtitle = if (track.selected) stringResource(R.string.common_on) else null,
+                StageMenuItem(
+                    if (track.image) stringResource(R.string.player_image_track, label) else label,
                     onClick = { player.selectSubtitle(track.mpvId); onDismiss() },
+                    checked = track.selected,
                 )
             }
             if (canAddSubtitles) {
-                SectionLabel(stringResource(R.string.player_add_subtitles))
-                MobileListRow(title = stringResource(R.string.player_search_subtitles), onClick = onSearch)
-                MobileListRow(
-                    title = stringResource(R.string.player_select_local_subtitle),
+                StageGroupLabel(stringResource(R.string.player_add_subtitles))
+                StageMenuItem(stringResource(R.string.player_search_subtitles), onClick = onSearch, icon = MobileIcons.Search)
+                StageMenuItem(
+                    stringResource(R.string.player_select_local_subtitle),
                     onClick = { onPickLocalSubtitle(); onDismiss() },
+                    icon = MobileIcons.Folder,
                 )
             }
             if (timing) {
-                SectionLabel(stringResource(R.string.player_subtitle_timing))
+                StageGroupLabel(stringResource(R.string.player_subtitle_timing))
                 SubtitleTimingRow(player)
             }
         }
@@ -226,16 +242,16 @@ private fun SubtitleSheet(
 @Composable
 private fun SubtitleTimingRow(player: PlaybackEngine) {
     val delay by player.subDelayMs.collectAsStateWithLifecycle()
-    Column(
-        Modifier.fillMaxWidth().padding(horizontal = MobileDimens.ScreenPaddingH, vertical = MobileDimens.GapSmall),
-    ) {
+    val palette = LocalStagePalette.current
+    Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp)) {
         Text(
             text = when {
                 delay == 0 -> stringResource(R.string.player_subtitle_delay_zero)
                 delay > 0 -> stringResource(R.string.player_subtitle_delay_positive, delay / 1000.0)
                 else -> stringResource(R.string.player_subtitle_delay_negative, -delay / 1000.0)
             },
-            style = MaterialTheme.typography.titleMedium,
+            style = stageText(14.5f, 700),
+            color = palette.text,
         )
         Text(
             text = when {
@@ -243,28 +259,19 @@ private fun SubtitleTimingRow(player: PlaybackEngine) {
                 delay < 0 -> stringResource(R.string.player_subtitles_earlier)
                 else -> stringResource(R.string.player_no_offset)
             },
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = stageText(11.5f, 500, lineHeight = 1.3f),
+            color = palette.muted,
         )
+        // Five buttons are wider than a phone held upright: the row scrolls rather than cutting the last off.
         Row(
-            Modifier.padding(top = MobileDimens.GapTiny),
-            horizontalArrangement = Arrangement.spacedBy(MobileDimens.GapTiny),
+            Modifier.padding(top = 8.dp).horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            TextButton(onClick = { player.adjustSubtitleDelay(-500) }) {
-                Text(stringResource(R.string.player_subtitle_delay_negative, 0.5))
-            }
-            TextButton(onClick = { player.adjustSubtitleDelay(-100) }) {
-                Text(stringResource(R.string.player_subtitle_delay_negative, 0.1))
-            }
-            TextButton(onClick = { player.resetSubtitleDelay() }) {
-                Text(stringResource(R.string.common_reset))
-            }
-            TextButton(onClick = { player.adjustSubtitleDelay(100) }) {
-                Text(stringResource(R.string.player_subtitle_delay_positive, 0.1))
-            }
-            TextButton(onClick = { player.adjustSubtitleDelay(500) }) {
-                Text(stringResource(R.string.player_subtitle_delay_positive, 0.5))
-            }
+            StageButton(onClick = { player.adjustSubtitleDelay(-500) }, text = stringResource(R.string.player_subtitle_delay_negative, 0.5), small = true)
+            StageButton(onClick = { player.adjustSubtitleDelay(-100) }, text = stringResource(R.string.player_subtitle_delay_negative, 0.1), small = true)
+            StageButton(onClick = { player.resetSubtitleDelay() }, text = stringResource(R.string.common_reset), small = true)
+            StageButton(onClick = { player.adjustSubtitleDelay(100) }, text = stringResource(R.string.player_subtitle_delay_positive, 0.1), small = true)
+            StageButton(onClick = { player.adjustSubtitleDelay(500) }, text = stringResource(R.string.player_subtitle_delay_positive, 0.5), small = true)
         }
     }
 }
@@ -279,48 +286,37 @@ private fun AudioSheet(player: PlaybackEngine, onDismiss: () -> Unit) {
     val tracks = remember { player.audioTracks() }
     val delay by player.audioDelayMs.collectAsStateWithLifecycle()
     val remembered by player.audioDelayRemembered.collectAsStateWithLifecycle()
-    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.player_audio_track)) {
+    val title = stringResource(R.string.player_audio_track)
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
+        StageSheetHeader(title)
         SheetScroll {
             if (tracks.isEmpty()) EmptyNote(stringResource(R.string.player_no_tracks))
             tracks.forEach { track ->
-                MobileListRow(
-                    title = track.displayLabel(),
-                    subtitle = if (track.selected) stringResource(R.string.common_on) else null,
+                StageMenuItem(
+                    track.displayLabel(),
                     onClick = { player.selectAudio(track.mpvId); onDismiss() },
+                    checked = track.selected,
                 )
             }
             // Lip sync, for a badly muxed file where the voices arrive before or after the mouths.
             // Offered on everything the full-screen player plays, exactly as the television offers it.
-            SectionLabel(stringResource(R.string.player_av_sync))
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = MobileDimens.ScreenPaddingH, vertical = MobileDimens.GapTiny),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(MobileDimens.GapSmall),
-            ) {
-                TextButton(
-                    onClick = { player.adjustAudioDelay(-AV_SYNC_STEP_MS) },
-                    enabled = delay > -AV_SYNC_LIMIT_MS,
-                ) { Text(stringResource(R.string.common_minus)) }
-                Text(
-                    text = formatDelay(delay),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center,
+            StageSettingRow(title = stringResource(R.string.player_av_sync), minHeight = 48.dp) {
+                StageStepper(
+                    value = formatDelay(delay),
+                    onMinus = { player.adjustAudioDelay(-AV_SYNC_STEP_MS) },
+                    onPlus = { player.adjustAudioDelay(AV_SYNC_STEP_MS) },
+                    minusEnabled = delay > -AV_SYNC_LIMIT_MS,
+                    plusEnabled = delay < AV_SYNC_LIMIT_MS,
                 )
-                TextButton(
-                    onClick = { player.adjustAudioDelay(AV_SYNC_STEP_MS) },
-                    enabled = delay < AV_SYNC_LIMIT_MS,
-                ) { Text(stringResource(R.string.common_plus)) }
             }
             // The error belongs to the stream, not to the user: remembering it keeps the correction on
             // this film alone rather than carrying it onto everything watched afterwards.
-            MobileListRow(
+            StageSettingRow(
                 title = stringResource(R.string.player_av_sync_remember),
-                subtitle = if (remembered) stringResource(R.string.common_on) else null,
+                minHeight = 48.dp,
+                role = Role.Switch,
                 onClick = { player.toggleRememberAudioDelay() },
-            )
+            ) { StageSwitch(remembered) }
         }
     }
 }
@@ -333,48 +329,38 @@ private fun formatDelay(ms: Int): String = when {
 }
 
 @Composable
-private fun SectionLabel(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(
-            start = MobileDimens.ScreenPaddingH,
-            top = MobileDimens.GapSmall,
-            bottom = MobileDimens.GapTiny,
-        ),
-    )
-}
-
-@Composable
 private fun AspectSheet(player: PlaybackEngine, onDismiss: () -> Unit) {
     val current by player.zoomMode.collectAsStateWithLifecycle()
-    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.player_tool_aspect)) {
+    val title = stringResource(R.string.player_tool_aspect)
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
+        StageSheetHeader(title)
         // Six modes: one row more than a landscape sheet fits, so "Force 4:3" was off the end of it.
         SheetScroll {
             ZoomMode.entries.forEach { mode ->
-                MobileListRow(
-                    title = stringResource(mode.labelRes),
-                    subtitle = if (mode == current) stringResource(R.string.common_on) else null,
+                StageMenuItem(
+                    stringResource(mode.labelRes),
                     onClick = { player.setZoomModeByUser(mode); onDismiss() },
+                    checked = mode == current,
                 )
             }
         }
     }
 }
 
-/** N11 — Auto (Settings → Maximum video quality), then every height this stream offers, highest first. */
+/** Auto (Settings → Maximum video quality), then every height this stream offers, highest first. */
 @Composable
 private fun QualitySheet(player: PlaybackEngine, onDismiss: () -> Unit) {
     val heights by player.videoQualities.collectAsStateWithLifecycle()
     val current by player.videoQualityPick.collectAsStateWithLifecycle()
-    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.player_tool_quality)) {
+    val title = stringResource(R.string.player_tool_quality)
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
+        StageSheetHeader(title)
         SheetScroll {
             (listOf<Int?>(null) + heights).forEach { height ->
-                MobileListRow(
-                    title = if (height == null) stringResource(R.string.settings_auto) else stringResource(R.string.settings_video_quality_lines, height),
-                    subtitle = if (height == current) stringResource(R.string.common_on) else null,
+                StageMenuItem(
+                    if (height == null) stringResource(R.string.settings_auto) else stringResource(R.string.settings_video_quality_lines, height),
                     onClick = { player.selectVideoQuality(height); onDismiss() },
+                    checked = height == current,
                 )
             }
         }
@@ -386,7 +372,9 @@ private val SPEEDS = listOf(0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0)
 @Composable
 private fun SpeedSheet(player: PlaybackEngine, onDismiss: () -> Unit) {
     val current by player.speed.collectAsStateWithLifecycle()
-    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.player_tool_speed)) {
+    val title = stringResource(R.string.player_tool_speed)
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
+        StageSheetHeader(title)
         val locale = LocalConfiguration.current.locales[0]
         // Seven speeds, and 2.0x is the last of them — the one a landscape sheet dropped.
         SheetScroll {
@@ -397,14 +385,14 @@ private fun SpeedSheet(player: PlaybackEngine, onDismiss: () -> Unit) {
                         maximumFractionDigits = 2
                     }.format(speed)
                 }
-                MobileListRow(
-                    title = if (speed == 1.0) {
+                StageMenuItem(
+                    if (speed == 1.0) {
                         stringResource(R.string.player_speed_normal)
                     } else {
                         stringResource(R.string.player_speed, number)
                     },
-                    subtitle = if (speed == current) stringResource(R.string.common_on) else null,
                     onClick = { player.setSpeed(speed); onDismiss() },
+                    checked = speed == current,
                 )
             }
         }
@@ -417,26 +405,30 @@ private fun StreamInfoSheet(player: PlaybackEngine, onDismiss: () -> Unit) {
     var rows by remember { mutableStateOf(emptyList<StreamInfoRow>()) }
     LaunchedEffect(player) { rows = player.streamInfo() }
     val res = LocalResources.current
-    MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.player_stream_info)) {
+    val palette = LocalStagePalette.current
+    val title = stringResource(R.string.player_stream_info)
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
+        StageSheetHeader(title)
         // Scrollable, not merely capped: this is the longest table in the app — eleven rows, one of
         // them a whole stream URL that wraps to three lines — and half a screen never holds it.
         Column(
             Modifier
                 .heightIn(max = sheetListHeight())
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = MobileDimens.ScreenPaddingH),
+                .padding(horizontal = 12.dp),
         ) {
             rows.forEach { row ->
                 Row(Modifier.fillMaxWidth().padding(vertical = 3.dp)) {
                     Text(
                         text = stringResource(row.label.titleRes),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = stageText(12f, 500),
+                        color = palette.muted,
                         modifier = Modifier.weight(0.38f),
                     )
                     Text(
                         text = row.value.displayText(res),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = stageText(12f, 500),
+                        color = palette.text,
                         fontFamily = FontFamily.Monospace,
                         modifier = Modifier.weight(0.62f),
                     )
@@ -479,7 +471,7 @@ private fun ChannelSheet(
     onPick: (ChannelEntity) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    // M3-10 (the TV's Phase D): the category · count · Live TV, "Now playing · 256 · name", then Live TV's
+    // The category · count · Live TV, "Now playing · 256 · name", then Live TV's
     // own rows with what is on now; the playing channel carries the accent bar.
     val tuner: LiveTuner = koinInject()
     val playing by tuner.channel.collectAsStateWithLifecycle()
@@ -489,7 +481,7 @@ private fun ChannelSheet(
     val heading = title?.let { ProviderTags.parse(it).name } ?: stringResource(R.string.content_channel_overlay_title)
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
     val body: @Composable (Boolean) -> Unit = { side -> ChannelSheetBody(heading, channels, playing, now, nowMs, sep, side, onTuneToNumber, onPick, onDismiss) }
-    // Held sideways (M3-10): a glass panel down the left of the picture, over a wash from that side, instead of
+    // Held sideways: a glass panel down the left of the picture, over a wash from that side, instead of
     // a sheet that would cover the whole short screen.
     if (configuration.screenWidthDp > configuration.screenHeightDp) {
         androidx.activity.compose.BackHandler(onBack = onDismiss)
@@ -515,7 +507,7 @@ private fun ChannelSheet(
         }
         return
     }
-    MobileBottomSheet(onDismissRequest = onDismiss, title = heading, stage = true) { body(false) }
+    MobileBottomSheet(onDismissRequest = onDismiss, title = heading) { body(false) }
 }
 
 @Composable
@@ -644,8 +636,8 @@ private fun DirectTuneField(onTune: suspend (Int) -> DirectTune, onDismiss: () -
 private fun EmptyNote(text: String) {
     Text(
         text = text,
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(MobileDimens.ScreenPaddingH),
+        style = stageText(13f, 500),
+        color = LocalStagePalette.current.muted,
+        modifier = Modifier.padding(12.dp),
     )
 }

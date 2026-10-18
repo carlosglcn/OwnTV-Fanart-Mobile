@@ -26,7 +26,7 @@ import tv.own.owntv.mobile.ui.profiles.ProfilePinSheet
 import tv.own.owntv.mobile.ui.profiles.ProfilesViewModel
 
 /**
- * Settings › Profile (M9-04): who is watching, and who may. A row per profile — its avatar, its name, a line
+ * Settings › Profile: who is watching, and who may. A row per profile — its avatar, its name, a line
  * saying how it is set (Kids mode, PIN lock or No lock) and IN USE on the one in use — then Add a profile.
  * Tapping a profile switches to it, asking for the PIN first if it has one; tapping the one in use, or holding
  * any, opens it for editing. The last profile cannot be deleted: an app with no profile has nobody to show to.
@@ -113,7 +113,7 @@ internal fun profileSections(
             line = line,
             value = when {
                 active -> SettingValue.Tag(inUse.uppercase(locale))
-                // One tag, as M9-04 draws it: "KIDS · PIN".
+                // One tag: "KIDS · PIN".
                 tags.isNotEmpty() -> SettingValue.Tag(tags.joinToString(sep) { it.uppercase(locale) })
                 else -> SettingValue.Opens(null)
             },

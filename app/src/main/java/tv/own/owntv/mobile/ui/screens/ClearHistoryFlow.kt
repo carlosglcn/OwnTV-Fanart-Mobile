@@ -18,7 +18,7 @@ private val HISTORY_SCOPES: List<MediaType?> =
     listOf(null, MediaType.LIVE, MediaType.MOVIE, MediaType.SERIES)
 
 /**
- * Throwing watch history away: pick a scope, then confirm it — two Stage sheets (F20), the same title,
+ * Throwing watch history away: pick a scope, then confirm it — two Stage sheets, the same title,
  * description, four scopes and confirm the old Settings → Data page had. Reached from More › History's
  * red trash tool, where it acts.
  */
@@ -28,7 +28,7 @@ fun ClearHistoryFlow(onClear: (MediaType?) -> Unit, onDismiss: () -> Unit) {
     var confirming by remember { mutableIntStateOf(-1) }
 
     if (confirming < 0) {
-        MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.settings_clear_history), stage = true) {
+        MobileBottomSheet(onDismissRequest = onDismiss, title = stringResource(R.string.settings_clear_history)) {
             StageSheetHeader(title = stringResource(R.string.settings_clear_history), subtitle = stringResource(R.string.settings_choose_history))
             HISTORY_SCOPES.forEachIndexed { index, scope ->
                 StageMenuItem(stringResource(scope.scopeLabelRes()), onClick = { confirming = index }, icon = MobileIcons.History, chevron = true)
@@ -38,7 +38,7 @@ fun ClearHistoryFlow(onClear: (MediaType?) -> Unit, onDismiss: () -> Unit) {
     }
 
     val label = stringResource(HISTORY_SCOPES[confirming].scopeLabelRes())
-    MobileBottomSheet(onDismissRequest = onDismiss, title = label, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = label) {
         StageSheetHeader(
             title = stringResource(R.string.settings_clear_history_confirm, label),
             subtitle = stringResource(R.string.settings_cannot_undo),

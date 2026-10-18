@@ -26,8 +26,8 @@ import tv.own.owntv.mobile.ui.stage.LocalStagePalette
 import tv.own.owntv.mobile.ui.stage.stageText
 
 /**
- * The TV's twelve settings groups (M9-01), in its order, each a page of rows. The Video player level of the
- * old tree is gone (decision M4): its categories are groups of their own — Player, Picture, Sound & subtitles,
+ * The TV's twelve settings groups, in its order, each a page of rows. The Video player level of the
+ * old tree is gone: its categories are groups of their own — Player, Picture, Sound & subtitles,
  * Live TV, Watching & recording.
  */
 enum class SettingsGroup(
@@ -149,7 +149,7 @@ fun SettingsSlider(
 data class SettingsChoice<T>(val value: T, val label: String, val description: String? = null)
 
 /**
- * A "one of these" sheet, as M9-15 draws it: the title, an optional [description], CHOICES with a radio each.
+ * A "one of these" sheet: the title, an optional [description], CHOICES with a radio each.
  * Choosing dismisses it. [footer] is for the one setting whose answer is not always in the list.
  */
 @Composable

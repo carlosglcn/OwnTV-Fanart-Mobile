@@ -126,6 +126,8 @@ open class MainActivity : FragmentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         askForNotifications()
+        // Turning Sports goal alerts on asks here (core calls it; only an activity can ask).
+        tv.own.owntv.core.sports.MatchAlertHost.requestNotificationPermission = askPermission
         readOpenPlayerRequest(intent)
         // The buttons say Play or Pause depending on what is happening, so they are rebuilt whenever
         // that changes — a PiP window whose button lies is worse than one with no buttons.
@@ -269,6 +271,11 @@ open class MainActivity : FragmentActivity() {
                 runCatching { org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.reminder.ReminderManager>().dismiss(reminderId) }
             }
         }
+        // A Sports alert, reminder or live score card: the shell opens that match's page.
+        intent?.getStringExtra(tv.own.owntv.core.sports.MatchNotifications.EXTRA_MATCH_KEY)?.let { key ->
+            intent.removeExtra(tv.own.owntv.core.sports.MatchNotifications.EXTRA_MATCH_KEY)
+            org.koin.core.context.GlobalContext.get().get<tv.own.owntv.mobile.ui.screens.sports.SportsPlayback>().openMatchKey.value = key
+        }
     }
 
     /**
@@ -314,6 +321,17 @@ open class MainActivity : FragmentActivity() {
         if (playing.audioOnly.value) return
         droppedVideoForBackground = true
         playing.enterAudioOnly()
+    }
+
+    /** This activity's answer to core's permission hook, kept so only this one is taken away again. */
+    private val askPermission: () -> Unit = { askForNotifications() }
+
+    /** The permission hook holds this activity; let it go unless a newer activity has already set its own. */
+    override fun onDestroy() {
+        if (tv.own.owntv.core.sports.MatchAlertHost.requestNotificationPermission === askPermission) {
+            tv.own.owntv.core.sports.MatchAlertHost.requestNotificationPermission = null
+        }
+        super.onDestroy()
     }
 
     /** Back on screen at full size, so the window was tapped rather than closed. */

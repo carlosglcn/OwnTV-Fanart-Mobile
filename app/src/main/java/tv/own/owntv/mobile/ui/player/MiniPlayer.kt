@@ -58,7 +58,7 @@ private const val DISMISS_DRAG_PX = 120f
  * a smaller box — so opening it costs nothing and closing it is the only thing in the app that
  * actually stops playback. A radio channel has no picture to move, so its artwork stands in.
  *
- * Drawn as Stage chrome above the bar (M1-04): a 58 dp glass card, the picture as a 72 × 42 still (LIVE
+ * Drawn as Stage chrome above the bar: a 58 dp glass card, the picture as a 72 × 42 still (LIVE
  * on a channel), the title, the programme or the film's line with what is left, its progress, then
  * pause and close. A channel's line and progress follow its programme ([programmeStartMs] to
  * [programmeStopMs]); a film's follow the engine.

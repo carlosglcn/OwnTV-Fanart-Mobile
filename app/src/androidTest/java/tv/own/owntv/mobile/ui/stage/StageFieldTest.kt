@@ -1,4 +1,4 @@
-package tv.own.owntv.mobile.ui.components
+package tv.own.owntv.mobile.ui.stage
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,7 +36,7 @@ import org.junit.Test
  * tapping focuses, typed/pasted/deleted text updates, Next/Done/Search actions behave,
  * and a focused field inside a scrolling IME-safe container stays visible.
  */
-class MobileTextFieldTest {
+class StageFieldTest {
 
     @get:Rule
     val rule = createComposeRule()
@@ -45,7 +45,7 @@ class MobileTextFieldTest {
     fun tappingFieldFocusesIt() {
         rule.setContent {
             MaterialTheme {
-                MobileTextField(
+                StageField(
                     value = "",
                     onValueChange = {},
                     label = "Name",
@@ -62,7 +62,7 @@ class MobileTextFieldTest {
         var text by mutableStateOf("")
         rule.setContent {
             MaterialTheme {
-                MobileTextField(
+                StageField(
                     value = text,
                     onValueChange = { text = it },
                     label = "Name",
@@ -87,14 +87,14 @@ class MobileTextFieldTest {
         var pin by mutableStateOf("")
         rule.setContent {
             MaterialTheme {
-                MobileTextField(
+                StageField(
                     value = pin,
                     onValueChange = {
                         if (it.length <= 6 && it.all(Char::isDigit)) pin = it
                     },
                     label = "PIN",
                     keyboardType = KeyboardType.NumberPassword,
-                    isPassword = true,
+                    password = true,
                     imeAction = ImeAction.Done,
                     modifier = Modifier.testTag("pin"),
                 )
@@ -110,16 +110,16 @@ class MobileTextFieldTest {
     }
 
     @Test
-    fun searchImeActionCallsOnSearch() {
+    fun searchImeActionCallsOnImeDone() {
         var searched = false
         rule.setContent {
             MaterialTheme {
-                MobileTextField(
+                StageField(
                     value = "cnn",
                     onValueChange = {},
                     label = "Search",
                     imeAction = ImeAction.Search,
-                    onSearch = { searched = true },
+                    onImeDone = { searched = true },
                     modifier = Modifier.testTag("search"),
                 )
             }
@@ -136,7 +136,7 @@ class MobileTextFieldTest {
         rule.setContent {
             MaterialTheme {
                 Column {
-                    MobileTextField(
+                    StageField(
                         value = "",
                         onValueChange = {},
                         label = "First",
@@ -145,7 +145,7 @@ class MobileTextFieldTest {
                             .testTag("first")
                             .focusRequester(first),
                     )
-                    MobileTextField(
+                    StageField(
                         value = "",
                         onValueChange = {},
                         label = "Second",
@@ -174,7 +174,7 @@ class MobileTextFieldTest {
                         .imePadding(),
                 ) {
                     repeat(20) {
-                        MobileTextField(
+                        StageField(
                             value = "",
                             onValueChange = {},
                             label = "Field $it",

@@ -6,7 +6,7 @@ import androidx.compose.ui.Modifier
 import org.koin.androidx.compose.koinViewModel
 
 /**
- * A film or a show, opened: the Stage movie page (M5-06) or the series page (M6-01). One view model for
+ * A film or a show, opened: the Stage movie page or the series page. One view model for
  * both, told which item once.
  */
 @Composable

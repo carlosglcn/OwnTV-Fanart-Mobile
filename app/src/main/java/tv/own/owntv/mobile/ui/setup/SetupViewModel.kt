@@ -40,7 +40,7 @@ class SetupViewModel(
     private val profiles: tv.own.owntv.core.profile.ProfileManager,
 ) : ViewModel() {
 
-    // ---- Remote (M9-19): another device fills the form in a browser; the phone pre-fills its own form. ----
+    // ---- Remote: another device fills the form in a browser; the phone pre-fills its own form. ----
     val remoteState get() = companion.state
     /** The last submission, kept until the form has read it. */
     val remotePayload get() = companion.lastPayload

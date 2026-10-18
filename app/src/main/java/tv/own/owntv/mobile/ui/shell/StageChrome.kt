@@ -111,9 +111,9 @@ class ShellChromeState {
 }
 
 /**
- * What Home hands the shell (M2). Its backdrop belongs to the page, not to the list, so it is drawn behind
+ * What Home hands the shell. Its backdrop belongs to the page, not to the list, so it is drawn behind
  * the header and the status bar (`.bdrop`); once the hero has scrolled away the header carries its eyebrow
- * and title instead (M2-02); and the Resume pill sits in the cluster while the hero is in view.
+ * and title instead; and the Resume pill sits in the cluster while the hero is in view.
  */
 @Stable
 class HomeChrome {
@@ -139,7 +139,7 @@ data class HomeResume(val name: String, val onClick: () -> Unit)
 val LocalHomeChrome = staticCompositionLocalOf<HomeChrome?> { null }
 
 /**
- * A title page (a film, a show — M5-06, M6-01) lends the shell its backdrop the same way Home does. Its own
+ * A title page (a film, a show) lends the shell its backdrop the same way Home does. Its own
  * holder, not Home's: on the way back the two pages are briefly both alive, and one clearing the other's
  * picture would leave Home without its own.
  */
@@ -164,7 +164,7 @@ data class PageCrumb(
 /**
  * Lend the shell [crumb] while this place is on screen. Leaving clears it only if it is still this place's: during
  * a tab switch the next place sets its own crumb before this one is disposed, and clearing that left Live TV
- * without a crumb after Movies (M5 check).
+ * without a crumb after Movies.
  */
 @Composable
 fun ProvidePageCrumb(crumb: (owner: Any) -> PageCrumb) {
@@ -239,7 +239,7 @@ fun HomeBackdrop(chrome: HomeChrome) {
     }
 }
 
-/** Home's heading in the header (M2-02): the eyebrow, then the title in 22 / 800. */
+/** Home's heading in the header: the eyebrow, then the title in 22 / 800. */
 @Composable
 private fun HomeHeadingText(heading: HomeHeading) {
     Column {
@@ -285,7 +285,7 @@ fun StageNavBar(
             val on = destination == current
             val label = stringResource(destination.barLabelRes)
             val interaction = remember { MutableInteractionSource() }
-            // Each place takes an equal share of the bar (64 dp in the mockup's English) so a longer word —
+            // Each place takes an equal share of the bar (64 dp in English) so a longer word —
             // "Startseite", "Programmführer" — has the room there is before it has to shrink.
             Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
                 Column(
@@ -306,7 +306,7 @@ fun StageNavBar(
                     StageIcon(destination.icon, 22.dp, tint)
                     if (labels) {
                         // Any language, any text size: a two-word label may take a second line, and a label
-                        // still too wide shrinks (to 8 sp) before it would cut a word (M3 check, German 130%).
+                        // still too wide shrinks (to 8 sp) before it would cut a word (German at 130%).
                         BasicText(
                             label,
                             style = stageText(10.5f, 700, lineHeight = 1f).copy(color = tint, textAlign = TextAlign.Center),
@@ -334,7 +334,7 @@ fun StageNavBar(
 }
 
 /**
- * The rail (`railH`, M12): a floating glass column 58 dp wide on a 29 dp radius, 12 dp from the left edge and
+ * The rail (`railH`): a floating glass column 58 dp wide on a 29 dp radius, 12 dp from the left edge and
  * centred on the screen, its items 40 dp wide on a 14 dp radius — the current place in the accent on a 14% tile.
  * [compact] (a phone held sideways): 34 dp items, nothing but the places, set 12 dp below the centre. A tablet's
  * has the app's mark on top, Search first, 40 dp items and the avatar at the bottom.
@@ -391,16 +391,16 @@ fun StageRail(
     }
 }
 
-/** More is the four tiles on the rail (the mockup's `more`); everything else keeps its own icon. */
+/** More is the four tiles on the rail (`more`); everything else keeps its own icon. */
 private val MobileDestination.railIcon
     get() = if (this == MobileDestination.MORE) MobileIcons.Tiles else icon
 
 /**
  * The page header (`.hdr`): the page's own title (28 / 800) with the top-right [cluster] beside it, and
- * under it the crumb — "‹ where you came from" on a pushed page, which goes back when tapped (F24: the
+ * under it the crumb — "‹ where you came from" on a pushed page, which goes back when tapped (the
  * title names the page, the crumb says where from). Home has no title, only its [heading] once scrolled;
  * a detail page has only the crumb. A title page ([backPill]: a film, a show) has neither — the glass ‹
- * pill, then the cluster, over its own backdrop; the page names itself below (M5-06).
+ * pill, then the cluster, over its own backdrop; the page names itself below.
  */
 @Composable
 fun StagePageHeader(
@@ -435,7 +435,7 @@ fun StagePageHeader(
             // The cluster keeps its room (its playlist pill is only the mark) so the avatar is always there; a
             // title too long for the rest ("Programmübersicht" at a large font) shrinks rather than being cut.
             // Home's scrolled heading shares the row. A pushed page's way back ("‹ More") sits ABOVE its title
-            // (the mockup's `header(…, { back })`, M8-02); a place's own crumb sits below.
+            // (`header(…, { back })`); a place's own crumb sits below.
             Column(Modifier.weight(1f)) {
                 if (backLabel != null) {
                     val interaction = remember { MutableInteractionSource() }
@@ -489,7 +489,7 @@ private fun PageCrumbRow(crumb: PageCrumb, modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // The TV Guide's crumb has none (M4-01): it is a place, not a way back.
+        // The TV Guide's crumb has none: it is a place, not a way back.
         if (crumb.chevron) StageIcon(MobileIcons.ArrowBack, 13.dp, palette.muted)
         crumb.styled?.let {
             Text(it, style = stageText(13f, 500), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -549,8 +549,8 @@ data class ClusterPlaylist(val label: String, val mark: PlaylistMark?, val switc
 
 /**
  * `.av`: the profile as a 32 dp circle — its own picture (the drawn tile or a photo), or with none its
- * initial on the mockup's warm gradient. A tap opens More. More's profile card draws it at 44 dp and the
- * profile chooser at 104 (M8-08), neither with a tap of its own; the initial is 0.41 of the circle.
+ * initial on a warm gradient. A tap opens More. More's profile card draws it at 44 dp and the
+ * profile chooser at 104, neither with a tap of its own; the initial is 0.41 of the circle.
  */
 @Composable
 internal fun ShellAvatar(profile: ProfileEntity?, onClick: (() -> Unit)?, diameter: androidx.compose.ui.unit.Dp = 32.dp) {

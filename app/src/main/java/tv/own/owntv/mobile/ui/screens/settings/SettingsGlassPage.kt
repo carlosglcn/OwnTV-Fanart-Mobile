@@ -36,7 +36,6 @@ import org.koin.androidx.compose.koinViewModel
 import tv.own.owntv.core.theme.BackgroundConfig
 import tv.own.owntv.core.theme.BackgroundStyle
 import tv.own.owntv.core.theme.GlassConfig
-import tv.own.owntv.core.theme.GlassSurface
 import tv.own.owntv.core.theme.PictureLook
 import tv.own.owntv.mobile.R
 import tv.own.owntv.mobile.ui.components.MobileIcons
@@ -58,7 +57,7 @@ import tv.own.owntv.mobile.ui.stage.stageText
 import java.io.File
 
 /**
- * Glass & background (M9-23 / M9-24, the TV's GB page): the live preview, then BACKGROUND — Stage / Picture /
+ * Glass & background (the TV's GB page): the live preview, then BACKGROUND — Stage / Picture /
  * Plain, the picture, its look (Sharp / Soft / Dark), Darken and Blur while a picture shows, Accent light — and
  * GLASS: frosted bars and sheets, their opacity, and Reset. Every value is core's, so a TV backup brings the same
  * look; every change shows at once, on the preview and on the page itself.
@@ -74,7 +73,6 @@ fun SettingsGlassPage(
     val pic = background.style == BackgroundStyle.PICTURE
     val hasFile = background.imagePath.isNotBlank()
     val alphaPct = (glass.alpha * 100).toInt()
-    val blurPct = (glass.blurStrength * 100).toInt()
 
     // SAF, not a file browser: a phone has a picker, and the copy we keep survives the user later
     // deleting the original out of their gallery. A new picture starts on Picture · Soft (core).
@@ -90,7 +88,7 @@ fun SettingsGlassPage(
     // With a picture set, the row offers Change or Clear (the TV's chooser); without one it goes straight to the picker.
     var pictureMenu by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     if (pictureMenu) {
-        tv.own.owntv.mobile.ui.components.MobileBottomSheet(onDismissRequest = { pictureMenu = false }, stage = true) {
+        tv.own.owntv.mobile.ui.components.MobileBottomSheet(onDismissRequest = { pictureMenu = false }) {
             tv.own.owntv.mobile.ui.stage.StageSheetHeader(stringResource(R.string.settings_bg_picture), eyebrow = stringResource(R.string.settings_glass_bg_title))
             tv.own.owntv.mobile.ui.stage.StageMenuItem(stringResource(R.string.settings_bg_change), onClick = { pictureMenu = false; choosePicture() }, icon = MobileIcons.Folder)
             tv.own.owntv.mobile.ui.stage.StageMenuItem(stringResource(R.string.common_clear), onClick = {
@@ -184,7 +182,7 @@ fun SettingsGlassPage(
                 icon = MobileIcons.Layers,
                 subtitle = stringResource(R.string.settings_line_glass_switch_mobile),
                 onClick = {
-                    val bits = if (glass.enabled) 0 else GlassConfig(scope = GlassSurface.entries.toSet()).toBitmask()
+                    val bits = if (glass.enabled) 0 else GlassConfig.ON_BITS
                     vm.edit { setGlassScopeBitmask(bits) }
                 },
                 role = Role.Switch,
@@ -200,8 +198,8 @@ fun SettingsGlassPage(
                 if (glass.enabled) {
                     StageStepper(
                         stringResource(R.string.settings_surface_transparency, alphaPct),
-                        onMinus = { vm.edit { setGlassAlphaPercent((alphaPct - 5).coerceIn(20, 100), blurPct) } },
-                        onPlus = { vm.edit { setGlassAlphaPercent((alphaPct + 5).coerceIn(20, 100), blurPct) } },
+                        onMinus = { vm.edit { setGlassAlphaPercent((alphaPct - 5).coerceIn(20, 100)) } },
+                        onPlus = { vm.edit { setGlassAlphaPercent((alphaPct + 5).coerceIn(20, 100)) } },
                         minusEnabled = alphaPct > 20,
                         plusEnabled = alphaPct < 100,
                     )
@@ -218,13 +216,13 @@ fun SettingsGlassPage(
                     R.string.settings_line_glass_reset,
                     stringResource(R.string.common_percent, PHONE_GLASS_DEFAULT_PCT),
                 ),
-                onClick = { vm.edit { resetGlassAndBackground(GlassConfig(scope = GlassSurface.entries.toSet()).toBitmask(), PHONE_GLASS_DEFAULT_PCT) } },
+                onClick = { vm.edit { resetGlassAndBackground(PHONE_GLASS_DEFAULT_PCT) } },
             )
         }
     }
 }
 
-/** The phone's glass opacity for a new user and for Reset (owner, 2026-10-14); the TV's is core's 50 %. */
+/** The phone's glass opacity for a new user and for Reset; the TV's is core's 50 %. */
 internal const val PHONE_GLASS_DEFAULT_PCT = 51
 
 /** Darken / Blur: "50%" in a stepper, [step] at a time within 0…[max]. */
@@ -242,7 +240,7 @@ private fun PercentRow(icon: androidx.compose.ui.graphics.vector.ImageVector, ti
 }
 
 /**
- * The live preview (M9-23): "Live TV" over the current background — the picture with its look, the Stage colours or
+ * The live preview: "Live TV" over the current background — the picture with its look, the Stage colours or
  * Plain — and a glass bottom bar, Live TV lit. It reads the same settings the app is drawn with, so it follows
  * every change on this page at once.
  */

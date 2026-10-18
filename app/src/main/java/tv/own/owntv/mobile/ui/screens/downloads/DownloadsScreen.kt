@@ -90,7 +90,7 @@ private enum class DownloadsTab(val labelRes: Int) {
 }
 
 /**
- * Downloads (M7-01, the TV's P7-01): the crumb is the volume and its free space, then the tabs Movies ·
+ * Downloads: the crumb is the volume and its free space, then the tabs Movies ·
  * Series · Recordings with their counts and the folder tool, the folder the open tab saves to, and the list
  * grouped DOWNLOADING (queue order, the running one first) / ON THIS PHONE, each row with its picture, its
  * line, where it got to and its file's folder. The Recordings card closes the list.
@@ -204,7 +204,7 @@ fun DownloadsScreen(
         }
 
         if (tab == DownloadsTab.RECORDINGS) {
-            RecordingsScreen(onPlayerOpened = onPlayerOpened, embedded = true, modifier = Modifier.fillMaxSize().padding(horizontal = 6.dp))
+            RecordingsScreen(onPlayerOpened = onPlayerOpened, modifier = Modifier.fillMaxSize().padding(horizontal = 6.dp))
         } else {
             LazyColumn(Modifier.fillMaxSize().padding(horizontal = 6.dp)) {
                 if (downloading.isEmpty() && onPhone.isEmpty()) {
@@ -370,7 +370,7 @@ private fun DownloadItem(
                 // `.prog` at 3 dp: the accent → focus sweep, a little thinner than the default.
                 StageProgress(if (total > 0) (got.toFloat() / total).coerceIn(0f, 1f) else 0f, Modifier.padding(top = 6.dp).height(3.dp))
             }
-            // A queued one has none (M7-01): its hold menu pauses or deletes it.
+            // A queued one has none: its hold menu pauses or deletes it.
             if (!done && d.status != DownloadStatus.QUEUED) {
                 Row(Modifier.padding(top = 7.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     when (d.status) {
@@ -505,7 +505,7 @@ private fun DownloadMenu(
     onSaveCopy: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(title = title)
         fun act(block: () -> Unit) = { block(); onDismiss() }
         when (download.status) {
@@ -555,7 +555,7 @@ private fun DownloadOptionsSheet(
 ) {
     val palette = LocalStagePalette.current
     val title = stringResource(R.string.content_downloads_options)
-    MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(title = title)
         // Said before the list: the folder being unreachable is the reason the user is most likely here.
         if (folderLost) {

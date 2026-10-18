@@ -35,7 +35,7 @@ import tv.own.owntv.player.LiveLadder
 import tv.own.owntv.player.ZoomMode
 
 /*
- * The five groups that were the Video player level (decision M4): Player, Picture, Sound & subtitles, Live TV,
+ * The five groups that were the Video player level: Player, Picture, Sound & subtitles, Live TV,
  * Watching & recording. The stored values are core's, under the TV's keys, so a backup means the same thing on
  * both apps and a pin made on one is the same row on the other.
  */
@@ -189,7 +189,7 @@ internal fun pictureSections(vm: SettingsViewModel): List<SettingSection> {
                     s.maxVideoHeightChoices.map { SettingsChoice(it, qualityLabel(it, R.string.settings_auto)) }, maxHeight, 0,
                     { h -> vm.edit { setMaxVideoHeight(h) } },
                 ),
-                // Only where a decoder can tunnel (N19); after a failure the line says why it is off.
+                // Only where a decoder can tunnel; after a failure the line says why it is off.
                 if (tv.own.owntv.player.Tunneling.supported) switchItem(
                     "vp_tunneled", MobileIcons.PlayArrow, stringResource(R.string.settings_title_tunneled),
                     stringResource(R.string.settings_line_tunneled) +
@@ -477,7 +477,7 @@ internal fun watchingSections(vm: SettingsViewModel): List<SettingSection> {
     val recordWatching = s.recordWhatImWatching.pref(false)
     val recordingsVm: RecordingsViewModel = koinViewModel()
 
-    // D3: the player's record button costs the one spare connection, so turning it on says so first.
+    // The player's record button costs the one spare connection, so turning it on says so first.
     var warnRecordWatching by remember { mutableStateOf(false) }
     if (warnRecordWatching) {
         StageConfirmSheet(
@@ -603,10 +603,10 @@ internal fun watchingSections(vm: SettingsViewModel): List<SettingSection> {
 /** The paddings worth offering, all inside core's own 0..30 clamp. */
 private val ROLL_CHOICES = listOf(0, 1, 2, 3, 5, 10, 15, 30)
 
-// ---------------------------------------------------------------------------- Per-playlist pages (M9B)
+// ---------------------------------------------------------------------------- Per-playlist pages
 
 /**
- * One per-playlist override (M9B): each playlist with what it is set to; a tap opens the choices for that
+ * One per-playlist override: each playlist with what it is set to; a tap opens the choices for that
  * playlist — Follow the global setting first. Replaces the two stacked sheets of the old page.
  */
 @Composable
@@ -683,7 +683,7 @@ fun PerPlaylistPage(leaf: SettingsLeaf, modifier: Modifier = Modifier, vm: Setti
     sources.firstOrNull { it.id == customFor }?.let { s ->
         val secs = sourceCustomSecs(s)
         androidx.compose.runtime.key(s.id) {
-            tv.own.owntv.mobile.ui.components.MobileBottomSheet(onDismissRequest = { customFor = null }, stage = true) {
+            tv.own.owntv.mobile.ui.components.MobileBottomSheet(onDismissRequest = { customFor = null }) {
                 tv.own.owntv.mobile.ui.stage.StageSheetHeader(s.name, eyebrow = eyebrow)
                 StageSettingRowValue(stringResource(R.string.settings_live_latency_custom)) {
                     tv.own.owntv.mobile.ui.stage.StageStepper(
@@ -748,7 +748,7 @@ private fun sourceValue(leaf: SettingsLeaf, src: SourceEntity, follow: String): 
     else -> ""
 }
 
-/** Settings › Player › External player (M9B): which sections open in another app, one switch each. */
+/** Settings › Player › External player: which sections open in another app, one switch each. */
 @Composable
 fun ExternalPlayerPage(modifier: Modifier = Modifier, vm: SettingsViewModel = koinViewModel()) {
     val s = vm.settings
@@ -801,12 +801,12 @@ private fun trackLanguageChoices(withOriginal: Boolean): List<SettingsChoice<Str
     return codes.map { SettingsChoice(it, trackLanguageName(it)) }
 }
 
-/** [noneRes] ("Auto" / "Off") for 0, else the picture height ("1080p") — N11. */
+/** [noneRes] ("Auto" / "Off") for 0, else the picture height ("1080p"). */
 @Composable
 private fun qualityLabel(height: Int, noneRes: Int): String =
     if (height <= 0) stringResource(noneRes) else stringResource(R.string.settings_video_quality_lines, height)
 
-/** "Auto" for 0, else seconds ("60s") — the film buffer and network timeout choices (N18). */
+/** "Auto" for 0, else seconds ("60s") — the film buffer and network timeout choices. */
 @Composable
 private fun autoOrSeconds(secs: Int): String =
     if (secs <= 0) stringResource(R.string.settings_vod_network_auto) else stringResource(R.string.settings_live_buffer_seconds, secs)

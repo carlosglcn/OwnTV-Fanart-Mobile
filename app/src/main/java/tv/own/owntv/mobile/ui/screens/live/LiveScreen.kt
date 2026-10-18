@@ -44,7 +44,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -137,7 +136,7 @@ fun LiveScreen(
     var restoreFor by remember { mutableStateOf<LiveCategory?>(null) }
     var catchupFor by remember { mutableStateOf<ChannelEntity?>(null) }
     var jumpBackOpen by remember { mutableStateOf(false) }
-    // Wide (M12-01/03): the list on the left, the preview and its programme on the right — the same preview
+    // Wide: the list on the left, the preview and its programme on the right — the same preview
     // the phone draws on top, so a tap plays and a second tap is full screen there too.
     val twoPane = isExpandedWidth()
 
@@ -147,7 +146,7 @@ fun LiveScreen(
     val streamOnScreen = LocalStreamOnScreen.current
     val playing by tuner.channel.collectAsStateWithLifecycle()
     val playingNowNext by tuner.nowNext.collectAsStateWithLifecycle()
-    // M3-02: a tap plays the channel in a preview (on top of Live TV on a phone, beside it when wide), instead
+    // A tap plays the channel in a preview (on top of Live TV on a phone, beside it when wide), instead
     // of opening a channel page.
     // Settings › Live TV › Live preview: off, a tap opens the channel full screen with no preview first.
     val previewOn by koinInject<tv.own.owntv.core.settings.SettingsRepository>().livePreviewEnabled.collectAsStateWithLifecycle(true)
@@ -173,11 +172,11 @@ fun LiveScreen(
         onOpenPlayer()
     }
 
-    // The header's crumb (M3-01): "‹ Sky Cinema · 9 channels", a tap opens the categories. A locked
+    // The header's crumb: "‹ Sky Cinema · 9 channels", a tap opens the categories. A locked
     // list (Favourites, History) is one folder already and its page names it.
     val categoryLabel = categories.firstOrNull { it.key == selected }?.label().orEmpty()
     val liveView by vm.liveView.collectAsStateWithLifecycle()
-    // M3-06: "Live TV opens in: Guide" draws the guide grid in place of the list.
+    // "Live TV opens in: Guide" draws the guide grid in place of the list.
     val guideView = liveView == SettingsRepository.LiveView.GUIDE
     val countText = if (guideView) stringResource(R.string.content_live_guide_view)
     else groupedCountText(R.plurals.content_live_channel_count, count)
@@ -382,7 +381,7 @@ fun LiveScreen(
                     )
                 }
             },
-            // Half and half, as M12-01 draws it (list 390 of 791 dp).
+            // Half and half (list 390 of 791 dp).
             listShare = 0.5f,
             modifier = modifier,
         )
@@ -474,8 +473,8 @@ private fun SelectAChannel() {
     Box(Modifier.fillMaxSize().padding(MobileDimens.GapLarge), contentAlignment = Alignment.Center) {
         Text(
             text = stringResource(R.string.content_preview_select_channel),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = stageText(15f, 400),
+            color = LocalStagePalette.current.muted,
             textAlign = TextAlign.Center,
         )
     }
@@ -495,7 +494,7 @@ private fun EmptyChannels(query: String) {
 }
 
 /**
- * `.chrow` (M3-01): 66 dp — the number (28 wide, 13 / 600 dim), the logo (52 × 38, no plate unless its ink
+ * `.chrow`: 66 dp — the number (28 wide, 13 / 600 dim), the logo (52 × 38, no plate unless its ink
  * would vanish), the provider's name without its marks (14.5 / 700), "programme · time left" (12 muted)
  * and a 3 dp progress line at 70%; then the provider tags, ↺ for catch-up, ♥ when a favourite and the
  * playlist mark. [current] is the playing channel (`.fx` + `.selbar`).
@@ -529,7 +528,7 @@ internal fun LiveChannelRow(
                 color = palette.dim,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                // 28 dp in the mockup; a playlist with five-digit numbers widens it rather than cutting them.
+                // 28 dp by design; a playlist with five-digit numbers widens it rather than cutting them.
                 modifier = Modifier.widthIn(min = 28.dp),
             )
         }

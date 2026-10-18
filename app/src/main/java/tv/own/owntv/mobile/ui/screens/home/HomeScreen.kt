@@ -89,10 +89,10 @@ import tv.own.owntv.mobile.ui.stage.stageClickable
 import tv.own.owntv.mobile.ui.stage.stageText
 
 /**
- * Home, Stage (M2). The same rows as the television, in the same order, hidden by the same choices. With
+ * Home, Stage. The same rows as the television, in the same order, hidden by the same choices. With
  * Trending first and drawn as the hero, the top of the page is that title over its backdrop (the shell
  * draws the picture behind the header) and Keep watching sits under it in 16:9 stills; scrolled, the header
- * carries the hero's eyebrow and title instead (M2-02). A tap resumes rather than opens: a film goes
+ * carries the hero's eyebrow and title instead. A tap resumes rather than opens: a film goes
  * straight to the picture, a channel to its own screen. A long press is the item's sheet.
  */
 @Composable
@@ -103,8 +103,10 @@ fun HomeScreen(
     onOpenSeries: (Long) -> Unit,
     onPlayerOpened: () -> Unit,
     onOpenSearch: (String) -> Unit,
+    onOpenMatch: (tv.own.owntv.core.sports.model.Match) -> Unit,
     modifier: Modifier = Modifier,
     vm: HomeViewModel = koinViewModel(),
+    sportsVm: tv.own.owntv.mobile.ui.screens.sports.SportsViewModel = koinViewModel(),
 ) {
     val feed by vm.feed.collectAsStateWithLifecycle()
     val favoriteChannels by vm.favoriteChannels.collectAsStateWithLifecycle()
@@ -177,7 +179,12 @@ fun HomeScreen(
         return
     }
     // Computed once per feed: hasContent walks each row's loaded items.
-    val rows = remember(state) { state.config.visibleOrder.filter { state.hasContent(it) } }
+    // The Sports row's matches, asked for only while the row is switched on (no request otherwise).
+    val sportsCards = if (HomeRow.LIVE_SPORTS in state.config.visibleOrder) sportsVm.homeRow.collectAsStateWithLifecycle().value else emptyList()
+    val sportsConfig by sportsVm.sportsConfig.collectAsStateWithLifecycle()
+    val rows = remember(state, sportsCards.isEmpty()) {
+        state.config.visibleOrder.filter { if (it == HomeRow.LIVE_SPORTS) sportsCards.isNotEmpty() else state.hasContent(it) }
+    }
 
     // The television's three states, in its order. None offers "add a playlist": a user with none is in
     // setup, not here.
@@ -215,10 +222,10 @@ fun HomeScreen(
         homeChrome?.backdropSoft = shownTrending == null && featuredArt != null
         homeChrome?.backdropHeight = if (posterHero) 300.dp else 470.dp
         homeChrome?.heading = heading
-        // The Resume pill belongs to the full hero (M2-01); the posters layout has none (M2-03).
+        // The Resume pill belongs to the full hero; the posters layout has none.
         homeChrome?.resume = resumeChip.takeIf { fullBleed }
     }
-    // The picture fades as the hero scrolls up, so the rows never sit over it (M2-02). Written straight
+    // The picture fades as the hero scrolls up, so the rows never sit over it. Written straight
     // to the shell's draw phase: scrolling never recomposes Home for it.
     val fadePx = with(density) { 360.dp.toPx() }
     LaunchedEffect(homeChrome, listState) {
@@ -396,6 +403,22 @@ fun HomeScreen(
                         onOpen = { onOpenSeries(it.id) },
                         onMenu = { menuFor = it },
                     )
+                    // Sports: followed matches live or within the hour, in the user's
+                    // order; a tap opens the match, where its channels are found.
+                    HomeRow.LIVE_SPORTS -> Column {
+                        Text(
+                            stringResource(R.string.sports_title), style = stageText(17f, 800), color = LocalStagePalette.current.text,
+                            modifier = Modifier.padding(start = 14.dp, bottom = 8.dp),
+                        )
+                        LazyRow(contentPadding = PaddingValues(horizontal = 14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            items(sportsCards, key = { it.key }) { m ->
+                                tv.own.owntv.mobile.ui.screens.sports.MatchCard(
+                                    m, featured = false, config = sportsConfig, reminded = false,
+                                    onClick = { onOpenMatch(m) }, onLongClick = { onOpenMatch(m) },
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -438,7 +461,6 @@ fun HomeScreen(
             onDownload = { vm.download(target.type, target.id) },
             onHide = { vm.hide(target.type, target.id) },
             onDismiss = { menuFor = null },
-            stage = true,
             onRemoveFromContinue = { vm.removeFromContinue(target.type, target.id) },
         )
     }
@@ -468,6 +490,8 @@ private fun HomeFeed.hasContent(row: HomeRow): Boolean = when (row) {
     HomeRow.FEATURED -> featured.isNotEmpty()
     HomeRow.TONIGHT -> tonight.isNotEmpty()
     HomeRow.GENRES -> genres.isNotEmpty()
+    // Decided by the Sports row's own matches, in HomeScreen.
+    HomeRow.LIVE_SPORTS -> false
 }
 
 /** A half-watched episode's menu is its show's: the show is what can be favourited or hidden. */
@@ -495,8 +519,8 @@ private fun RowHeading(title: String, count: Int? = null, mode: String? = null, 
 }
 
 /**
- * Keep watching (M2-01, M2-02): 190 dp 16:9 stills with the watch progress, the title (12.5 / 700) and its
- * line. The still is the best picture there is (G12); a channel is its logo on the dark card, no white tile.
+ * Keep watching: 190 dp 16:9 stills with the watch progress, the title (12.5 / 700) and its
+ * line. The still is the best picture there is; a channel is its logo on the dark card, no white tile.
  */
 @Composable
 private fun KeepWatchingRow(
@@ -557,7 +581,7 @@ private fun KeepWatchingRow(
 private data class HomePoster(val target: ContentTarget, val posterUrl: String?, val rating: Double?, val progress: Float?)
 
 /**
- * Favourite films or shows (M2-02): 104 dp posters with the rating, the watch progress and ✓ once watched
+ * Favourite films or shows: 104 dp posters with the rating, the watch progress and ✓ once watched
  * to the end (for a show, the episode watched last). A tap opens the title's page.
  */
 @Composable
@@ -616,7 +640,7 @@ private fun ContinueRow(
 }
 
 /**
- * A channel row in either of the setting's two shapes: what is on now (M2-02's cards) or the logos to
+ * A channel row in either of the setting's two shapes: what is on now (cards) or the logos to
  * pick from. The dim word after the heading names the shape and switches it — stored where the TV reads it.
  */
 @Composable
@@ -715,7 +739,7 @@ private fun HomeSkeleton(modifier: Modifier = Modifier) {
 /** The route this screen answers a "scroll back to the top" tap for. */
 private const val MobileHomeRoute = "home"
 
-/** Where the hero's eyebrow sits from the top of the screen (M2-01), and the posters layout's (M2-03). */
+/** Where the hero's eyebrow sits from the top of the screen, and the posters layout's. */
 private val HeroTop = 262.dp
 private val PostersTop = 170.dp
 

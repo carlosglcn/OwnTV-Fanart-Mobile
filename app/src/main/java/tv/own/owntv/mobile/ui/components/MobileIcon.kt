@@ -71,7 +71,7 @@ object MobileIcons {
     val Folder: ImageVector by lazy { stage(StageGlyph.FOLDER) }
     /** Playlists (the top cluster's playlist pill, the playlist sheet's All playlists). */
     val Layers: ImageVector by lazy { stage(StageGlyph.LAYERS) }
-    /** The TV Guide place (the mockup's `guide`). */
+    /** The TV Guide place (`guide`). */
     val Guide: ImageVector by lazy { stage(StageGlyph.EPG) }
     /** The order tool (`sort`). */
     val Sort: ImageVector by lazy { stage(StageGlyph.SORT) }
@@ -82,11 +82,13 @@ object MobileIcons {
     val Warning: ImageVector by lazy { stage(StageGlyph.WARNING) }
     val Multiview: ImageVector by lazy { stage(StageGlyph.MULTIVIEW) }
     val Move: ImageVector by lazy { stage(StageGlyph.MOVE) }
-    /** Home's trending eyebrow (the mockup's `trend`). */
+    /** Home's trending eyebrow (`trend`). */
     val Trend: ImageVector by lazy { stage(StageGlyph.TREND) }
-    /** The Series place (the mockup's `series`). */
+    /** The Series place (`series`). */
     val Series: ImageVector by lazy { stage(StageGlyph.SERIES) }
-    /** Four tiles (the mockup's `more`): Show counts. */
+    /** The Sports place: the television's trophy. */
+    val Sports: ImageVector by lazy { stage(StageGlyph.SPORTS) }
+    /** Four tiles (`more`): Show counts. */
     val Tiles: ImageVector by lazy { stage(StageGlyph.TILES) }
 
     // ---- Actions ------------------------------------------------------------------------------
@@ -128,7 +130,7 @@ object MobileIcons {
     /**
      * Catch-up: a television with a replay loop inside it, and a single antenna.
      *
-     * Drawn to match the television app's `OwnTVIcon.CATCHUP` (H3). It used to be [History] here and
+     * Drawn to match the television app's `OwnTVIcon.CATCHUP`. It used to be [History] here and
      * a screen-with-a-loop there — the same function wearing two faces, which is one of the four
      * mismatches Feature H exists to remove. One antenna rather than a V: it says "television" for
      * the cost of a single line and stays clear of the loop's arrowhead.
@@ -138,7 +140,7 @@ object MobileIcons {
     /**
      * Over-ear headphones — a headband arc and two earcups.
      *
-     * Drawn to match the television's `OwnTVIcon.HEADPHONES` (H3). It was a [MusicNote] here, which
+     * Drawn to match the television's `OwnTVIcon.HEADPHONES`. It was a [MusicNote] here, which
      * says "audio" but not "sound only, no picture", and the television has never used one.
      */
     val Headphones: ImageVector by lazy { stage(StageGlyph.HEADPHONES) }
@@ -146,7 +148,7 @@ object MobileIcons {
     /**
      * Share: three nodes and the two lines between them.
      *
-     * Drawn to match the television's `OwnTVIcon.SHARE` (H3). Reporting a stream was a [BugReport]
+     * Drawn to match the television's `OwnTVIcon.SHARE`. Reporting a stream was a [BugReport]
      * here and this there; the television's is the reference, and "share this readout" is nearer to
      * what the button does than "file a bug" is.
      */
@@ -172,7 +174,6 @@ object MobileIcons {
         }
     }
     val FormatListBulleted: ImageVector by lazy { stage(StageGlyph.LIST) }
-    val ViewList: ImageVector by lazy { stage(StageGlyph.LIST) }
     val SwapVert: ImageVector by lazy {
         glyph() {
             line(8f, 20f, 8f, 4f); line(4.8f, 7.2f, 8f, 4f, 11.2f, 7.2f)
@@ -213,7 +214,7 @@ object MobileIcons {
     }
     val Person: ImageVector by lazy { stage(StageGlyph.PERSON) }
     val Phone: ImageVector by lazy { stage(StageGlyph.PHONE) }
-    // No Stage glyph: the profile chooser's 🔒 PIN tag (M8-08) — a body and its shackle.
+    // No Stage glyph: the profile chooser's 🔒 PIN tag — a body and its shackle.
     val Lock: ImageVector by lazy {
         glyph() {
             box(5f, 11f, 19f, 20.5f, 2f)
@@ -226,7 +227,7 @@ object MobileIcons {
     // ---- Player -------------------------------------------------------------------------------
 
     val PlayArrow: ImageVector by lazy { stage(StageGlyph.PLAY, filled = true) }
-    /** The outlined play of a sheet's menu items (the mockup's `mi('play')`). */
+    /** The outlined play of a sheet's menu items (`mi('play')`). */
     val PlayOutline: ImageVector by lazy { stage(StageGlyph.PLAY) }
     val PlayCircle: ImageVector by lazy { stage(StageGlyph.PLAY_CIRCLE) }
     val Pause: ImageVector by lazy { stage(StageGlyph.PAUSE) }
@@ -330,7 +331,7 @@ object MobileIcons {
 // The grid. Everything above is written in 24×24 units; everything below turns that into a vector.
 // -------------------------------------------------------------------------------------------------
 
-/** The Stage mockup's stroke (`.ph .ico`, 1.8 on the 24 grid), for its glyphs and the hand-drawn rest alike. */
+/** The Stage stroke (`.ph .ico`, 1.8 on the 24 grid), for its glyphs and the hand-drawn rest alike. */
 private const val W = 1.8f
 private val Ink = SolidColor(Color.Black)
 

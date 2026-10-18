@@ -8,7 +8,7 @@
 <h1 align="center">OwnTV Mobile — Master Product Brief</h1>
 
 <p align="center">
-  <b>Native Android IPTV player for phones and tablets · dual playback engine · Material 3</b><br>
+  <b>Native Android IPTV player for phones and tablets · dual playback engine · Stage design</b><br>
   <sub>Bring your own M3U, Xtream or Stalker/Ministra portal sources</sub>
 </p>
 
@@ -17,7 +17,7 @@
 ## 1. Overview
 
 OwnTV Mobile is the phone and tablet member of the OwnTV family: a native Android IPTV player written
-in Kotlin with Jetpack Compose and Material 3, sharing its **entire engine** with
+in Kotlin with Jetpack Compose, sharing its **entire engine** with
 [OwnTV for Android TV](https://github.com/ahXN00/OwnTV) through the
 [OwnTV core library](https://github.com/ahXN00/OwnTV_Core).
 
@@ -35,7 +35,7 @@ Stalker/Ministra portal.
 |---|---|
 | **Player only** | No bundled content, no subscriptions, no paywalls |
 | **Touch-first** | Gestures, a document picker, the share sheet, rotation, a keyboard that covers half the screen |
-| **Not the TV app relaid out** | Material 3 components, not a ten-foot focus ladder |
+| **Not the TV app relaid out** | Touch-sized Stage parts, not a ten-foot focus ladder |
 | **One engine, two shells** | A behaviour fixed here is fixed on the television, and the reverse |
 | **Language-first** | 26 packaged interface languages, chosen before anything else |
 | **Open source** | GPLv3, original code, built with the help of AI |
@@ -74,6 +74,7 @@ The same two engines as the television, behind the same `PlaybackEngine` interfa
 - **Track memory** — the audio and subtitle language picked in the player is remembered per
   channel, film and series (per profile).
 - **Per-playlist provider quirks** — catch-up time zone, "give up after" time and an HTTP Referer.
+  The catch-up time zone defaults to **Automatic**: the Xtream panel's own zone, read at every sync.
 - **Per-channel compatibility mode** — the **⇄** button pins a channel to mpv and remembers it,
   using the same store the television uses, so a pin syncs between the two devices.
 - **The fallback ladder** — core's `LiveLadder`: up to four rungs, each tried once,
@@ -156,7 +157,7 @@ Quality button, and experimental tunneled playback — all core's, all shared.
 ### 3.1 Shell & navigation
 
 The **Stage** design, shared with the television: a glass capsule bottom bar on a phone (Home · Live
-TV · TV Guide · Movies · Series) and the TV's floating rail from **600 dp**, chosen by **window
+TV · Sports · TV Guide · Library — Movies | Series inside) and the TV's floating rail from **600 dp**, chosen by **window
 width** rather than device type — so a phone in landscape and a tablet in split screen are treated as
 what they are. Sideways, Live TV draws its list and preview side by side, and Movies and Series a
 glass card for the picked title beside the grid.
@@ -178,6 +179,10 @@ top. Predictive back is on.
   **muted preview** on top (beside the list when wide), not watched until a second tap opens it full
   screen — the television's preview. A channel on Home, in Favourites or History plays full screen;
   one from Search opens in Live TV's preview.
+- **Sports** — the television's Sports section as built: ESPN scores for followed leagues, match
+  pages with Find channels (searched only on request), a filter sheet, Broadcasts, a Home row, the
+  score and Other channels in the player, and — phone only — goal alerts and a live score card that
+  work with the app closed (core's `MatchAlertHost.backgroundAllowed`).
 - **Movies & Series** — two tabs with search, sort, Grid | List and **pinch to resize** the
   grid, progress bars on part-watched films and shows, and a detail page with backdrop, chips, resume,
   favourite, download, season chips and episode progress. The page's title drops a leading provider
@@ -263,13 +268,13 @@ same thing on a television.
 ## 7. Surface language
 
 The app draws **every icon itself** on the same 24×24 grid as the television's set, so the two look
-like one product; nothing depends on the stock Material glyph set. Material 3 for everything
-touchable.
+like one product; nothing depends on the stock Material glyph set. Everything touchable is built from
+the Stage parts (`ui/stage/`): sheets, menu items, setting rows, buttons, fields and the size bar.
 
-**Glass** is rendered here rather than merely tinted: a RenderEffect backdrop blur (API 31+), a
-specular rim, layered depth, continuous corners, settling motion and a wallpaper-sampled tint, with
-**Aurora** as an additional preset. The stored model stays core's and unchanged, so a television user
-is unaffected.
+**Glass** is one switch and an opacity, stored by core and shared with the television. On, the bars
+and sheets frost what is behind them — a RenderEffect backdrop blur (API 31+) of the page and the
+picture — under a tint at the chosen opacity, with a top highlight and a rim. The player's controls
+over the video are their own black glass.
 
 The wallpaper and its blurred copy sit **outside** the shell, so the frost every panel samples is one
 image for the whole app rather than one per panel.
@@ -334,8 +339,9 @@ app/src/main/java/tv/own/owntv/mobile/
 ├── ui/screens/      home · live · library · guide · search · downloads ·
 │                    recordings · multiview · settings
 ├── ui/player/       the full-screen player, gestures, sheets, mini players
-├── ui/components/   the shared surface language — buttons, rows, sheets, glass, icons
-├── ui/shell/        the bar/rail shell, the top bar, the sync pill
+├── ui/stage/        the Stage parts every screen is built from — buttons, rows, fields, glass
+├── ui/components/   the sheet host, icons, logos and the shared menus and pickers
+├── ui/shell/        the bar/rail shell, the page header, the sync pill
 ├── playback/        the foreground service, PiP, the data-saver gate (the sleep timer is core's)
 ├── cast/            the Google Cast sender
 └── di/              Koin modules

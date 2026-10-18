@@ -68,7 +68,7 @@ fun ReorderSheet(
         items.indexOfFirst { it.id == openAt }.takeIf { it >= 0 }?.let { listState.scrollToItem(it) }
     }
 
-    MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(title = stringResource(R.string.content_move), subtitle = title)
         LazyColumn(state = listState, modifier = Modifier.heightIn(max = sheetListHeight())) {
             items(items, key = { it.id }) { item ->
@@ -120,7 +120,7 @@ fun MoveToCategorySheet(
     var keepInOrigin by remember { mutableStateOf(false) }
     val title = stringResource(R.string.settings_move_category_title)
 
-    MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(title = title, subtitle = stringResource(R.string.settings_move_category_description, originName))
         // Core's text already starts with "+", so no icon (two plus signs otherwise).
         StageMenuItem(stringResource(R.string.settings_move_category_new), onClick = onNewCategory)
@@ -155,7 +155,7 @@ fun NewCategoryDialog(onCreate: (String) -> Unit, onDismiss: () -> Unit) {
     var name by remember { mutableStateOf("") }
     val title = stringResource(R.string.settings_move_category_new)
     val save = { if (name.isNotBlank()) { onCreate(name.trim()); onDismiss() } }
-    MobileBottomSheet(onDismissRequest = onDismiss, title = title, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(title = title)
         StageSearchField(
             value = name,
@@ -176,7 +176,7 @@ fun NewCategoryDialog(onCreate: (String) -> Unit, onDismiss: () -> Unit) {
 }
 
 /**
- * How every one of these Stage sheets ends (the M3/M4 sheets' shape): the confirm as a filled menu item with ✓,
+ * How every one of these Stage sheets ends (the Live TV and Guide sheets' shape): the confirm as a filled menu item with ✓,
  * then Cancel with ✕. [onConfirm] is followed by [onDismiss].
  */
 @Composable

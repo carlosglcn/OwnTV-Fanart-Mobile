@@ -59,7 +59,7 @@ fun QrScanSheet(onScanned: (address: String, port: Int) -> Unit, onDismiss: () -
     val request = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted = it }
     LaunchedEffect(Unit) { if (!granted) request.launch(Manifest.permission.CAMERA) }
 
-    MobileBottomSheet(onDismissRequest = onDismiss, stage = true) {
+    MobileBottomSheet(onDismissRequest = onDismiss) {
         tv.own.owntv.mobile.ui.stage.StageSheetHeader(stringResource(R.string.local_sync_scan_qr))
         Column(Modifier.padding(horizontal = MobileDimens.ScreenPaddingH)) {
             if (granted) {

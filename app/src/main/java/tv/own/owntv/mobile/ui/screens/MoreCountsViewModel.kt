@@ -43,7 +43,7 @@ data class TypeCounts(val live: Int = 0, val movies: Int = 0, val series: Int = 
     val total: Int get() = live + movies + series
 }
 
-/** More › Favourites (M8-02): the starred items in the user's own order, with what is on each channel now. */
+/** More › Favourites: the starred items in the user's own order, with what is on each channel now. */
 data class FavouriteLists(
     val live: List<ChannelEntity> = emptyList(),
     val onNow: Map<Long, XtEpgEntry> = emptyMap(),
@@ -52,7 +52,7 @@ data class FavouriteLists(
 )
 
 /**
- * One More › History row (M8-03). [episode] is the show's last-watched episode; [positionMs] / [durationMs]
+ * One More › History row. [episode] is the show's last-watched episode; [positionMs] / [durationMs]
  * its (or the film's) saved progress, 0 when there is none.
  */
 data class HistoryEntry(
@@ -75,7 +75,7 @@ data class HistoryLists(
 )
 
 /**
- * More's data (M8-01 … M8-03): the values the More rows carry — what is pinned, what is downloading, how
+ * More's data: the values the More rows carry — what is pinned, what is downloading, how
  * much is starred and watched, when the last backup was, whether Local sync is on — and the Favourites and
  * History pages' lists.
  *
