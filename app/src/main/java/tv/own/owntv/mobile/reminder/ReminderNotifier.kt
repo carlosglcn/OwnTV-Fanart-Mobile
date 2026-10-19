@@ -41,13 +41,17 @@ object ReminderNotifier {
 
     private val notified = HashSet<Long>()
 
+    /** glcn: the "Alerts outside the app" setting; off, nothing is ever posted as a notification. */
+    @Volatile private var outsideAllowed = true
+
     fun start(app: Application, scope: CoroutineScope, reminders: ReminderManager, settings: SettingsRepository) {
+        scope.launch { settings.alertsOutsideApp.collect { outsideAllowed = it } }
         app.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
             override fun onActivityStarted(activity: Activity) { started++ }
             override fun onActivityStopped(activity: Activity) {
                 started = (started - 1).coerceAtLeast(0)
                 // Left with a prompt unanswered: what is still due goes to the notification shade.
-                if (started == 0) reminders.due.value.filter { it.id !in notified }.forEach { r ->
+                if (started == 0 && outsideAllowed) reminders.due.value.filter { it.id !in notified }.forEach { r ->
                     post(app, r)
                     notified += r.id
                 }
@@ -62,7 +66,9 @@ object ReminderNotifier {
             reminders.due.collect { due ->
                 val mode = settings.reminderMode.first()
                 due.filter { it.id !in notified }.forEach { r ->
-                    if (mode == SettingsRepository.ReminderMode.NOTIFY) {
+                    if (!outsideAllowed) {
+                        // The open app's own prompt answers it; nothing goes to the notification shade.
+                    } else if (mode == SettingsRepository.ReminderMode.NOTIFY) {
                         post(app, r)
                         notified += r.id
                         reminders.dismiss(r.id)

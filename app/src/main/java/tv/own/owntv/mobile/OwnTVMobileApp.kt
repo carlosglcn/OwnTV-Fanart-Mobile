@@ -183,6 +183,11 @@ class OwnTVMobileApp : Application(), androidx.work.Configuration.Provider {
         )
         // "Use this guide's logos": never started on the phone before, so the toggle did nothing here.
         // Reads no EPG data at all while no guide source has it on.
+        // glcn: "Alerts outside the app" off → no match alerts or reminders run with the app closed.
+        appScope.launch {
+            org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.settings.SettingsRepository>()
+                .alertsOutsideApp.collect { tv.own.owntv.core.sports.MatchAlertHost.backgroundAllowed = it }
+        }
         tv.own.owntv.core.epg.EpgLogoStore.start(
             scope = appScope,
             settings = org.koin.core.context.GlobalContext.get().get(),

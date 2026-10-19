@@ -666,7 +666,10 @@ fun MobileShell(
     // the player included. Notify only is a notification (ReminderNotifier), so nothing is drawn here.
     val reminders: tv.own.owntv.core.reminder.ReminderManager = koinInject()
     val dueReminders by reminders.due.collectAsStateWithLifecycle()
-    val reminderMode by settings.reminderMode.collectAsStateWithLifecycle(SettingsRepository.ReminderMode.ASK)
+    val reminderModeSaved by settings.reminderMode.collectAsStateWithLifecycle(SettingsRepository.ReminderMode.ASK)
+    val alertsOutside by settings.alertsOutsideApp.collectAsStateWithLifecycle(true)
+    // glcn: "Notify" is a notification; with those switched off the open app asks instead.
+    val reminderMode = if (reminderModeSaved == SettingsRepository.ReminderMode.NOTIFY && !alertsOutside) SettingsRepository.ReminderMode.ASK else reminderModeSaved
     val dueReminder = dueReminders.firstOrNull { it.profileId == activeId }
     // glcn: the logo plate setting (Settings › Fanart) reaches every logo through one state object.
     val logoPlate by settings.logoPlate.collectAsStateWithLifecycle(0)

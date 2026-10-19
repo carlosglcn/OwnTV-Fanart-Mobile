@@ -201,6 +201,10 @@ private fun sourcesSections(vm: SettingsViewModel): List<SettingSection> {
                     SettingsRepository.ReminderMode.entries.map { SettingsChoice(it, stringResource(reminderModeLabel(it))) },
                     reminderMode, SettingsRepository.ReminderMode.ASK, { m -> vm.edit { setReminderMode(m) } },
                 ),
+                switchItem(
+                    "alerts_outside", MobileIcons.Bell, stringResource(R.string.glcn_alerts_outside_title),
+                    stringResource(R.string.glcn_alerts_outside_desc), s.alertsOutsideApp.pref(true),
+                ) { vm.edit { setAlertsOutsideApp(it) } },
                 choiceItem(
                     "reminder_lead", MobileIcons.Schedule, g, stringResource(R.string.settings_reminder_lead),
                     stringResource(R.string.settings_line_reminder_lead), stringResource(R.string.settings_reminder_lead_description),
