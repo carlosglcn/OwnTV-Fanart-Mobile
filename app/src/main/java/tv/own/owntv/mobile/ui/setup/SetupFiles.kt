@@ -33,7 +33,7 @@ private fun rememberPicker(onPicked: (Uri) -> Unit): () -> Unit {
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) onPicked(uri)
     }
-    return { launcher.launch(arrayOf("*/*")) }
+    return { runCatching { launcher.launch(arrayOf("*/*")) } }
 }
 
 /**

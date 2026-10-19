@@ -272,11 +272,11 @@ fun ProfileStep(onCreate: (name: String, avatarId: Int, isKids: Boolean, pin: St
             title = stringResource(R.string.profiles_avatar_own_picture),
             icon = MobileIcons.Person,
             onClick = {
-                picker.launch(
+                runCatching { picker.launch(
                     androidx.activity.result.PickVisualMediaRequest(
                         androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly,
                     ),
-                )
+                ) }
             },
         ) {
             picture?.let { ProfileAvatar(avatarId = avatarId, imagePath = it.toString(), modifier = Modifier.size(28.dp).clip(CircleShape)) }

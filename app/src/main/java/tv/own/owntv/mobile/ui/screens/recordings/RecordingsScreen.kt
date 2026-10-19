@@ -129,7 +129,7 @@ fun RecordingsScreen(
             vm = vm,
             onSaveCopy = {
                 savingCopyOf = recording
-                saveCopy.launch(recording.filePath?.substringAfterLast('/') ?: recording.title)
+                runCatching { saveCopy.launch(recording.filePath?.substringAfterLast('/') ?: recording.title) }
             },
             onDismiss = { menuFor = null },
         )

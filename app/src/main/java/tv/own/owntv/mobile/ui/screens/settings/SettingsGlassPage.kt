@@ -84,7 +84,7 @@ fun SettingsGlassPage(
             }
         }
     }
-    val choosePicture = { pickImage.launch(arrayOf("image/*")) }
+    val choosePicture = { runCatching { pickImage.launch(arrayOf("image/*")) }; Unit }
     // With a picture set, the row offers Change or Clear (the TV's chooser); without one it goes straight to the picker.
     var pictureMenu by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     if (pictureMenu) {

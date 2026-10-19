@@ -993,7 +993,7 @@ fun PlayerScreen(
             onOpenSheet = { sheet = it },
             // A live channel has nothing to match a subtitle against, and no file to hash.
             canAddSubtitles = film != null,
-            onPickLocalSubtitle = { pickSubtitle.launch(arrayOf("*/*")) },
+            onPickLocalSubtitle = { runCatching { pickSubtitle.launch(arrayOf("*/*")) } },
             // A phone's answer to the remote's number keys — offered on the same setting that shows
             // the numbers at all.
             onTuneToNumber = if (showChannelNumbers) tuner::tuneByNumber else null,

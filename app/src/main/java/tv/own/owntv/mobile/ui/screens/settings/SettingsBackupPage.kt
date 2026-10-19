@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.screens.settings
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.text.format.DateUtils
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -128,6 +129,15 @@ fun SettingsBackupPage(
             vm.export(uri, BACKUP_FILE_NAME, request.sections, request.profileIds, request.password)
         }
     }
+    fun shareBackup(request: ExportRequest) =
+        vm.exportForShare(request.sections, request.profileIds, request.password) { file ->
+            val uri = FileProvider.getUriForFile(context, context.packageName + ".share", file)
+            val send = Intent(Intent.ACTION_SEND)
+                .setType(BACKUP_MIME)
+                .putExtra(Intent.EXTRA_STREAM, uri)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            runCatching { context.startActivity(Intent.createChooser(send, null)) }
+        }
     val pickBackup = rememberBackupFilePicker { uri ->
         scope.launch {
             val file = copyPickedFile(context, uri, context.cacheDir)
@@ -200,20 +210,19 @@ fun SettingsBackupPage(
                 when (target) {
                     BackupTarget.FILE -> {
                         chosen = request
-                        createDocument.launch(BACKUP_FILE_NAME)
+                        // Some phones ship without a system "save as" screen; share instead of crashing.
+                        try {
+                            createDocument.launch(BACKUP_FILE_NAME)
+                        } catch (_: ActivityNotFoundException) {
+                            chosen = null
+                            shareBackup(request)
+                        }
                     }
                     BackupTarget.REMOTE -> {
                         remoteExport = true
                         vm.exportRemote(request.sections, request.profileIds, request.password)
                     }
-                    BackupTarget.SHARE -> vm.exportForShare(request.sections, request.profileIds, request.password) { file ->
-                        val uri = FileProvider.getUriForFile(context, context.packageName + ".share", file)
-                        val send = Intent(Intent.ACTION_SEND)
-                            .setType(BACKUP_MIME)
-                            .putExtra(Intent.EXTRA_STREAM, uri)
-                            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        context.startActivity(Intent.createChooser(send, null))
-                    }
+                    BackupTarget.SHARE -> shareBackup(request)
                 }
             },
             onDismiss = { exportTarget = null },

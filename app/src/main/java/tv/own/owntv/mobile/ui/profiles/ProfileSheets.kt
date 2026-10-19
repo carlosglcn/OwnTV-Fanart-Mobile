@@ -180,11 +180,11 @@ fun ProfileEditorSheet(
                         ProfileAvatar(avatarId = avatarId, imagePath = picturePath, modifier = Modifier.size(34.dp).clip(CircleShape))
                     },
                     onClick = {
-                        picker.launch(
+                        runCatching { picker.launch(
                             androidx.activity.result.PickVisualMediaRequest(
                                 androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly,
                             ),
-                        )
+                        ) }
                     },
                 ) {
                     if (pendingPicture != null || (customPath.isNotBlank() && onClearPicture != null)) {

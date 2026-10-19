@@ -247,7 +247,7 @@ fun DownloadsScreen(
             vm = vm,
             onSaveCopy = {
                 savingCopyOf = download
-                saveCopy.launch(download.filePath?.substringAfterLast('/') ?: download.title)
+                runCatching { saveCopy.launch(download.filePath?.substringAfterLast('/') ?: download.title) }
             },
             onDismiss = { menuFor = null },
         )
@@ -264,7 +264,7 @@ fun DownloadsScreen(
             onPick = vm::setDownloadRoot,
             onChooseFolder = {
                 // Opens where downloads currently go, when that is somewhere the picker can show.
-                chooseFolder.launch(root.takeIf { MediaTarget.isDocument(it) }?.let(Uri::parse))
+                runCatching { chooseFolder.launch(root.takeIf { MediaTarget.isDocument(it) }?.let(Uri::parse)) }
             },
             onWifiOnly = vm::setWifiOnly,
             onWatchChoice = vm::setDownloadWatchChoice,
