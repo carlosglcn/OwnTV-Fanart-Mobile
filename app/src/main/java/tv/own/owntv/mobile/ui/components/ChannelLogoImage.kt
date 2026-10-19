@@ -49,7 +49,7 @@ fun ChannelLogoImage(
 ) {
     // Keyed on the URL so zapping to a channel whose logo is fine tries again rather than inheriting
     // the previous channel's failure.
-    var failed by remember(url) { mutableStateOf(url != null && (url in deadLogos || hostOf(url)?.let { it in deadHosts } == true)) }
+    var failed by remember(url) { mutableStateOf(url != null && (isDead(deadLogos, url, LOGO_RETRY_MS) || hostOf(url)?.let { isDead(deadHosts, it, HOST_RETRY_MS) } == true)) }
     if (url.isNullOrBlank() || failed) {
         fallback()
         return
@@ -83,12 +83,12 @@ fun ChannelLogoImage(
         onState = { state ->
             when (state) {
                 is AsyncImagePainter.State.Error -> {
-                    deadLogos += url
+                    url?.let { deadLogos[it] = System.currentTimeMillis() }
                     // glcn: one failure no longer writes off the whole host — a busy moment (a timeout while
                     // a sync or a long scroll asks for hundreds of logos at once) blanked every logo in the
                     // list. Only several failures in a row, with no success between, do.
                     hostOf(url)?.let { host ->
-                        if ((hostFailures.merge(host, 1, Int::plus) ?: 0) >= HOST_DEAD_AFTER) deadHosts += host
+                        if ((hostFailures.merge(host, 1, Int::plus) ?: 0) >= HOST_DEAD_AFTER) { deadHosts[host] = System.currentTimeMillis(); hostFailures.remove(host) }
                     }
                     failed = true
                 }
@@ -179,7 +179,7 @@ private fun contrastRatio(a: Float, b: Float): Float {
  * worth another twenty seconds on this launch. Restarting the app retries everything, which is the
  * right granularity for "the host came back".
  */
-private val deadLogos = java.util.Collections.newSetFromMap(java.util.concurrent.ConcurrentHashMap<String, Boolean>())
+private val deadLogos = java.util.concurrent.ConcurrentHashMap<String, Long>()
 
 /**
  * Hosts that have already failed once this run — the same memory as [deadLogos], one level up.
@@ -192,7 +192,22 @@ private val deadLogos = java.util.Collections.newSetFromMap(java.util.concurrent
  *
  * Same lifetime and same reasoning as [deadLogos]: in memory, never removed from, cleared by a restart.
  */
-private val deadHosts = java.util.Collections.newSetFromMap(java.util.concurrent.ConcurrentHashMap<String, Boolean>())
+private val deadHosts = java.util.concurrent.ConcurrentHashMap<String, Long>()
+
+/**
+ * glcn: a failure is remembered for a while, not for the whole run. A busy moment (a sync, a long
+ * scroll asking for hundreds of logos) made the guide's logos fail together, and the session then kept
+ * them blank until the app was restarted. Now a logo is tried again a minute later, a host after 30 s.
+ */
+private const val LOGO_RETRY_MS = 60_000L
+private const val HOST_RETRY_MS = 30_000L
+
+private fun isDead(map: java.util.concurrent.ConcurrentHashMap<String, Long>, key: String, retryMs: Long): Boolean {
+    val at = map[key] ?: return false
+    if (System.currentTimeMillis() - at < retryMs) return true
+    map.remove(key)
+    return false
+}
 
 /** glcn: failures in a row per host; a success clears it. */
 private val hostFailures = java.util.concurrent.ConcurrentHashMap<String, Int>()
