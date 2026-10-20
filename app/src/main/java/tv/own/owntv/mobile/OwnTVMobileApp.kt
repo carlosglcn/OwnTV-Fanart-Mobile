@@ -125,10 +125,10 @@ class OwnTVMobileApp : Application(), androidx.work.Configuration.Provider {
             ImageLoader.Builder(ctx)
                 .components { add(OkHttpNetworkFetcherFactory(callFactory = { imageHttpClient })) }
                 .memoryCache {
-                    // Kept at Coil's default quarter, not the television's tenth: batch 2 measured
-                    // this warm on phone grids, and a phone's smaller posters cost less per tile
-                    // than a 4K TV's.
-                    MemoryCache.Builder().maxSizePercent(ctx, 0.25).build()
+                    // glcn: 15% rather than Coil's default quarter. The disk cache right behind it
+                    // refills a tile in a few milliseconds, and the quarter was held for as long as
+                    // the app lived — the phone's biggest steady slice of image memory.
+                    MemoryCache.Builder().maxSizePercent(ctx, 0.15).build()
                 }
                 .diskCache {
                     DiskCache.Builder().directory(ctx.cacheDir.resolve("image_cache").toOkioPath())
