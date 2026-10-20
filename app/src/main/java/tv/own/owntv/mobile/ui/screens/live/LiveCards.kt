@@ -193,7 +193,10 @@ private fun LiveCard(
                     fallback = { Icon(MobileIcons.LiveTv, null, tint = Color.White, modifier = Modifier.size(22.dp)) },
                 )
             }
-            LiveBadge(Modifier.align(Alignment.TopEnd).padding(MobileDimens.GapSmall))
+            // glcn: only a programme broadcast live (a match, an event), not every channel on air.
+            if (programme != null && tv.own.owntv.core.live.SportsNow.isLive(programme)) {
+                LiveBadge(Modifier.align(Alignment.TopEnd).padding(MobileDimens.GapSmall))
+            }
             Column(
                 Modifier
                     .align(Alignment.BottomStart)
