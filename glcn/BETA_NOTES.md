@@ -8,4 +8,3 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🧠 **Lower memory use on the phone: smaller in-memory image cache**
 - 🔴 **Live badge only on programmes that are really live, not on every channel card**
 - 🖼️ **Guide pictures: the right film or series when two share a title (Aquaman)**
-- 🖼️ **Live TV lists always show the guide's own picture**
