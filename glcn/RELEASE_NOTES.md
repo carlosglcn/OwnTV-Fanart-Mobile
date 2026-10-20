@@ -1,19 +1,12 @@
 ## What's new
 
 ### ✨ New
-- 🏆 **Sports: hub, match pages, Library tab and alerts**
-- 🔎 **Sports: find the channels in your guide that show a match**
-- 🔎 **Sports: a match's channels are searched by themselves, a day ahead**
-- 🎾 **Sports: tennis finals and players found in the guide**
-- 🏍️ **Sports: MotoGP**
-- 🏀 **Sports: Liga ACB**
-- ⭐ **My teams: any team can be found, its league is followed with it**
-- 🗣️ **Club nicknames in the guide (Barça, Atleti, Betis, Athletic…)**
-- 🔔 **Habits: reminders for what you usually watch**
-- 🏷️ **Logo background: Classic or None**
-- 🔀 **Updated with the original app's 1.1.0 changes**
+- 🔕 **Alerts outside the app: a switch to keep reminders inside the open app**
 
 ### 🔧 Fixes
-- ⏩ **«Go to live» on ExoPlayer after a pause returns to now**
-- ⏪ **Saved copy: step back and forward after «Go to live»**
-- 🔄 **Update check no longer fails with HTTP 403**
+- 🛟 **Saving a local backup no longer closes the app on phones without a file picker**
+- 🔴 **Live badge only on programmes that are really live**
+- 🖼️ **Guide logos no longer stay blank after a busy moment**
+- 🖼️ **Guide pictures: the right film or series when two share a title**
+- 📺 **Live channels whose saved copy will not play now open directly**
+- 🧠 **Lower memory use: smaller in-memory image cache**
