@@ -116,6 +116,16 @@ fun SettingsLocalSyncPage(
             onClick = { if (!vm.busy) vm.beginPairing() },
             trailing = { StageIcon(MobileIcons.KeyboardArrowRight, 16.dp, palette.text) },
         )
+        if (paired.isNotEmpty()) {
+            Spacer(Modifier.height(8.dp))
+            SyncCard(
+                icon = MobileIcons.Refresh,
+                title = stringResource(R.string.auto_sync_title),
+                subtitle = stringResource(R.string.auto_sync_description),
+                onClick = { vm.setAutoSync(!vm.autoSync) },
+                trailing = { StageSwitch(vm.autoSync) },
+            )
+        }
 
         if (paired.isNotEmpty()) {
             // Only the devices whose names collide get a code, so a normal household never sees one.
