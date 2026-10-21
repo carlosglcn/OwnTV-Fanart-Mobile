@@ -3,6 +3,8 @@ package tv.own.owntv.mobile.ui.components
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -43,7 +45,39 @@ fun ContentActionsMenu(
     onDismiss: () -> Unit,
     onRemoveFromContinue: (() -> Unit)? = null,
 ) {
+    // glcn: "Watch on TV" — only when a TV (or any device) is paired. The TV opens it by name in its own library.
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val auto = org.koin.compose.koinInject<tv.own.owntv.core.sync.local.AutoSyncManager>()
+    val pairedDevices by auto.devices.collectAsState(initial = emptyList())
+    val sentText = stringResource(R.string.glcn_sent_to_tv, "%s")
+    val failText = stringResource(R.string.glcn_tv_unreachable)
     val actions = buildList {
+        if (pairedDevices.isNotEmpty()) {
+            add(
+                SheetAction(
+                    key = "watch_on_tv",
+                    label = stringResource(R.string.glcn_watch_on_tv),
+                    icon = MobileIcons.Tv,
+                    group = 0,
+                    onClick = {
+                        val link = when (target.type) {
+                            MediaType.LIVE -> tv.own.owntv.core.launcher.LauncherDeepLink.Live(name = target.title)
+                            MediaType.MOVIE -> tv.own.owntv.core.launcher.LauncherDeepLink.Movie(name = target.title)
+                            else -> tv.own.owntv.core.launcher.LauncherDeepLink.Episode(seriesName = target.title)
+                        }
+                        val app = ctx.applicationContext
+                        auto.sendCommandInBackground(link.toUri().toString()) { r ->
+                            android.widget.Toast.makeText(
+                                app,
+                                r.getOrNull()?.let { sentText.format(it.name) } ?: failText,
+                                android.widget.Toast.LENGTH_SHORT,
+                            ).show()
+                        }
+                        onDismiss()
+                    },
+                ),
+            )
+        }
         if (target.continueRow && onRemoveFromContinue != null) {
             add(
                 SheetAction(
