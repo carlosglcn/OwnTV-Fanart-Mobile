@@ -49,7 +49,6 @@ fun ContentActionsMenu(
     val ctx = androidx.compose.ui.platform.LocalContext.current
     val auto = org.koin.compose.koinInject<tv.own.owntv.core.sync.local.AutoSyncManager>()
     val pairedDevices by auto.devices.collectAsState(initial = emptyList())
-    val sentText = stringResource(R.string.glcn_sent_to_tv, "%s")
     val failText = stringResource(R.string.glcn_tv_unreachable)
     val actions = buildList {
         if (pairedDevices.isNotEmpty()) {
@@ -69,7 +68,7 @@ fun ContentActionsMenu(
                         auto.sendCommandInBackground(link.toUri().toString()) { r ->
                             android.widget.Toast.makeText(
                                 app,
-                                r.getOrNull()?.let { sentText.format(it.name) } ?: failText,
+                                r.getOrNull()?.let { app.getString(R.string.glcn_sent_to_tv, it.name) } ?: failText,
                                 android.widget.Toast.LENGTH_SHORT,
                             ).show()
                         }
