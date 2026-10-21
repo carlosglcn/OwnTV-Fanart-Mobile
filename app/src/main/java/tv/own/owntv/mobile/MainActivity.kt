@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import tv.own.owntv.core.i18n.AppLocale
 import tv.own.owntv.core.i18n.LocaleStore
@@ -292,6 +293,7 @@ open class MainActivity : FragmentActivity() {
     override fun onStop() {
         super.onStop()
         tv.own.owntv.mobile.widget.SportsWidget.refresh(this) // glcn
+        if (!isChangingConfigurations) get<tv.own.owntv.core.sync.local.AutoSyncManager>().onBackground() // glcn
         if (isChangingConfigurations) return
         // Stopped after the floating window was up, without ever resuming in between: the window was
         // closed. That is its own answer, and not the background-playback question below.
@@ -342,6 +344,7 @@ open class MainActivity : FragmentActivity() {
 
     override fun onStart() {
         super.onStart()
+        get<tv.own.owntv.core.sync.local.AutoSyncManager>().onForeground() // glcn
         // Back in the foreground: interval refreshes only; core throttles a quick in-and-out.
         lifecycleScope.launch { autoRefresh.check(includeStartup = false) }
         if (droppedVideoForBackground) {
