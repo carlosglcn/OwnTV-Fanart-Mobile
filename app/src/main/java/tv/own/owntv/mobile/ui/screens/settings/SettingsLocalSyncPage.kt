@@ -122,7 +122,7 @@ fun SettingsLocalSyncPage(
                 icon = MobileIcons.Refresh,
                 title = stringResource(R.string.auto_sync_title),
                 subtitle = stringResource(R.string.auto_sync_description),
-                onClick = { vm.setAutoSync(!vm.autoSync) },
+                onClick = { vm.toggleAutoSync(!vm.autoSync) },
                 trailing = { StageSwitch(vm.autoSync) },
             )
         }

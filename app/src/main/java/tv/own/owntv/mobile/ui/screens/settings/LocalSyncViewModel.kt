@@ -40,7 +40,7 @@ class LocalSyncViewModel(
     var autoSync by mutableStateOf(auto.enabled)
         private set
 
-    fun setAutoSync(on: Boolean) {
+    fun toggleAutoSync(on: Boolean) {
         auto.enabled = on
         autoSync = on
     }
