@@ -682,6 +682,25 @@ class GuideViewModel(
     val matchSummary: StateFlow<EpgMatchSummary?> = _matchSummary
 
     init {
+        // glcn: link the channels that have no guide to a guide channel of the same name by itself, once per
+        // launch and only the confident hits — nothing to review, nothing on screen.
+        viewModelScope.launch {
+            kotlinx.coroutines.delay(8_000)
+            if (SilentEpgMatch.ran || _matching.value) return@launch
+            runCatching {
+                val c = kotlinx.coroutines.withTimeoutOrNull(20_000) { ctx.first { it.profileId >= 0 } } ?: return@runCatching
+                val pid = c.profileId
+                val playlistIds = c.liveSourceIds
+                if (playlistIds.isEmpty()) return@runCatching
+                SilentEpgMatch.ran = true
+                val outcome = autoMatcher.run(customize.observe(pid, MediaType.LIVE).first(), playlistIds)
+                if (outcome.hadCandidates && outcome.applied.isNotEmpty()) {
+                    applyMatches(pid, outcome.applied.associate { it.first to it.second.matchKey() })
+                    awaitMatches(outcome.applied.map { it.first })
+                    fillMatched(outcome.applied.map { it.second })
+                }
+            }
+        }
         viewModelScope.launch {
             ctx.collect { if (it.profileId >= 0) loadStats() }
         }
@@ -979,3 +998,6 @@ class GuideViewModel(
         const val DAY_MS = 24L * 60 * 60 * 1000
     }
 }
+
+/** glcn: the silent guide matching runs once per launch, whichever screen opened first. */
+private object SilentEpgMatch { @Volatile var ran = false }
