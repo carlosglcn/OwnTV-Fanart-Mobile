@@ -44,6 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import tv.own.owntv.core.content.SearchIntent
 import tv.own.owntv.core.content.SearchKind
@@ -139,7 +141,54 @@ fun SearchScreen(
     val singleKind = searching && kinds.size == 1
     val goChannel: (Long) -> Unit = { vm.rememberQuery(); onOpenChannel(it) }
 
+    // glcn: the microphone — say "Pon Neox en la tele"; the words become the search, and "en la tele" sends it to the TV.
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val voiceScope = androidx.compose.runtime.rememberCoroutineScope()
+    val auto = org.koin.compose.koinInject<tv.own.owntv.core.sync.local.AutoSyncManager>()
+    val pairedTvs by auto.devices.collectAsStateWithLifecycle(initialValue = emptyList())
+    val voicePrompt = stringResource(R.string.glcn_voice_prompt)
+    val voiceUnavailable = stringResource(R.string.glcn_voice_unavailable)
+    val voiceNotFound = stringResource(R.string.glcn_voice_not_found)
+    val sentText = { name: String -> ctx.getString(R.string.glcn_sent_to_tv, name) }
+    val tvDown = stringResource(R.string.glcn_tv_unreachable)
+    val micLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(),
+    ) { res ->
+        val spoken = res.data?.getStringArrayListExtra(android.speech.RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
+            ?: return@rememberLauncherForActivityResult
+        val cmd = tv.own.owntv.core.voice.VoiceCommandParser.parse(spoken) ?: return@rememberLauncherForActivityResult
+        vm.setQuery(cmd.query)
+        if (!cmd.onTv || pairedTvs.isEmpty()) return@rememberLauncherForActivityResult
+        val app = ctx.applicationContext
+        voiceScope.launch {
+            val want = tv.own.owntv.core.voice.VoiceCommandParser.fold(cmd.query)
+            // The phone's own search says what the words are: a channel, a film or a series.
+            val found = kotlinx.coroutines.withTimeoutOrNull(4000) { vm.results.first { !it.isEmpty } }
+            fun same(n: String) = tv.own.owntv.core.voice.VoiceCommandParser.fold(n).contains(want)
+            val link: tv.own.owntv.core.launcher.LauncherDeepLink? = when (cmd.kind) {
+                tv.own.owntv.core.voice.VoiceKind.CHANNEL -> tv.own.owntv.core.launcher.LauncherDeepLink.Live(name = found?.channels?.firstOrNull { same(it.channel.name) }?.channel?.name ?: cmd.query)
+                tv.own.owntv.core.voice.VoiceKind.MOVIE -> tv.own.owntv.core.launcher.LauncherDeepLink.Movie(name = found?.movies?.firstOrNull()?.name ?: cmd.query)
+                tv.own.owntv.core.voice.VoiceKind.SERIES -> tv.own.owntv.core.launcher.LauncherDeepLink.Episode(seriesName = found?.series?.firstOrNull()?.name ?: cmd.query)
+                else -> found?.let { f ->
+                    f.channels.firstOrNull { same(it.channel.name) }?.let { tv.own.owntv.core.launcher.LauncherDeepLink.Live(name = it.channel.name) }
+                        ?: f.movies.firstOrNull { same(it.name) }?.let { tv.own.owntv.core.launcher.LauncherDeepLink.Movie(name = it.name) }
+                        ?: f.series.firstOrNull { same(it.name) }?.let { tv.own.owntv.core.launcher.LauncherDeepLink.Episode(seriesName = it.name) }
+                        ?: f.channels.firstOrNull()?.let { tv.own.owntv.core.launcher.LauncherDeepLink.Live(name = it.channel.name) }
+                        ?: f.movies.firstOrNull()?.let { tv.own.owntv.core.launcher.LauncherDeepLink.Movie(name = it.name) }
+                        ?: f.series.firstOrNull()?.let { tv.own.owntv.core.launcher.LauncherDeepLink.Episode(seriesName = it.name) }
+                }
+            }
+            if (link == null) {
+                android.widget.Toast.makeText(app, voiceNotFound, android.widget.Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            auto.sendCommandInBackground(link.toUri().toString()) { r ->
+                android.widget.Toast.makeText(app, r.getOrNull()?.let { sentText(it.name) } ?: tvDown, android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
     Column(modifier.fillMaxSize().imePadding()) {
+        Row(Modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, top = 14.dp), verticalAlignment = Alignment.CenterVertically) {
         StageSearchField(
             value = query,
             onValueChange = vm::setQuery,
@@ -148,8 +197,21 @@ fun SearchScreen(
             onSearch = { vm.rememberQuery(); keyboard?.hide() },
             onClear = { vm.setQuery("") },
             clearLabel = stringResource(R.string.search_clear),
-            modifier = Modifier.padding(start = 14.dp, end = 14.dp, top = 14.dp).fillMaxWidth().focusRequester(focus),
+            modifier = Modifier.weight(1f).focusRequester(focus),
         )
+        androidx.compose.material3.IconButton(onClick = {
+            keyboard?.hide()
+            val intent = android.content.Intent(android.speech.RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+                .putExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE_MODEL, android.speech.RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                .putExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE, java.util.Locale.getDefault().toLanguageTag())
+                .putExtra(android.speech.RecognizerIntent.EXTRA_PROMPT, voicePrompt)
+            runCatching { micLauncher.launch(intent) }.onFailure {
+                android.widget.Toast.makeText(ctx.applicationContext, voiceUnavailable, android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }) {
+            androidx.compose.material3.Icon(MobileIcons.Mic, contentDescription = stringResource(R.string.glcn_voice_search), tint = palette.text)
+        }
+        }
         if (searching) {
             // The television's filter buttons: a tap switches one on or off, several can be on, none on is everything.
             val all = SearchKind.entries

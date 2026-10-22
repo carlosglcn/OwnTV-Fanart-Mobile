@@ -110,6 +110,9 @@ object MobileIcons {
         }
     }
     val Search: ImageVector by lazy { stage(StageGlyph.SEARCH) }
+    val Mic: ImageVector by lazy {
+        glyph() { box(9f, 3f, 15f, 13f, 3f); line(6f, 11f, 6f, 13f, 9f, 16f, 15f, 16f, 18f, 13f, 18f, 11f); line(12f, 16f, 12f, 20f); line(9f, 20f, 15f, 20f) }
+    }
     val Refresh: ImageVector by lazy { stage(StageGlyph.REFRESH) }
     val Sync: ImageVector by lazy {
         glyph() {
