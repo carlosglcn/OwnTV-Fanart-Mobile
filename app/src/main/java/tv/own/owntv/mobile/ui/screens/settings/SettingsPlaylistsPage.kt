@@ -3,6 +3,7 @@ package tv.own.owntv.mobile.ui.screens.settings
 import androidx.compose.ui.text.style.TextOverflow
 import tv.own.owntv.mobile.ui.components.MobileIcons
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -315,7 +316,7 @@ private fun EditPlaylistDialog(
     onSave: (SourceFormValues) -> Unit,
 ) {
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        Column(Modifier.fillMaxSize().stageBackground().safeDrawingPadding()) {
+        Column(Modifier.fillMaxSize().background(LocalStagePalette.current.page).stageBackground().safeDrawingPadding()) {
             Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 12.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text(stringResource(R.string.settings_sources_edit), style = stageText(13f, 500), color = LocalStagePalette.current.muted)
