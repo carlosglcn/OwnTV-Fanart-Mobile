@@ -560,6 +560,7 @@ class LiveTuner(
         // re-opening the channel you are already watching tore the stream down and rebuilt it —
         // a reconnection and a second of black for a screen you had just come back to.
         if (loadedId == channelId && hasStream) return
+        failoverTried.clear()
         loadedId = channelId
         // One tune in flight: a newer pick, or a catch-up, cancels this one wherever it has got to.
         live.launch {
@@ -567,6 +568,28 @@ class LiveTuner(
             open(channel)
             loadSiblings(channel)
         }
+    }
+
+    // glcn: a channel mpv has given up on is swapped for the same channel elsewhere in its playlist (another
+    // group, another quality), best first, each tried once; a deliberate tune starts afresh.
+    private val failoverTried = mutableSetOf<Long>()
+    private val _failoverNotice = kotlinx.coroutines.flow.MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val failoverNotice: kotlinx.coroutines.flow.SharedFlow<String> = _failoverNotice
+
+    init {
+        scope.launch { player.error.collect { f -> if (f != null) runCatching { tryFailover() } } }
+    }
+
+    private suspend fun tryFailover() {
+        val cur = _channel.value ?: return
+        if (_replaying.value || timeshift.isRewound || _previewing.value) return
+        failoverTried += cur.id
+        val epgKey = cur.epgChannelId?.trim()?.lowercase()?.takeIf { it.isNotEmpty() } ?: Char.MIN_VALUE.toString()
+        val token = tv.own.owntv.core.live.ChannelFailover.searchToken(cur.name) ?: Char.MIN_VALUE.toString()
+        val pool = withContext(Dispatchers.IO) { channelDao.siblingCandidates(cur.sourceId, epgKey, token) }
+        val next = tv.own.owntv.core.live.ChannelFailover.rank(cur, pool).firstOrNull { it.id !in failoverTried } ?: return
+        _failoverNotice.tryEmit(next.name)
+        live.launch { open(next); loadSiblings(next) }
     }
 
     private val _previewing = MutableStateFlow(false)

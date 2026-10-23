@@ -58,6 +58,15 @@ class ShellViewModel(
     val activePlaylistId: StateFlow<Long> = settings.defaultSourceId
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), -1L)
 
+    /** glcn: several playlists shown together (empty = [activePlaylistId] decides). */
+    val activePlaylistSet: StateFlow<Set<Long>> = settings.activeSourceSet
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
+
+    /** glcn: show these playlists together; none or one is the single choice, all of them when none. */
+    fun selectPlaylists(ids: Set<Long>) {
+        viewModelScope.launch { settings.setActiveSources(ids) }
+    }
+
     /** Narrow every browse screen to one playlist, or to all of them. Persisted, so it survives a
      *  restart — it is the same value Settings → Playlists calls the default. */
     fun selectPlaylist(sourceId: Long) {

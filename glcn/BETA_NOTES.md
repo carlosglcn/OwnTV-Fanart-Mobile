@@ -8,3 +8,7 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🧭 **Guide matches channels like “ES-4 La 1 HD” by itself**
 - 🏟️ **Watch live: only channels airing the match (or about to) — no more “usually airs” rows**
 - 🎙️ **Voice search: tap the mic in Search and say “Pon Neox en la tele” — it searches, and sends it to your TV when you say “en la tele”**
+- 🗂️ **Several playlists at once**: tap playlists in the picker to tick or untick them; none ticked means all
+- 🔁 **A channel that will not play is swapped for the same channel elsewhere in its playlist**, with a note saying which one
+- 🏀 **Liga ACB and EuroLeague** with calendar, results, live quarter and table
+- 🧩 **Edit playlist** works again over a picture background, and its pickers open above the form

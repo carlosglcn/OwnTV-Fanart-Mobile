@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -39,6 +41,8 @@ fun PlaylistSheet(
     names: List<String>,
     onSelect: (Long) -> Unit,
     onDismiss: () -> Unit,
+    activeSet: Set<Long> = emptySet(),
+    onSelectMany: (Set<Long>) -> Unit = {},
 ) {
     val settings: SettingsRepository = koinInject()
     val channelDao: ChannelDao = koinInject()
@@ -50,26 +54,31 @@ fun PlaylistSheet(
     val compact = remember(locale) { CompactDecimalFormat.getInstance(locale, CompactDecimalFormat.CompactStyle.SHORT) }
     val title = stringResource(R.string.content_playlist_picker_title)
 
-    fun pick(id: Long) {
-        onSelect(id)
-        onDismiss()
+    // glcn: a tap ticks or unticks a playlist and the sheet stays open; the choice applies at once and
+    // none ticked means all playlists.
+    var picked by remember {
+        mutableStateOf(if (activeSet.isNotEmpty()) activeSet else if (activeId > 0) setOf(activeId) else emptySet())
+    }
+    fun toggle(id: Long) {
+        picked = if (id in picked) picked - id else picked + id
+        onSelectMany(picked)
     }
 
     MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(title = title, subtitle = stringResource(R.string.content_playlist_picker_subtitle))
         StageMenuItem(
             label = stringResource(R.string.content_all_playlists),
-            onClick = { pick(-1L) },
+            onClick = { picked = emptySet(); onSelect(-1L); onDismiss() },
             icon = MobileIcons.Layers,
-            filled = activeId == -1L,
-            checked = activeId == -1L,
+            filled = picked.isEmpty(),
+            checked = picked.isEmpty(),
         )
         playlists.forEachIndexed { i, source ->
-            val current = source.id == activeId
+            val current = source.id in picked
             val count = counts[source.id]
             StageMenuItem(
                 label = names[i],
-                onClick = { pick(source.id) },
+                onClick = { toggle(source.id) },
                 leading = { StagePlaylistMark(PlaylistMark.of(names[i], i)) },
                 filled = current,
                 checked = current,

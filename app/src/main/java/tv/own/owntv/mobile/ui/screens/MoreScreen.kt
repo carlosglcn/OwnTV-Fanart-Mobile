@@ -91,6 +91,7 @@ fun MoreScreen(
     val activeId by profilesVm.activeProfileId.collectAsStateWithLifecycle()
     val playlists by shell.playlists.collectAsStateWithLifecycle()
     val activePlaylistId by shell.activePlaylistId.collectAsStateWithLifecycle()
+    val activePlaylistSet by shell.activePlaylistSet.collectAsStateWithLifecycle()
     val profile = profiles.orEmpty().firstOrNull { it.id == activeId }
 
     // The log is a file, not a flow: read again whenever More comes back (an export or a clear on its page).
@@ -108,7 +109,8 @@ fun MoreScreen(
         contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 24.dp),
     ) {
         item {
-            val playlistLabel = playlists.firstOrNull { it.id == activePlaylistId }?.displayName()
+            val playlistLabel = if (activePlaylistSet.isNotEmpty()) playlists.filter { it.id in activePlaylistSet }.joinToString(", ") { it.displayName() }
+            else playlists.firstOrNull { it.id == activePlaylistId }?.displayName()
                 ?: stringResource(R.string.content_all_playlists)
             ProfileCard(
                 name = profile?.name.orEmpty(),

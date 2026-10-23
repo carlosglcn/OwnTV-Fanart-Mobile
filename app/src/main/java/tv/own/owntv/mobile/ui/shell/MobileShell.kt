@@ -215,6 +215,13 @@ fun MobileShell(
     // and no mini player, because the thing the mini player would be showing is already on screen.
     val fullscreen = currentRoute == PLAYER_ROUTE || currentRoute == SETUP_ROUTE_PATTERN
     val tuner: LiveTuner = koinInject()
+    // glcn: say so when a channel that would not play was swapped for the same one elsewhere in its list.
+    val failoverContext = androidx.compose.ui.platform.LocalContext.current
+    LaunchedEffect(tuner) {
+        tuner.failoverNotice.collect { name ->
+            android.widget.Toast.makeText(failoverContext, failoverContext.getString(tv.own.owntv.mobile.R.string.glcn_failover_toast, name), android.widget.Toast.LENGTH_LONG).show()
+        }
+    }
     val vodTuner: VodTuner = koinInject()
     val channel by tuner.channel.collectAsStateWithLifecycle()
     val nowNext by tuner.nowNext.collectAsStateWithLifecycle()
@@ -313,6 +320,7 @@ fun MobileShell(
 
     val playlists by shellViewModel.playlists.collectAsStateWithLifecycle()
     val activePlaylistId by shellViewModel.activePlaylistId.collectAsStateWithLifecycle()
+    val activePlaylistSet by shellViewModel.activePlaylistSet.collectAsStateWithLifecycle()
     var playlistSheet by remember { mutableStateOf(false) }
 
     val chrome = remember { ShellChromeState() }
@@ -429,11 +437,12 @@ fun MobileShell(
         ) -> ClusterPlaylist(
             label = when {
                 playlists.size == 1 -> playlists.first().displayName()
+                activePlaylistSet.isNotEmpty() -> playlists.filter { it.id in activePlaylistSet }.joinToString(", ") { it.displayName() }
                 activePlaylist != null -> activePlaylist.displayName()
                 else -> stringResource(tv.own.owntv.mobile.R.string.content_all_playlists)
             },
             // A playlist's own mark only means something next to the others'.
-            mark = if (activePlaylist != null && playlists.size > 1) PlaylistMark.of(activePlaylist.displayName(), activeIndex) else null,
+            mark = if (activePlaylistSet.isEmpty() && activePlaylist != null && playlists.size > 1) PlaylistMark.of(activePlaylist.displayName(), activeIndex) else null,
             switchable = playlists.size > 1,
             iconOnly = false,
         )
@@ -658,6 +667,8 @@ fun MobileShell(
             activeId = activePlaylist?.id ?: -1L,
             names = playlists.map { it.displayName() },
             onSelect = shellViewModel::selectPlaylist,
+            activeSet = activePlaylistSet,
+            onSelectMany = shellViewModel::selectPlaylists,
             onDismiss = { playlistSheet = false },
         )
     }
