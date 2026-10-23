@@ -437,7 +437,7 @@ fun MobileShell(
         ) -> ClusterPlaylist(
             label = when {
                 playlists.size == 1 -> playlists.first().displayName()
-                activePlaylistSet.isNotEmpty() -> playlists.filter { it.id in activePlaylistSet }.joinToString(", ") { it.displayName() }
+                activePlaylistSet.isNotEmpty() -> playlists.filter { it.id in activePlaylistSet }.map { it.displayName() }.joinToString(", ")
                 activePlaylist != null -> activePlaylist.displayName()
                 else -> stringResource(tv.own.owntv.mobile.R.string.content_all_playlists)
             },

@@ -109,7 +109,7 @@ fun MoreScreen(
         contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 24.dp),
     ) {
         item {
-            val playlistLabel = if (activePlaylistSet.isNotEmpty()) playlists.filter { it.id in activePlaylistSet }.joinToString(", ") { it.displayName() }
+            val playlistLabel = if (activePlaylistSet.isNotEmpty()) playlists.filter { it.id in activePlaylistSet }.map { it.displayName() }.joinToString(", ")
             else playlists.firstOrNull { it.id == activePlaylistId }?.displayName()
                 ?: stringResource(R.string.content_all_playlists)
             ProfileCard(
