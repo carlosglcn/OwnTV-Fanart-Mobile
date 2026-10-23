@@ -99,6 +99,8 @@ class OwnTVMobileApp : Application(), androidx.work.Configuration.Provider {
         // the whole download.
         CoreBuildInfo.releaseRepo = "carlosglcn/OwnTV-Fanart-Mobile" // glcn: our own releases
         if (BuildConfig.GLCN_BETA) tv.own.owntv.core.CoreBuildInfo.releaseTag = "beta-latest" // glcn: the beta follows its own pre-release
+        // Fixed for this process before any player exists: the setting applies only after a restart.
+        tv.own.owntv.core.player.FfmpegAudioSetting.load(this)
         // First thing after the context exists: a crash from here on leaves a trace on disk instead
         // of dying with the process, with the playback ring attached.
         CrashRecorder.diagnostics = { tv.own.owntv.player.LiveDiagnosticsLog.snapshot() }
@@ -174,12 +176,11 @@ class OwnTVMobileApp : Application(), androidx.work.Configuration.Provider {
         // A chosen icon colour ("Later", the first-run pick, a restore) reaches the launcher when the app
         // is next in the background, never while it is on screen.
         tv.own.owntv.core.brand.AppIconSwitcher.start(this, org.koin.core.context.GlobalContext.get().get())
-        // Diagnostics switch, the persisted archive-decode quirk and the one-shot settings migrations.
+        // Diagnostics switch and the one-shot settings migrations.
         tv.own.owntv.player.PlaybackStartup.start(
             context = this,
             scope = appScope,
             settings = org.koin.core.context.GlobalContext.get().get(),
-            archiveStore = org.koin.core.context.GlobalContext.get().get(),
         )
         // "Use this guide's logos": never started on the phone before, so the toggle did nothing here.
         // Reads no EPG data at all while no guide source has it on.

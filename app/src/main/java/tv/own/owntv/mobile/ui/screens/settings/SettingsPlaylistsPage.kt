@@ -316,6 +316,9 @@ private fun EditPlaylistDialog(
     onSave: (SourceFormValues) -> Unit,
 ) {
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        // The form's fields and pickers open sheets. The app's own sheet host draws in the main window,
+        // under this dialog, where they could not be seen or used — so the dialog hosts its own.
+        tv.own.owntv.mobile.ui.components.MobileSheetHost {
         Column(Modifier.fillMaxSize().background(LocalStagePalette.current.page).stageBackground().safeDrawingPadding()) {
             Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 12.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
@@ -331,6 +334,7 @@ private fun EditPlaylistDialog(
                 initial = source.toFormValues(),
                 onSave = onSave,
             )
+        }
         }
     }
 }
