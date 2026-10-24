@@ -14,3 +14,5 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🧩 **Edit playlist** works again over a picture background, and its pickers open above the form
 - 🤾 **Handball**: Liga ASOBAL with calendar, results, live score and the table
 - 🏎️ **Formula 1**: a session finds its channel when the guide calls it "F1"
+- 🎯 TMDB info: the 'Set TMDB name' sheet has an optional TMDB ID field; with an ID the film or series is matched exactly, with no search by name and year.
+- ⭐ Favourites: ordering the favourites of one playlist no longer scrambles the order of the others.

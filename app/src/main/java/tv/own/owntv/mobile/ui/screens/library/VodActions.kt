@@ -338,9 +338,9 @@ fun VodMenu(
         VodDialog.DETAILS -> VodDetails(tab, item.id, meta, mode.tmdbWins, vm) { dialog = null }
         VodDialog.TMDB_NAME -> SetTmdbNameDialog(
             load = { vm.tmdbNamePrefill(tab, item.id) },
-            onSave = { title, year ->
+            onSave = { title, year, tmdbId ->
                 scope.launch {
-                    vm.setTmdbName(tab, item.id, title, year)
+                    vm.setTmdbName(tab, item.id, title, year, tmdbId)
                     metaTick++
                 }
             },
@@ -386,15 +386,17 @@ private fun VodDetails(
 @Composable
 private fun SetTmdbNameDialog(
     load: suspend () -> LibraryViewModel.TmdbNamePrefill?,
-    onSave: (title: String, year: Int?) -> Unit,
+    onSave: (title: String, year: Int?, tmdbId: Int?) -> Unit,
     onDismiss: () -> Unit,
 ) {
     var title by remember { mutableStateOf("") }
     var year by remember { mutableStateOf("") }
+    var tmdbId by remember { mutableStateOf("") }
     LaunchedEffect(Unit) {
         load()?.let {
             title = it.title
             year = it.year?.toString().orEmpty()
+            tmdbId = it.tmdbId?.toString().orEmpty()
         }
     }
     val heading = stringResource(R.string.setup_tmdb_name)
@@ -415,13 +417,22 @@ private fun SetTmdbNameDialog(
                 placeholder = stringResource(R.string.setup_year_optional),
                 icon = null,
                 keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Next,
+            )
+            // glcn: the exact TMDB id, when the name and year find the wrong film.
+            StageSearchField(
+                value = tmdbId,
+                onValueChange = { s -> tmdbId = s.filter { it.isDigit() }.take(9) },
+                placeholder = stringResource(R.string.setup_tmdb_id_optional),
+                icon = null,
+                keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Done,
             )
         }
         StageConfirmItems(
             confirm = stringResource(R.string.common_save),
             confirmEnabled = true,
-            onConfirm = { onSave(title.trim(), year.trim().toIntOrNull()) },
+            onConfirm = { onSave(title.trim(), year.trim().toIntOrNull(), tmdbId.trim().toIntOrNull()) },
             onDismiss = onDismiss,
         )
     }

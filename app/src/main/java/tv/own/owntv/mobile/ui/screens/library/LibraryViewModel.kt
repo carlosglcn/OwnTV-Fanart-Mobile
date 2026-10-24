@@ -868,19 +868,19 @@ class LibraryViewModel(
     }
 
     /** What the Set-TMDB-name dialog opens with: the saved override, else the cleaned provider title. */
-    data class TmdbNamePrefill(val title: String, val year: Int?, val hasOverride: Boolean)
+    data class TmdbNamePrefill(val title: String, val year: Int?, val hasOverride: Boolean, val tmdbId: Int? = null)
 
     suspend fun tmdbNamePrefill(tab: LibraryTab, itemId: Long): TmdbNamePrefill? {
         val name: String
         val year: Int?
         if (tab == LibraryTab.MOVIES) {
             val movie = movieDao.getById(itemId) ?: return null
-            metadata.movieOverride(movie)?.let { return TmdbNamePrefill(it.title, it.year, hasOverride = true) }
+            metadata.movieOverride(movie)?.let { return TmdbNamePrefill(it.title, it.year, hasOverride = true, tmdbId = it.tmdbId) }
             name = movie.name
             year = movie.year
         } else {
             val show = seriesDao.getSeriesById(itemId) ?: return null
-            metadata.seriesOverride(show)?.let { return TmdbNamePrefill(it.title, it.year, hasOverride = true) }
+            metadata.seriesOverride(show)?.let { return TmdbNamePrefill(it.title, it.year, hasOverride = true, tmdbId = it.tmdbId) }
             name = show.name
             year = show.year
         }
@@ -889,16 +889,16 @@ class LibraryViewModel(
     }
 
     /** Save the hand-typed title, or clear it with a blank one, and re-resolve under it. */
-    suspend fun setTmdbName(tab: LibraryTab, itemId: Long, title: String, year: Int?) {
+    suspend fun setTmdbName(tab: LibraryTab, itemId: Long, title: String, year: Int?, tmdbId: Int? = null) {
         runCatching {
             if (tab == LibraryTab.MOVIES) {
                 val movie = movieDao.getById(itemId) ?: return
                 if (title.isBlank()) metadata.clearMovieOverride(movie)
-                else metadata.setMovieOverride(movie, title, year)
+                else metadata.setMovieOverride(movie, title, year, tmdbId)
             } else {
                 val show = seriesDao.getSeriesById(itemId) ?: return
                 if (title.isBlank()) metadata.clearSeriesOverride(show)
-                else metadata.setSeriesOverride(show, title, year)
+                else metadata.setSeriesOverride(show, title, year, tmdbId)
             }
         }
     }
