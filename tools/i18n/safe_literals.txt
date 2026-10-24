@@ -795,6 +795,7 @@
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/sports/SportsParts.kt	🏏
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/sports/SportsParts.kt	🏐
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/sports/SportsParts.kt	🏒
+1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/sports/SportsParts.kt	🤾
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/sports/SportsParts.kt	🥊
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/sports/SportsParts.kt	🥍
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/sports/SportsPlayerParts.kt	\0

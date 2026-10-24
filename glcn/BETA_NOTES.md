@@ -12,3 +12,5 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🔁 **A channel that will not play is swapped for the same channel elsewhere in its playlist**, with a note saying which one
 - 🏀 **Liga ACB and EuroLeague** with calendar, results, live quarter and table
 - 🧩 **Edit playlist** works again over a picture background, and its pickers open above the form
+- 🤾 **Handball**: Liga ASOBAL with calendar, results, live score and the table
+- 🏎️ **Formula 1**: a session finds its channel when the guide calls it "F1"
