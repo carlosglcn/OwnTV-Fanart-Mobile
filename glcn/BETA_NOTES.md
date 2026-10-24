@@ -16,3 +16,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🏎️ **Formula 1**: a session finds its channel when the guide calls it "F1"
 - 🎯 TMDB info: the 'Set TMDB name' sheet has an optional TMDB ID field; with an ID the film or series is matched exactly, with no search by name and year.
 - ⭐ Favourites: ordering the favourites of one playlist no longer scrambles the order of the others.
+- ✨ New Lumen style (Settings → Style): Lumen Noche (near-black glass) and Lumen Día (pearl glass) with a cool blue accent.
