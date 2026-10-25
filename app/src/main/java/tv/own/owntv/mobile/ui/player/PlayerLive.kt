@@ -33,6 +33,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
@@ -399,5 +401,73 @@ internal fun GoLivePill(enabled: Boolean, onClick: () -> Unit, modifier: Modifie
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+    }
+}
+
+
+/**
+ * glcn: the programme on air as a card with its picture — what the top bar's two thin lines could not be on
+ * a phone held upright. The picture (the programme's own, else nothing), "on air now" with how long is left,
+ * the title, how far through it is, two lines of synopsis, and what follows. Drawn only while the guide knows
+ * something; placed by the controls, above the bar, in portrait.
+ */
+@Composable
+internal fun MobileProgrammeCard(epg: EpgNowNext?, art: String?, atMs: State<Long?>, modifier: Modifier = Modifier) {
+    val now = epg?.now ?: return
+    val archive = atMs.value != null
+    val formatTime = rememberGuideTimeFormat()
+    val wallNow = rememberWallClock(CARD_TICK_MS)
+    val nowMs = atMs.value ?: wallNow
+    val accent = LocalAccentOnVideo.current
+    Row(
+        modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color.Black.copy(alpha = 0.55f))
+            .padding(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.Top,
+    ) {
+        if (!art.isNullOrBlank()) {
+            AsyncImage(
+                model = art, contentDescription = null, contentScale = ContentScale.Crop,
+                modifier = Modifier.size(width = 112.dp, height = 63.dp).clip(RoundedCornerShape(10.dp)),
+            )
+        }
+        Column(Modifier.weight(1f)) {
+            SlotLabel(stringResource(if (archive) R.string.content_archive_playing else R.string.content_live_now), accent)
+            Text(
+                now.title, style = MaterialTheme.typography.titleSmall, color = Color.White,
+                fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
+            )
+            val remaining = ((now.stopMs - nowMs) / 60_000L).toInt()
+            Text(
+                if (remaining in 1..600) stringResource(R.string.content_live_time_remaining, formatTime.format(Date(now.stopMs)), remaining)
+                else stringResource(R.string.content_live_time_range, formatTime.format(Date(now.startMs)), formatTime.format(Date(now.stopMs))),
+                style = MaterialTheme.typography.labelSmall.copy(textDirection = TextDirection.Content),
+                color = Color.White.copy(alpha = 0.6f), maxLines = 1, overflow = TextOverflow.Ellipsis,
+            )
+            val span = (now.stopMs - now.startMs).toFloat()
+            if (span > 0f) {
+                Spacer(Modifier.height(5.dp))
+                Box(Modifier.fillMaxWidth().height(2.dp).clip(RoundedCornerShape(1.dp)).background(Color.White.copy(alpha = 0.18f))) {
+                    Box(Modifier.fillMaxWidth(((nowMs - now.startMs) / span).coerceIn(0f, 1f)).height(2.dp).clip(RoundedCornerShape(1.dp)).background(accent))
+                }
+            }
+            now.description?.takeIf { it.isNotBlank() }?.let {
+                Text(
+                    it, style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.78f),
+                    maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 5.dp),
+                )
+            }
+            epg.next?.let { next ->
+                Text(
+                    formatTime.format(Date(next.startMs)) + "  " + next.title,
+                    style = MaterialTheme.typography.labelSmall.copy(textDirection = TextDirection.Content),
+                    color = Color.White.copy(alpha = 0.5f), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
+            }
+        }
     }
 }

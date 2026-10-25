@@ -259,7 +259,10 @@ fun MobileShell(
     val cast: CastController = koinInject()
     val castEngine by cast.engine.collectAsStateWithLifecycle()
     // OFF is not offered in Settings any more, but an older install may still have it stored.
-    val miniStyle = if (castEngine != null || audioOnly || audioOnlyMedia ||
+    // glcn: on the TV guide the floating window sat over the grid it was being used to read, and was too
+    // small to see on a phone — there it is the thin bar above the tabs, whatever the choice.
+    val onGuide = currentRoute == MobileDestination.GUIDE.route
+    val miniStyle = if (castEngine != null || audioOnly || audioOnlyMedia || onGuide ||
         chosenMiniStyle == SettingsRepository.MiniPlayerStyle.OFF
     ) {
         SettingsRepository.MiniPlayerStyle.DOCKED

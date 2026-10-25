@@ -123,6 +123,8 @@ fun PlayerControls(
     onOpenSheet: (PlayerSheet) -> Unit,
     /** Shrink into the app's own mini player, still playing. */
     onMini: () -> Unit,
+    /** glcn: the programme on air's own picture, for the card above the bar in portrait. */
+    programmeArt: String? = null,
     /** glcn: live only — the channel list and the guide, one tap from the top bar (null hides them). */
     onChannelList: (() -> Unit)? = null,
     onGuide: (() -> Unit)? = null,
@@ -201,11 +203,16 @@ fun PlayerControls(
                     )
                     // Under the identity rather than beside it: the guide line is the longest text on
                     // the dock, and a phone has no width to spare on the row the title is already in.
-                    MobileNowNextCard(
-                        epg = epg,
-                        atMs = watchingWallMs,
-                        modifier = Modifier.padding(top = MobileDimens.GapTiny),
-                    )
+                    // glcn: upright, the programme is the card above the bar instead (picture, synopsis).
+                    if (androidx.compose.ui.platform.LocalConfiguration.current.orientation ==
+                        android.content.res.Configuration.ORIENTATION_LANDSCAPE
+                    ) {
+                        MobileNowNextCard(
+                            epg = epg,
+                            atMs = watchingWallMs,
+                            modifier = Modifier.padding(top = MobileDimens.GapTiny),
+                        )
+                    }
                 }
             }
 
@@ -228,6 +235,11 @@ fun PlayerControls(
                     .systemBarsPadding()
                     .padding(horizontal = MobileDimens.GapSmall, vertical = MobileDimens.GapTiny),
             ) {
+                if (isLive && androidx.compose.ui.platform.LocalConfiguration.current.orientation !=
+                    android.content.res.Configuration.ORIENTATION_LANDSCAPE
+                ) {
+                    MobileProgrammeCard(epg = epg, art = programmeArt, atMs = watchingWallMs, modifier = Modifier.padding(bottom = MobileDimens.GapTiny))
+                }
                 PlayerDock {
                     if (isLive) {
                         LiveBar(

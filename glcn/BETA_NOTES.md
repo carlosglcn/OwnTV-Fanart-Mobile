@@ -25,3 +25,5 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🎾 Tennis: players now show their photo (initials stay if it does not load)
 - 🏎️ Racing: a film or show with "Formula" in its title is no longer taken for a Grand Prix
 - 📺 Channel info banner: when two guide entries overlap, it now shows the one that has a synopsis
+- 📱 Live player (portrait): the programme is now a card above the bar — its picture, time left, progress, two lines of synopsis and what follows
+- 📺 TV Guide: the floating mini player is now a thin bar above the tabs, so it no longer covers the grid

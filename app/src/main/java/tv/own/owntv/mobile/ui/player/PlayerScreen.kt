@@ -718,7 +718,13 @@ fun PlayerScreen(
             modifier = Modifier.align(Alignment.BottomCenter),
         )
 
+        // glcn: the programme on air's own picture, for the card above the bar.
+        val nowArt: tv.own.owntv.core.live.NowArt = org.koin.compose.koinInject()
+        val programmeArt by androidx.compose.runtime.produceState<String?>(null, channel?.id, nowNext?.now?.startMs) {
+            value = channel?.let { c -> runCatching { nowArt.now(c)?.imageUrl }.getOrNull() }?.takeIf { it.isNotBlank() }
+        }
         PlayerControls(
+            programmeArt = programmeArt,
             player = player,
             engine = activeEngine,
             // Whichever tuner has the surface. Only one of them ever does.
