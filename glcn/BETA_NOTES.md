@@ -22,3 +22,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 📺 Player on the phone: the channel list and the guide now sit in the top bar of a live channel, one tap away. The guide opens with the channel still playing in the mini player.
 - 🏍️ MotoGP and other races are now found in the guide by the circuit's place too ("GP de Australia"), not only by the series name, over a wider time window; the sessions read Practice / Warm-up / Qualifying / Sprint / Race.
 - 🎚️ Phone player: new "Quality" button on live channels lists the other copies of the channel (HD/FHD/4K, other providers) and switches to the one you pick
+- 🎾 Tennis: players now show their photo (initials stay if it does not load)
