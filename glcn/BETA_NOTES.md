@@ -21,3 +21,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🏎️ Motorsport: a session now reads "Free practice / Qualifying / Race" with the Grand Prix name under it, instead of two drivers standing in for two teams. It also shows the time, the circuit and the first three (live or final), and the Standings tab lists the drivers' and constructors' championships.
 - 📺 Player on the phone: the channel list and the guide now sit in the top bar of a live channel, one tap away. The guide opens with the channel still playing in the mini player.
 - 🎬 Lumen also sets Home to the cinema background (full-screen picture behind the rows) when you pick it, to match its glass look; you can still change it in Settings.
+- 🏍️ MotoGP and other races are now found in the guide by the circuit's place too ("GP de Australia"), not only by the series name, over a wider time window; the sessions read Practice / Warm-up / Qualifying / Sprint / Race.
