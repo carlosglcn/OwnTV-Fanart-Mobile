@@ -137,6 +137,8 @@ fun PlayerSheetHost(
 @Composable
 private fun VolumeSheet(player: PlaybackEngine, onDismiss: () -> Unit) {
     val volume by player.volume.collectAsStateWithLifecycle()
+    val settings = koinInject<tv.own.owntv.core.settings.SettingsRepository>()
+    val scope = rememberCoroutineScope()
     val title = stringResource(R.string.player_tool_volume)
     MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(title)
@@ -150,6 +152,11 @@ private fun VolumeSheet(player: PlaybackEngine, onDismiss: () -> Unit) {
             stringResource(if (volume > 0) R.string.player_mute else R.string.player_unmute),
             onClick = { player.toggleMute() },
             icon = if (volume > 0) MobileIcons.VolumeOff else MobileIcons.VolumeUp,
+        )
+        StageMenuItem(
+            stringResource(R.string.glcn_volume_all),
+            onClick = { scope.launch { settings.setDefaultVolume(volume) }; onDismiss() },
+            icon = MobileIcons.VolumeUp,
         )
     }
 }

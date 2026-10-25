@@ -17,3 +17,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🎯 TMDB info: the 'Set TMDB name' sheet has an optional TMDB ID field; with an ID the film or series is matched exactly, with no search by name and year.
 - ⭐ Favourites: ordering the favourites of one playlist no longer scrambles the order of the others.
 - ✨ New Lumen style (Settings → Style): Lumen Noche (near-black glass) and Lumen Día (pearl glass) with a cool blue accent.
+- 🔊 Volume card: new "Use for all" button sets the volume you chose as the default for every channel and film that has no volume of its own, so you no longer have to open the card on each one.
