@@ -23,3 +23,5 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🏍️ MotoGP and other races are now found in the guide by the circuit's place too ("GP de Australia"), not only by the series name, over a wider time window; the sessions read Practice / Warm-up / Qualifying / Sprint / Race.
 - 🎚️ Phone player: new "Quality" button on live channels lists the other copies of the channel (HD/FHD/4K, other providers) and switches to the one you pick
 - 🎾 Tennis: players now show their photo (initials stay if it does not load)
+- 🏎️ Racing: a film or show with "Formula" in its title is no longer taken for a Grand Prix
+- 📺 Channel info banner: when two guide entries overlap, it now shows the one that has a synopsis
