@@ -110,6 +110,7 @@ fun PlayerSheetHost(
     programmeEndMs: Long? = null,
     /** The category the channel list shows, for its header; null names it "Channels". */
     channelsTitle: String? = null,
+    currentChannelId: Long? = null,
 ) {
     when (sheet) {
         PlayerSheet.VOLUME -> VolumeSheet(player, onDismiss)
@@ -128,6 +129,17 @@ fun PlayerSheetHost(
         PlayerSheet.SPEED -> SpeedSheet(player, onDismiss)
         PlayerSheet.INFO -> StreamInfoSheet(player, onDismiss)
         PlayerSheet.CHANNELS -> ChannelSheet(channelsTitle, channels, onTuneToNumber, onPickChannel, onDismiss)
+        PlayerSheet.COPIES -> {
+            val title = stringResource(R.string.player_tool_quality)
+            MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
+                StageSheetHeader(title)
+                SheetScroll {
+                    channels.forEach { ch ->
+                        StageMenuItem(ch.name, onClick = { onPickChannel(ch); onDismiss() }, checked = ch.id == currentChannelId)
+                    }
+                }
+            }
+        }
         PlayerSheet.CATCHUP -> catchup?.let { CatchupSheet(it, onDismiss) } ?: onDismiss()
         PlayerSheet.SLEEP_TIMER -> SleepTimerSheet(programmeEndMs = programmeEndMs, onDismiss = onDismiss)
     }

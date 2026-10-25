@@ -60,7 +60,7 @@ import java.text.NumberFormat
 
 /** The pickers the tool bar opens. Each one is a sheet; each one also has a gesture. */
 enum class PlayerSheet {
-    VOLUME, BRIGHTNESS, SUBTITLES, SUBTITLE_SEARCH, AUDIO, ASPECT, QUALITY, SPEED, INFO, CHANNELS, CATCHUP, SLEEP_TIMER,
+    VOLUME, BRIGHTNESS, SUBTITLES, SUBTITLE_SEARCH, AUDIO, ASPECT, QUALITY, SPEED, INFO, CHANNELS, CATCHUP, SLEEP_TIMER, COPIES,
 }
 
 /**
@@ -126,6 +126,7 @@ fun PlayerControls(
     /** glcn: live only — the channel list and the guide, one tap from the top bar (null hides them). */
     onChannelList: (() -> Unit)? = null,
     onGuide: (() -> Unit)? = null,
+    onCopies: (() -> Unit)? = null,
     audioOnly: Boolean,
     onAudioOnly: () -> Unit,
     /** Whether what is playing is one of this profile's favourites. */
@@ -195,6 +196,7 @@ fun PlayerControls(
                         onBack = onBack,
                         onChannelList = onChannelList,
                         onGuide = onGuide,
+                        onCopies = onCopies,
                         matchLine = matchLine,
                     )
                     // Under the identity rather than beside it: the guide line is the longest text on
@@ -279,6 +281,7 @@ private fun TopRow(
     onBack: () -> Unit,
     onChannelList: (() -> Unit)? = null,
     onGuide: (() -> Unit)? = null,
+    onCopies: (() -> Unit)? = null,
     matchLine: (@Composable () -> Unit)? = null,
 ) {
     val engine by player.engineChip.collectAsStateWithLifecycle()
@@ -320,6 +323,9 @@ private fun TopRow(
         // and the reason the bar does not carry a permanently dead button.
         CastRouteButton(light = true)
         // glcn: the way to another channel or to the guide, where a thumb already is.
+        onCopies?.let {
+            IconButton(onClick = it) { Icon(MobileIcons.Tune, stringResource(R.string.player_tool_quality), tint = Color.White) }
+        }
         onGuide?.let {
             IconButton(onClick = it) { Icon(MobileIcons.Guide, stringResource(R.string.common_nav_guide), tint = Color.White) }
         }

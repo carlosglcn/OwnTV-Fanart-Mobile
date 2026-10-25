@@ -592,6 +592,16 @@ class LiveTuner(
         live.launch { open(next); loadSiblings(next) }
     }
 
+    /** Every copy of the playing channel (other qualities, other providers), best first, itself included. */
+    suspend fun copiesOf(cur: ChannelEntity): List<ChannelEntity> {
+        val epgKey = cur.epgChannelId?.trim()?.lowercase()?.takeIf { it.isNotEmpty() } ?: Char.MIN_VALUE.toString()
+        val token = tv.own.owntv.core.live.ChannelFailover.searchToken(cur.name) ?: Char.MIN_VALUE.toString()
+        val pool = withContext(Dispatchers.IO) { channelDao.siblingCandidates(cur.sourceId, epgKey, token) }
+        val others = tv.own.owntv.core.live.ChannelFailover.rank(cur, pool)
+        return (others + cur).distinctBy { it.id }
+            .sortedWith(compareByDescending<ChannelEntity> { tv.own.owntv.core.live.ChannelFailover.quality(it.name) }.thenBy { it.id })
+    }
+
     private val _previewing = MutableStateFlow(false)
 
     /**

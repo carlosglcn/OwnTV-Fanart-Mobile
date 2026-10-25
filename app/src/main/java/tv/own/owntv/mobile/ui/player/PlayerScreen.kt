@@ -143,6 +143,10 @@ fun PlayerScreen(
     val landscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     val channel by tuner.channel.collectAsStateWithLifecycle()
+    var copies by remember { mutableStateOf<List<ChannelEntity>>(emptyList()) }
+    LaunchedEffect(channel?.id) {
+        copies = channel?.let { runCatching { tuner.copiesOf(it) }.getOrDefault(emptyList()) } ?: emptyList()
+    }
     val autoFrameRate by settings.autoFrameRate.collectAsStateWithLifecycle(initialValue = false)
     val previousChannel by tuner.previousChannel.collectAsStateWithLifecycle()
     val film by vodTuner.playing.collectAsStateWithLifecycle()
@@ -754,6 +758,7 @@ fun PlayerScreen(
             onMini = onExit,
             onChannelList = { sheet = PlayerSheet.CHANNELS }.takeIf { isLive },
             onGuide = onOpenGuide.takeIf { isLive },
+            onCopies = { sheet = PlayerSheet.COPIES }.takeIf { isLive && copies.size > 1 },
             // A stream with no video track has nothing to go back to, so for that one the button
             // only ever reports the state it is already in. Every other stream is showing its
             // picture here, because full screen is never sound-only — so the button is only ever
@@ -995,7 +1000,8 @@ fun PlayerScreen(
         PlayerSheetHost(
             sheet = open,
             player = activeEngine,
-            channels = if (open == PlayerSheet.CHANNELS) playerChannels else siblings,
+            channels = when (open) { PlayerSheet.CHANNELS -> playerChannels; PlayerSheet.COPIES -> copies; else -> siblings },
+            currentChannelId = channel?.id,
             channelsTitle = playerCategories.firstOrNull { it.first == playerCategory }?.second,
             brightness = brightness,
             onBrightness = { setBrightness(it) },
