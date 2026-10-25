@@ -753,6 +753,7 @@
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/sports/SportsLeagueScreen.kt	m-
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/sports/SportsLeagueScreen.kt	matchdayHead
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/sports/SportsLeagueScreen.kt	r-
+1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/sports/SportsLeagueScreen.kt	ranking
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/sports/SportsLeagueScreen.kt	tableHead
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/sports/SportsLeagueScreen.kt	tabs
 3	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/sports/SportsMatchScreen.kt	\0

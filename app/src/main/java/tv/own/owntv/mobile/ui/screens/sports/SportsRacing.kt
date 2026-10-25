@@ -14,7 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -112,7 +112,7 @@ private fun rankLabel(kind: RankingKind): String = stringResource(
 internal fun RankingTable(ranking: Ranking, highlight: Set<String> = emptySet()) {
     val palette = LocalStagePalette.current
     val groups = ranking.groups
-    var sel by rememberSaveable { mutableIntStateOf(0) }
+    var sel by rememberSaveable { mutableStateOf(0) }
     val g = groups.getOrNull(sel.coerceIn(0, (groups.size - 1).coerceAtLeast(0))) ?: return
     Column(Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
         if (groups.size > 1) Row(Modifier.padding(horizontal = 6.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
