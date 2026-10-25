@@ -88,7 +88,9 @@ fun SportsLeagueScreen(leagueKey: String, onOpenMatch: (Match) -> Unit, vm: Spor
                 }
             }
         }
-        if (tab == LeagueTab.TABLE) {
+        if (tab == LeagueTab.TABLE && state.ranking != null && state.table == null) {
+            item(key = "ranking") { RankingTable(state.ranking, myTeams) }
+        } else if (tab == LeagueTab.TABLE) {
             item(key = "tableHead") { Box(Modifier.padding(horizontal = 8.dp)) { StandingsHeader() } }
             state.table?.groups?.forEach { g ->
                 if (state.table.groups.size > 1) item(key = "g-" + g.name) {

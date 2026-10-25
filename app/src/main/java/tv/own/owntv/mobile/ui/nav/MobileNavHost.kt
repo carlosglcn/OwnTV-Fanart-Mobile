@@ -270,6 +270,11 @@ fun MobileNavHost(
                     miniRequested.value = true
                     navController.popBackStack()
                 },
+                onOpenGuide = {
+                    miniRequested.value = true
+                    navController.popBackStack()
+                    navController.navigateToTab(MobileDestination.GUIDE)
+                },
             )
         }
         page(

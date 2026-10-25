@@ -79,7 +79,7 @@ internal fun MatchCard(
         Row(verticalAlignment = Alignment.CenterVertically) {
             val day = if (m.isLive) null else dayOf(m.startMs, locale)
             Text(
-                listOfNotNull(leagueName(m), m.subtitle?.takeIf { featured }, day).joinToString(sep),
+                listOfNotNull(leagueName(m), m.subtitle?.takeIf { featured && m.sport != Sport.RACING }, day).joinToString(sep),
                 style = stageText(11.5f, 600), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f),
             )
             if (m.isLive) LiveMark(stringResource(R.string.player_live) + sep + clockText(m))
@@ -103,10 +103,12 @@ internal fun MatchCard(
 @Composable
 private fun Sides(m: Match, spoiler: Boolean) {
     val palette = LocalStagePalette.current
-    if (m.competitors.size < 2) {
+    if (m.competitors.size < 2 || m.sport == Sport.RACING) {
         Spacer(Modifier.height(8.dp))
-        Text(m.title, style = stageText(14f, 700), color = palette.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        m.subtitle?.let { Text(it, style = stageText(12.5f, 600), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+        // glcn: a racing session is named by its kind, with the Grand Prix under it.
+        val session = if (m.sport == Sport.RACING) raceSessionLabel(m) else null
+        Text(session ?: m.title, style = stageText(14f, 700), color = palette.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        (if (session != null) m.title else m.subtitle)?.let { Text(it, style = stageText(12.5f, 600), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis) }
         return
     }
     listOfNotNull(m.home, m.away).forEach { c ->

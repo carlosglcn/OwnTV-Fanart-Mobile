@@ -103,7 +103,7 @@ fun SportsMatchScreen(
     val listState = rememberLazyListState()
 
     val tabs = MatchTab.entries.filter {
-        (it != MatchTab.TABLE || state.standings?.groups?.any { g -> g.rows.isNotEmpty() } == true) &&
+        (it != MatchTab.TABLE || state.standings?.groups?.any { g -> g.rows.isNotEmpty() } == true || state.ranking?.groups?.isNotEmpty() == true) &&
             (it != MatchTab.STATS || !state.summary?.stats.isNullOrEmpty()) &&
             (it != MatchTab.LINEUPS || !state.summary?.lineups.isNullOrEmpty()) &&
             (it != MatchTab.FORM || !state.summary?.form.isNullOrEmpty())
@@ -149,7 +149,7 @@ fun SportsMatchScreen(
             MatchTab.TIMELINE -> items((state.summary?.timeline ?: m.events).asReversed()) { e -> TimelineRow(e, m) }
             MatchTab.STATS -> items(state.summary?.stats.orEmpty()) { s -> StatRow(s.label, s.home, s.away) }
             MatchTab.LINEUPS -> item { Lineups(m, state.summary) }
-            MatchTab.TABLE -> item { TablePreview(state.standings, m) { onOpenLeague(tv.own.owntv.core.sports.model.League.keyOf(m.sport, m.leagueSlug)) } }
+            MatchTab.TABLE -> if (state.ranking != null && m.sport == Sport.RACING) item { RankingTable(state.ranking) } else item { TablePreview(state.standings, m) { onOpenLeague(tv.own.owntv.core.sports.model.League.keyOf(m.sport, m.leagueSlug)) } }
             MatchTab.FORM -> item { Form(m, state.summary) }
             MatchTab.BROADCASTS -> item { Broadcasts(m, (state.search as? ChannelSearch.Found)?.options) }
         }
@@ -306,6 +306,7 @@ private fun NoPlaylistNote(onAddPlaylist: () -> Unit) {
  */
 @Composable
 private fun ScoreBox(m: Match, summary: MatchSummary?, hidden: Boolean, onReveal: () -> Unit) {
+    if (m.sport == Sport.RACING) { RaceScoreBox(m, hidden, onReveal); return }
     val palette = LocalStagePalette.current
     val sep = stringResource(R.string.content_epg_bits_separator)
     val locale = LocalConfiguration.current.locales[0]

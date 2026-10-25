@@ -123,6 +123,9 @@ fun PlayerControls(
     onOpenSheet: (PlayerSheet) -> Unit,
     /** Shrink into the app's own mini player, still playing. */
     onMini: () -> Unit,
+    /** glcn: live only — the channel list and the guide, one tap from the top bar (null hides them). */
+    onChannelList: (() -> Unit)? = null,
+    onGuide: (() -> Unit)? = null,
     audioOnly: Boolean,
     onAudioOnly: () -> Unit,
     /** Whether what is playing is one of this profile's favourites. */
@@ -190,6 +193,8 @@ fun PlayerControls(
                         showClock = showClock,
                         watchingWallMs = watchingWallMs,
                         onBack = onBack,
+                        onChannelList = onChannelList,
+                        onGuide = onGuide,
                         matchLine = matchLine,
                     )
                     // Under the identity rather than beside it: the guide line is the longest text on
@@ -272,6 +277,8 @@ private fun TopRow(
     showClock: Boolean,
     watchingWallMs: State<Long?>,
     onBack: () -> Unit,
+    onChannelList: (() -> Unit)? = null,
+    onGuide: (() -> Unit)? = null,
     matchLine: (@Composable () -> Unit)? = null,
 ) {
     val engine by player.engineChip.collectAsStateWithLifecycle()
@@ -312,6 +319,13 @@ private fun TopRow(
         // It shows itself only when a receiver is actually within reach — the SDK's own behaviour,
         // and the reason the bar does not carry a permanently dead button.
         CastRouteButton(light = true)
+        // glcn: the way to another channel or to the guide, where a thumb already is.
+        onGuide?.let {
+            IconButton(onClick = it) { Icon(MobileIcons.Guide, stringResource(R.string.common_nav_guide), tint = Color.White) }
+        }
+        onChannelList?.let {
+            IconButton(onClick = it) { Icon(MobileIcons.FormatListBulleted, stringResource(R.string.content_channel_overlay_title), tint = Color.White) }
+        }
     }
 }
 

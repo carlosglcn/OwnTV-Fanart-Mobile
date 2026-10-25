@@ -113,6 +113,8 @@ private const val NOTCHES = 20
 @Composable
 fun PlayerScreen(
     onExit: () -> Unit,
+    /** glcn: leave the full-screen player for the guide, the stream carrying on in the mini player. */
+    onOpenGuide: () -> Unit = {},
     modifier: Modifier = Modifier,
     tuner: LiveTuner = koinInject(),
     vodTuner: VodTuner = koinInject(),
@@ -750,6 +752,8 @@ fun PlayerScreen(
             // or floating as the user set it. This is the app's own small window and stays inside the
             // app — the system one that floats over *other* apps is what pressing Home gives.
             onMini = onExit,
+            onChannelList = { sheet = PlayerSheet.CHANNELS }.takeIf { isLive },
+            onGuide = onOpenGuide.takeIf { isLive },
             // A stream with no video track has nothing to go back to, so for that one the button
             // only ever reports the state it is already in. Every other stream is showing its
             // picture here, because full screen is never sound-only — so the button is only ever
