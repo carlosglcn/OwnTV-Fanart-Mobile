@@ -179,23 +179,6 @@ fun MobileShell(
     // More › Switch: the same chooser, over the app rather than instead of it, so Back leaves
     // it and the page you were on is still there. Choosing someone unlocks them in this session.
     var choosingProfile by remember { mutableStateOf(false) }
-    if (choosingProfile) {
-        Dialog(
-            onDismissRequest = { choosingProfile = false },
-            properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
-        ) {
-            ProfileGate(
-                profiles = loadedProfiles,
-                onEntered = {
-                    gateSession.unlock(it.id)
-                    choosingProfile = false
-                },
-                modifier = Modifier.fillMaxSize(),
-                vm = profilesViewModel,
-            )
-        }
-    }
-
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
 
@@ -638,6 +621,23 @@ fun MobileShell(
                 }
             }
         }
+        }
+        // glcn: the chooser over the app is drawn inside it, on a solid page, not in a window of its own — in
+        // a second window the keyboard never reached the new-profile sheet that opens from it, and the page
+        // showed through. Back closes it.
+        if (choosingProfile) {
+            androidx.activity.compose.BackHandler { choosingProfile = false }
+            Box(Modifier.fillMaxSize().zIndex(90f).background(LocalStagePalette.current.page)) {
+                ProfileGate(
+                    profiles = loadedProfiles,
+                    onEntered = {
+                        gateSession.unlock(it.id)
+                        choosingProfile = false
+                    },
+                    modifier = Modifier.fillMaxSize(),
+                    vm = profilesViewModel,
+                )
+            }
         }
         // glcn: seasonal touches over every screen — never over a playing picture. The last child of the
         // root, full screen and above everything, so the page's own backgrounds and the safe-area padding
