@@ -414,8 +414,14 @@ private fun TimelineRow(e: MatchEvent, m: Match) {
         MatchEvent.Kind.KICKOFF -> stringResource(R.string.sports_event_kickoff)
         MatchEvent.Kind.HALF_TIME -> stringResource(R.string.sports_event_half_time)
         MatchEvent.Kind.FULL_TIME -> stringResource(R.string.sports_event_full_time)
+        MatchEvent.Kind.PIT_STOP -> stringResource(R.string.glcn_event_pit, who)
+        MatchEvent.Kind.RACE_CONTROL -> e.text.orEmpty()
     }
-    val assist = if (e.kind == MatchEvent.Kind.GOAL) e.players.getOrNull(1)?.let { stringResource(R.string.sports_event_assist, it) } else null
+    val assist = when (e.kind) {
+        MatchEvent.Kind.GOAL -> e.players.getOrNull(1)?.let { stringResource(R.string.sports_event_assist, it) }
+        MatchEvent.Kind.PIT_STOP -> e.text
+        else -> null
+    }
     Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(e.minute, style = stageText(13f, 700), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.width(44.dp))
         Box(Modifier.size(18.dp), contentAlignment = Alignment.Center) {
