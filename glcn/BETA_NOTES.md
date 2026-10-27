@@ -28,3 +28,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 📱 Live player (portrait): the programme is now a card above the bar — its picture, time left, progress, two lines of synopsis and what follows
 - 📺 TV Guide: the floating mini player is now a thin bar above the tabs, so it no longer covers the grid
 - 👤 Phone: switching profile from More no longer overlaps the page, and creating a new profile from there lets you type again
+- 🎞️ Emby: the app no longer signs in to your server again on every refresh, so it stops announcing a new login each time

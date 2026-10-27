@@ -15,6 +15,7 @@
 - 📺 **TV Guide: the mini player is a thin bar above the tabs, so it no longer covers the grid**
 
 ### 🔧 Fixes
+- 🎞️ **Emby: the app no longer signs in to your server again on every refresh, so it stops announcing a new login each time**
 - 👤 **Switching profile from More no longer overlaps the page, and a new profile can be typed again**
 - 🧩 **Edit playlist works again over a picture background**
 - ⭐ **Favourites keep their own order per playlist**
