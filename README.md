@@ -10,6 +10,8 @@ pictures first: the guide's fanart across Home, Live TV and the guide, and a few
 
 > Please report problems with this version **here**, not to the original author.
 
+https://github.com/user-attachments/assets/faacb82b-6903-47c0-ae53-6854024aa5b6
+
 ## ⬇️ Download
 
 | Device | Latest release | Downloader code |
@@ -115,13 +117,14 @@ This is an **open-source** project — the code is original (not derived from an
 
 ## 💬 Community
 
-Questions, ideas, bug reports — or just want to follow along? **Join the OwnTV Telegram group:**
+Questions, ideas, bug reports — or just want to follow along? **Join the Telegram groups:**
 
-### 👉 [t.me/owntvplayer](https://t.me/owntvplayer)
+| OwnTV Fanart (this version) | OwnTV (original app) |
+|---|---|
+| ### 👉 [t.me/owntvfanart](https://t.me/owntvfanart) | ### 👉 [t.me/owntvplayer](https://t.me/owntvplayer) |
+| <a href="https://t.me/owntvfanart"><img src="extras/qr-codes/telegram_owntvfanart_qr.png" alt="Scan to join the OwnTV Fanart Telegram group" width="150"></a> | <a href="https://t.me/owntvplayer"><img src="extras/qr-codes/telegram_qr_code.jpg" alt="Scan to join the OwnTV Telegram group" width="150"></a> |
 
-Scan to join from your phone:
-
-<a href="https://t.me/owntvplayer"><img src="extras/qr-codes/telegram_qr_code.jpg" alt="Scan to join the OwnTV Telegram group" width="170"></a>
+Problems with **this version** go to the Fanart group; the original group is for the upstream app.
 
 ---
 
