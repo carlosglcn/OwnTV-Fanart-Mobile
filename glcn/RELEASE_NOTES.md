@@ -20,3 +20,6 @@
 - 🧩 **Edit playlist works again over a picture background**
 - ⭐ **Favourites keep their own order per playlist**
 - 🧭 **The guide matches channels like "ES-4 La 1 HD" by itself**
+
+### 🙏 Thank you
+Thank you to everyone in the community who reports bugs and shares ideas — many of the fixes and improvements in this version come from your messages.
