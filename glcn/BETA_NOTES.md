@@ -12,3 +12,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🏷️ Movies and Series: quality badges read from the title — on the posters the best picture mark (DV in gold, HDR10+, HDR10, HDR, else 4K) and REMUX (also when written as [4K R] / [DV R]); on the title's page every mark (resolution, REMUX, HDR, Atmos/7.1/5.1)
 - 🎨 About: the OwnTV Fanart Telegram QR is now drawn like Telegram's own group codes — rounded dots in the Fanart colours, the Telegram plane in the middle and @OWNTVFANART below
 - 🖼️ TV guide: programme pictures are stored again on every guide update (they had been left out since the core update)
+- 📺 Sports › Watch live: channels ordered by how surely their guide names the match, then by picture quality
