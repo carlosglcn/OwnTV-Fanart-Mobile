@@ -122,6 +122,8 @@ internal fun sportLabel(sport: Sport): String = stringResource(
         Sport.AUSSIE_RULES -> R.string.sports_sport_aussie_rules
         Sport.VOLLEYBALL -> R.string.sports_sport_volleyball
         Sport.LACROSSE -> R.string.sports_sport_lacrosse
+        Sport.CYCLING -> R.string.sports_sport_cycling
+        Sport.SNOOKER -> R.string.sports_sport_snooker
     },
 )
 
@@ -141,6 +143,8 @@ internal fun sportEmoji(sport: Sport): String = when (sport) {
     Sport.RUGBY, Sport.RUGBY_LEAGUE, Sport.AUSSIE_RULES -> "🏉"
     Sport.VOLLEYBALL -> "🏐"
     Sport.LACROSSE -> "🥍"
+    Sport.CYCLING -> "🚴"
+    Sport.SNOOKER -> "🎱"
 }
 
 @Composable

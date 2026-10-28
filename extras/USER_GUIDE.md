@@ -143,6 +143,15 @@ anything playing and takes a few minutes.
 Choose per section whether Live, Movies and Series are fetched. A big import offers **Run in
 background** so you can start using the app immediately; a status pill shows progress.
 
+### ✨ Clean channel names
+**Where:** Settings → Sources & guide → Playlists → tap a playlist → **Names**
+Turn on **Clean channel names** and that playlist's channels lose a country prefix (`UK|`, `[US]`,
+`DE:`) and a quality tag at the end (`HD`, `FHD`, `4K`, `HEVC`) everywhere they appear: "UK| News
+One HD" shows as "News One". **Also remove** takes your own words, separated by `;`, removed from
+the start or end of every name. Saving refreshes the playlist. Guide matching still uses the
+provider's names, channels you renamed in Customize keep your name, and favourites and history stay
+put. Switch it off and the next refresh brings the original names back.
+
 ### 🗂️ Several playlists
 **Where:** the playlist button at the top right
 Show them all merged, or narrow the whole app to one. Rows carry the provider's name when more than
@@ -216,6 +225,10 @@ this is why. Add XMLTV feeds here, **Fill from playlist** to take the URL your p
 carries, set a User-Agent, pick a refresh interval — which can be **every N days** — and choose
 whether to use that feed's channel logos. The refresh runs when the app opens or comes back, and
 waits while something is playing.
+
+When two feeds list the same channel, the one higher on the list is used. Tap a feed and choose
+**Move up** or **Move down** to set the order; a lower feed still fills any hours the higher one
+leaves empty.
 
 **Guide days to keep** is under Settings → Sources & guide → Guide & catch-up, beside EPG time offset: how many days of upcoming guide to store, 1–14, seven
 by default. The same number decides how much is downloaded, how much is kept, and how many days the
@@ -463,8 +476,9 @@ Each has its own favourites, history, resume points and layout. Add a **PIN**, o
 profile** to hide adult content everywhere. Pick one of ten drawn avatars — or **a photo of your
 own**, already while creating the profile.
 
-**Where a profile opens:** Settings → App → **App startup** — Home, the last channel, Favourites, or one
-chosen channel.
+**Where a profile opens:** Settings → App → **App startup** — Home, the last channel (full screen),
+**Last channel · TV Guide** or **Last channel · Live TV** (that tab opens on the channel's category with
+the channel in the preview), Favourites, or one chosen channel.
 
 ---
 
