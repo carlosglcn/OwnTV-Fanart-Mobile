@@ -13,3 +13,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🎨 About: the OwnTV Fanart Telegram QR is now drawn like Telegram's own group codes — rounded dots in the Fanart colours, the Telegram plane in the middle and @OWNTVFANART below
 - 🖼️ TV guide: programme pictures are stored again on every guide update (they had been left out since the core update)
 - 📺 Sports › Watch live: channels ordered by how surely their guide names the match, then by picture quality
+- 🖼️ Films and series with a TMDB id typed by hand: the TMDB poster replaces the provider's on every card, also after re-syncs
