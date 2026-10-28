@@ -135,6 +135,7 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
         )
         // The Telegram card: the QR drawn from the address (never shipped as a picture, so the two cannot
         // drift), the group, the address in the accent, and the whole card opens it.
+        // glcn: this version's own group first, then the original project's.
         val interaction = remember { MutableInteractionSource() }
         Row(
             Modifier
@@ -142,7 +143,32 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(18.dp))
                 .background(palette.ink.copy(alpha = 0.045f))
-                .stageClickable(interaction, { openLink(context, "https://$TELEGRAM_LINK") }, null)
+                .stageClickable(interaction, { openLink(context, "https://$GLCN_TELEGRAM_LINK") }, null)
+                .padding(14.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            remember { CompanionLink.renderQr("https://$GLCN_TELEGRAM_LINK") }?.let { qr ->
+                Image(
+                    bitmap = qr.asImageBitmap(),
+                    contentDescription = stringResource(R.string.settings_telegram_qr),
+                    modifier = Modifier.size(84.dp).clip(RoundedCornerShape(10.dp)).background(Color.White).padding(6.dp),
+                )
+            }
+            Column {
+                        Text(stringResource(R.string.glcn_about_community_fanart), style = stageText(14f, 800), color = palette.text)
+                Text(GLCN_TELEGRAM_LINK, style = stageText(11f, 500), color = stageAccent.accent)
+                Text(stringResource(R.string.more_about_scan_mobile), style = stageText(11f, 500), color = palette.muted)
+            }
+        }
+        val interactionOriginal = remember { MutableInteractionSource() }
+        Row(
+            Modifier
+                .padding(top = 10.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(18.dp))
+                .background(palette.ink.copy(alpha = 0.045f))
+                .stageClickable(interactionOriginal, { openLink(context, "https://$TELEGRAM_LINK") }, null)
                 .padding(14.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -155,8 +181,7 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
                 )
             }
             Column {
-                // glcn: the original project's community, named as such.
-                Text(stringResource(R.string.glcn_about_community), style = stageText(14f, 800), color = palette.text)
+                        Text(stringResource(R.string.glcn_about_community), style = stageText(14f, 800), color = palette.text)
                 Text(TELEGRAM_LINK, style = stageText(11f, 500), color = stageAccent.accent)
                 Text(stringResource(R.string.more_about_scan_mobile), style = stageText(11f, 500), color = palette.muted)
             }
@@ -321,6 +346,7 @@ internal fun loggedWhen(atMs: Long): String {
 private const val GITHUB_REPO = "github.com/ahXN00/OwnTV_Mobile"
 private const val GLCN_REPO = "github.com/carlosglcn/OwnTV-Fanart-Mobile"
 private const val TELEGRAM_LINK = "t.me/owntvplayer"
+private const val GLCN_TELEGRAM_LINK = "t.me/owntvfanart"
 
 
 private fun openLink(context: Context, url: String) {
