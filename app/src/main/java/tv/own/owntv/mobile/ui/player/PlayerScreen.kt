@@ -150,6 +150,18 @@ fun PlayerScreen(
     val autoFrameRate by settings.autoFrameRate.collectAsStateWithLifecycle(initialValue = false)
     val previousChannel by tuner.previousChannel.collectAsStateWithLifecycle()
     val film by vodTuner.playing.collectAsStateWithLifecycle()
+    // glcn: "Watch on TV" from the player — the channel or film on screen opens on the paired TV, found there by name.
+    val syncAuto = koinInject<tv.own.owntv.core.sync.local.AutoSyncManager>()
+    val pairedTvs by syncAuto.devices.collectAsStateWithLifecycle(initialValue = emptyList())
+    val appCtx = androidx.compose.ui.platform.LocalContext.current.applicationContext
+    val tvFail = stringResource(R.string.glcn_tv_unreachable)
+    val sendLink = channel?.let { tv.own.owntv.core.launcher.LauncherDeepLink.Live(name = it.name) }
+        ?: film?.takeIf { it.mediaType == tv.own.owntv.core.model.MediaType.MOVIE }?.let { tv.own.owntv.core.launcher.LauncherDeepLink.Movie(name = it.title) }
+    val sendToTv: (() -> Unit)? = if (pairedTvs.isNotEmpty() && sendLink != null) ({
+        syncAuto.sendCommandInBackground(sendLink.toUri().toString()) { r ->
+            android.widget.Toast.makeText(appCtx, r.getOrNull()?.let { appCtx.getString(R.string.glcn_sent_to_tv, it.name) } ?: tvFail, android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }) else null
     val nowNext by tuner.nowNext.collectAsStateWithLifecycle()
     val siblings by tuner.siblings.collectAsStateWithLifecycle()
     // Held as States, not values: both tick about once a second while an archive plays, and only
@@ -769,6 +781,7 @@ fun PlayerScreen(
             onChannelList = { quickZap = true }.takeIf { isLive },
             onGuide = onOpenGuide.takeIf { isLive },
             onCopies = { sheet = PlayerSheet.COPIES }.takeIf { isLive && copies.size > 1 },
+            onSendToTv = sendToTv,
             // A stream with no video track has nothing to go back to, so for that one the button
             // only ever reports the state it is already in. Every other stream is showing its
             // picture here, because full screen is never sound-only — so the button is only ever

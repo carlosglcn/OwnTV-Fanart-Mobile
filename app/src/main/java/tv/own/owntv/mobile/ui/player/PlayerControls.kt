@@ -129,6 +129,8 @@ fun PlayerControls(
     onChannelList: (() -> Unit)? = null,
     onGuide: (() -> Unit)? = null,
     onCopies: (() -> Unit)? = null,
+    /** glcn: "Watch on TV" — sends what is playing to the paired TV (null when none is paired). */
+    onSendToTv: (() -> Unit)? = null,
     audioOnly: Boolean,
     onAudioOnly: () -> Unit,
     /** Whether what is playing is one of this profile's favourites. */
@@ -199,6 +201,7 @@ fun PlayerControls(
                         onChannelList = onChannelList,
                         onGuide = onGuide,
                         onCopies = onCopies,
+                        onSendToTv = onSendToTv,
                         matchLine = matchLine,
                     )
                     // Under the identity rather than beside it: the guide line is the longest text on
@@ -294,6 +297,7 @@ private fun TopRow(
     onChannelList: (() -> Unit)? = null,
     onGuide: (() -> Unit)? = null,
     onCopies: (() -> Unit)? = null,
+    onSendToTv: (() -> Unit)? = null,
     matchLine: (@Composable () -> Unit)? = null,
 ) {
     val engine by player.engineChip.collectAsStateWithLifecycle()
@@ -334,6 +338,9 @@ private fun TopRow(
         // It shows itself only when a receiver is actually within reach — the SDK's own behaviour,
         // and the reason the bar does not carry a permanently dead button.
         CastRouteButton(light = true)
+        onSendToTv?.let {
+            IconButton(onClick = it) { Icon(MobileIcons.Tv, stringResource(R.string.glcn_watch_on_tv), tint = Color.White) }
+        }
         // glcn: the way to another channel or to the guide, where a thumb already is.
         onCopies?.let {
             IconButton(onClick = it) { Icon(MobileIcons.Tune, stringResource(R.string.player_tool_quality), tint = Color.White) }

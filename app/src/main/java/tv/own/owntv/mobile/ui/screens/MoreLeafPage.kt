@@ -27,6 +27,7 @@ fun MoreLeafPage(
         MoreLeaf.HISTORY -> WatchHistoryScreen(onOpenChannel, onOpenItem, onOpenPlayer)
         MoreLeaf.BACKUP -> SettingsBackupPage()
         MoreLeaf.LOCAL_SYNC -> SettingsLocalSyncPage()
+        MoreLeaf.REMOTE -> RemotePage()
         MoreLeaf.ERROR_LOG -> SettingsErrorLogPage()
         MoreLeaf.ABOUT -> AboutPage(onOpenLanguage)
     }

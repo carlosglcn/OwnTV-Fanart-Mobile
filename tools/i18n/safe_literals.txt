@@ -153,8 +153,10 @@
 1	uri	app/src/main/java/tv/own/owntv/mobile/ui/screens/MoreLeaf.kt	history
 1	uri	app/src/main/java/tv/own/owntv/mobile/ui/screens/MoreLeaf.kt	localsync
 1	uri	app/src/main/java/tv/own/owntv/mobile/ui/screens/MoreLeaf.kt	more/$slug
+1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/MoreLeaf.kt	remote
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/MoreScreen.kt	,
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/MoreScreen.kt	Rebuild Now Trending
+2	empty	app/src/main/java/tv/own/owntv/mobile/ui/screens/RemotePage.kt	\0
 1	empty	app/src/main/java/tv/own/owntv/mobile/ui/screens/downloads/DownloadsScreen.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/downloads/DownloadsScreen.kt	
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/downloads/DownloadsScreen.kt	

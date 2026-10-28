@@ -16,3 +16,5 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🖼️ Films and series with a TMDB id typed by hand: the TMDB poster replaces the provider's on every card, also after re-syncs
 - 🆕 Movies and Series open sorted by date added (newest first) unless you chose another order
 - 🏎️ Racing: while a session runs, the match page lists the whole live order (the follow sheet still offers the first three)
+- 📺 Player: "Watch on TV" button in the top bar — the channel or film on screen opens on the paired TV.
+- 🎮 More › TV remote: the phone as the paired TV's remote (arrows, OK, Back, play/pause, channel, volume) and keyboard (typed words open Search on the TV).

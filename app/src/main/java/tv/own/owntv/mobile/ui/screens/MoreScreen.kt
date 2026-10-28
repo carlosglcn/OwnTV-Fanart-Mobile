@@ -122,6 +122,7 @@ fun MoreScreen(
             )
         }
         item {
+            val pairedForRemote by org.koin.compose.koinInject<tv.own.owntv.core.sync.local.AutoSyncManager>().devices.collectAsStateWithLifecycle(initialValue = emptyList())
             Column(Modifier.padding(top = 10.dp)) {
                 MoreItem(
                     R.string.common_nav_settings, MobileIcons.Settings,
@@ -149,6 +150,8 @@ fun MoreScreen(
                     chevron = true,
                 )
                 MoreItem(R.string.local_sync_title, MobileIcons.Phone, stringResource(if (syncOn) R.string.common_on else R.string.common_off)) { onOpenLeaf(MoreLeaf.LOCAL_SYNC) }
+                // glcn: the phone as the TV's remote — only once a TV is paired.
+                if (pairedForRemote.isNotEmpty()) MoreItem(R.string.glcn_remote_title, MobileIcons.Tv, null) { onOpenLeaf(MoreLeaf.REMOTE) }
                 StageGroupLabel(stringResource(R.string.settings_app_group))
                 MoreItem(R.string.settings_playback_error_log, MobileIcons.Warning, logCount.toString()) { onOpenLeaf(MoreLeaf.ERROR_LOG) }
                 MoreItem(R.string.settings_about, MobileIcons.Info, BuildConfig.VERSION_NAME) { onOpenLeaf(MoreLeaf.ABOUT) }
