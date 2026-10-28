@@ -687,7 +687,8 @@ private fun ToolBar(
             }
             // Phone-only today; the television reaches the same list with Left.
             PlayerControl.CHANNEL_LIST -> if (isLive) {
-                CtrlButton(MobileIcons.FormatListBulleted, stringResource(R.string.content_channel_overlay_title), {
+                // glcn: the categories (the list button at the top opens the quick zap panel).
+                CtrlButton(MobileIcons.Folder, stringResource(R.string.content_category_browser_title), {
                     onOpenSheet(PlayerSheet.CHANNELS)
                 })
             }

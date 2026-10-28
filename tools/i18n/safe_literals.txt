@@ -122,6 +122,7 @@
 2	log	app/src/main/java/tv/own/owntv/mobile/ui/player/PlayerSeekBar.kt	rise
 2	log	app/src/main/java/tv/own/owntv/mobile/ui/player/PlayerSeekBar.kt	track
 1	empty	app/src/main/java/tv/own/owntv/mobile/ui/player/PlayerSheets.kt	\0
+4	empty	app/src/main/java/tv/own/owntv/mobile/ui/player/QuickZapPanel.kt	\0
 1	json	app/src/main/java/tv/own/owntv/mobile/ui/player/SubtitleSearchViewModel.kt	ai_translated
 1	json	app/src/main/java/tv/own/owntv/mobile/ui/player/SubtitleSearchViewModel.kt	attributes
 1	json	app/src/main/java/tv/own/owntv/mobile/ui/player/SubtitleSearchViewModel.kt	data

@@ -337,6 +337,21 @@ class LiveTuner(
     suspend fun nowProgrammes(channels: List<ChannelEntity>): Map<Long, tv.own.owntv.core.parser.XtEpgEntry> =
         epgReader.nowProgrammesFor(channels, custom.value, settings.epgOffsetMinutes.first())
 
+    /** glcn: what is on and what follows on [ch], for the quick zap panel's rows. */
+    suspend fun nowNextFor(ch: ChannelEntity): EpgNowNext? =
+        runCatching { epgReader.nowNext(ch, custom.value, settings.epgOffsetMinutes.first()) }.getOrNull()
+
+    /** glcn: channels whose name holds [query], across the profile's playlists, hidden ones left out and renames applied. */
+    suspend fun searchChannels(query: String): List<ChannelEntity> {
+        val c = ctx.value
+        val q = query.trim()
+        if (c.profileId < 0 || q.length < 2) return emptyList()
+        val cust = custom.value
+        val raw = withContext(Dispatchers.IO) { channelDao.searchList(q, c.liveSourceIds.ifEmpty { listOf(-1L) }, QUICK_SEARCH_LIMIT) }
+        return raw.filter { CustomizeKeys.channel(it) !in cust.hiddenItems }
+            .map { ch -> cust.itemNames[CustomizeKeys.channel(ch)]?.let { ch.copy(name = it) } ?: ch }
+    }
+
     private val _channel = MutableStateFlow<ChannelEntity?>(null)
 
     /** The channel on screen, with the user's own name for it. */
@@ -1237,6 +1252,8 @@ class LiveTuner(
 
     private companion object {
         const val SIBLING_LIMIT = 2_000
+        /** glcn: how many matches the quick zap search shows. */
+        const val QUICK_SEARCH_LIMIT = 60
 
         /** How long Channel +/− waits for the user to stop pressing before it opens a stream — the
          *  television's figure. */

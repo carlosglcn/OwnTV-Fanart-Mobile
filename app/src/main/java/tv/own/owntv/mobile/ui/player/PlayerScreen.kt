@@ -207,6 +207,8 @@ fun PlayerScreen(
     var playerChannels by remember { mutableStateOf<List<ChannelEntity>>(emptyList()) }
     var playerCategories by remember { mutableStateOf<List<Pair<LiveKey, String>>>(emptyList()) }
     var playerCategoriesLoaded by remember { mutableStateOf(false) }
+    // glcn: the quick zap panel (the list button and a swipe up).
+    var quickZap by remember { mutableStateOf(false) }
     // Loaded when the picker opens, not when the player does: it is a database read nobody watching
     // a channel has asked for.
     LaunchedEffect(multiviewPickFor) {
@@ -610,7 +612,8 @@ fun PlayerScreen(
                     showHud(GestureFeedback.Zoom(mode))
                 },
                 onSwipeDown = onExit,
-                onSwipeUp = { if (isLive) sheet = PlayerSheet.CHANNELS },
+                // glcn: swiping up opens the quick zap panel (the categories are a button on the bar).
+                onSwipeUp = { if (isLive) quickZap = true },
                 onSpeedHold = { held ->
                     if (isLive) return@playerGestures
                     if (held) {
@@ -736,7 +739,7 @@ fun PlayerScreen(
             // Nothing is drawn over the picture in the little window: it is a thumbnail, and the
             // system draws its own buttons on top of it.
             // Held sideways the channel list is a panel over the picture alone: the controls step aside.
-            visible = controlsVisible && !inPip && !(sheet == PlayerSheet.CHANNELS && landscape),
+            visible = controlsVisible && !inPip && !quickZap && !(sheet == PlayerSheet.CHANNELS && landscape),
             isLive = isLive,
             offsetSec = offsetSecState,
             archiveWindowSec = archiveWindowSec,
@@ -762,7 +765,8 @@ fun PlayerScreen(
             // or floating as the user set it. This is the app's own small window and stays inside the
             // app — the system one that floats over *other* apps is what pressing Home gives.
             onMini = onExit,
-            onChannelList = { sheet = PlayerSheet.CHANNELS }.takeIf { isLive },
+            // glcn: the list button opens the quick zap panel; the bar's own button keeps the categories.
+            onChannelList = { quickZap = true }.takeIf { isLive },
             onGuide = onOpenGuide.takeIf { isLive },
             onCopies = { sheet = PlayerSheet.COPIES }.takeIf { isLive && copies.size > 1 },
             // A stream with no video track has nothing to go back to, so for that one the button
@@ -850,6 +854,18 @@ fun PlayerScreen(
                 { tv.own.owntv.mobile.ui.screens.sports.MatchScoreLine(sportsPlayback, session.match, sportsConfig.spoilerFree) }
             },
             onOtherChannels = matchSession?.takeIf { it.options.size > 1 }?.let { { otherChannels = true } },
+        )
+        // glcn: the quick zap panel — the list being watched, with what is on and what follows, and a search.
+        QuickZapPanel(
+            visible = quickZap && isLive && !inPip && multiview == null,
+            channels = siblings,
+            currentId = channel?.id,
+            showNumber = showChannelNumbers,
+            landscape = landscape,
+            loadNowNext = tuner::nowNextFor,
+            search = tuner::searchChannels,
+            onPick = { tuner.switchTo(it); quickZap = false },
+            onDismiss = { quickZap = false },
         )
         if (otherChannels) {
             val session = matchSession
