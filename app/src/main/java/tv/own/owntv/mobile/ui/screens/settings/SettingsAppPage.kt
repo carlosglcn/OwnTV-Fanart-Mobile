@@ -148,13 +148,12 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            remember { CompanionLink.renderQr("https://$GLCN_TELEGRAM_LINK") }?.let { qr ->
-                Image(
-                    bitmap = qr.asImageBitmap(),
-                    contentDescription = stringResource(R.string.settings_telegram_qr),
-                    modifier = Modifier.size(84.dp).clip(RoundedCornerShape(10.dp)).background(Color.White).padding(6.dp),
-                )
-            }
+            // glcn: drawn like Telegram's own group codes (rounded dots, the plane in the middle, the name below).
+            Image(
+                painter = androidx.compose.ui.res.painterResource(R.drawable.telegram_qr_fanart),
+                contentDescription = stringResource(R.string.settings_telegram_qr),
+                modifier = Modifier.size(84.dp).clip(RoundedCornerShape(10.dp)).background(Color.White).padding(4.dp),
+            )
             Column {
                         Text(stringResource(R.string.glcn_about_community_fanart), style = stageText(14f, 800), color = palette.text)
                 Text(GLCN_TELEGRAM_LINK, style = stageText(11f, 500), color = stageAccent.accent)
