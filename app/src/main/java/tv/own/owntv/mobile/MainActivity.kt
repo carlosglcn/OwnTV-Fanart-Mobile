@@ -293,6 +293,7 @@ open class MainActivity : FragmentActivity() {
     override fun onStop() {
         super.onStop()
         tv.own.owntv.mobile.widget.SportsWidget.refresh(this) // glcn
+        tv.own.owntv.mobile.widget.FavoritesWidget.refresh(this) // glcn
         if (!isChangingConfigurations) get<tv.own.owntv.core.sync.local.AutoSyncManager>().onBackground() // glcn
         if (isChangingConfigurations) return
         // Stopped after the floating window was up, without ever resuming in between: the window was

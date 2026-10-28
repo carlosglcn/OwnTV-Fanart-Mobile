@@ -277,6 +277,18 @@
             android:authorities="${applicationId}.glcnart"
             android:exported="true" />
 
+        <!-- glcn: home-screen widget, "On now in your favourites". -->
+        <receiver
+            android:name=".widget.FavoritesWidget"
+            android:exported="false"
+            android:label="@string/glcn_widget_favorites_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/glcn_widget_favorites_info" />
+        </receiver>
         <!-- glcn: home-screen widget, "Sports now". -->
         <receiver
             android:name=".widget.SportsWidget"

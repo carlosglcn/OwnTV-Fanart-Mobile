@@ -365,6 +365,7 @@ fun HomeScreen(
                         onOpenChannel = onOpenChannel,
                         onOpenMovie = onOpenMovie,
                         onOpenSeries = onOpenSeries,
+                        cover = rows.firstOrNull() == HomeRow.FEATURED,
                     )
                     HomeRow.TONIGHT -> TonightRowMobile(
                         items = state.tonight,

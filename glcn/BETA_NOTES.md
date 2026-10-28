@@ -18,3 +18,5 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🏎️ Racing: while a session runs, the match page lists the whole live order (the follow sheet still offers the first three)
 - 📺 Player: "Watch on TV" button in the top bar — the channel or film on screen opens on the paired TV.
 - 🎮 More › TV remote: the phone as the paired TV's remote (arrows, OK, Back, play/pause, channel, volume) and keyboard (typed words open Search on the TV).
+- 🖼️ Home: with Featured first, its slides become a tall edge-to-edge fanart cover with a slow push-in, fading into the page.
+- 🧩 New home-screen widget "On now in your favourites": what four favourite channels are showing; tap to watch.

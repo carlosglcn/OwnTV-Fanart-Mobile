@@ -30,6 +30,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -225,6 +226,8 @@ internal fun FeaturedCarousel(
     onOpenChannel: (Long) -> Unit,
     onOpenMovie: (Long) -> Unit,
     onOpenSeries: (Long) -> Unit,
+    /** glcn: first on Home — the slides become a cover, edge to edge and tall, fading into the page. */
+    cover: Boolean = false,
 ) {
     // glcn: only slides whose picture can fill the card (see rememberBillboardSlides).
     val slides = tv.own.owntv.mobile.ui.components.rememberBillboardSlides(allItems)
@@ -248,18 +251,19 @@ internal fun FeaturedCarousel(
     }
     val context = LocalContext.current
     val fmt = remember { android.text.format.DateFormat.getTimeFormat(context) }
-    Column(Modifier.padding(top = MobileDimens.GapSmall)) {
+    val page0 = tv.own.owntv.mobile.ui.stage.LocalStagePalette.current.page
+    Column(Modifier.padding(top = if (cover) 0.dp else MobileDimens.GapSmall)) {
         HorizontalPager(
             state = pager,
-            contentPadding = PaddingValues(horizontal = MobileDimens.ScreenPaddingH),
-            pageSpacing = MobileDimens.GapSmall,
+            contentPadding = PaddingValues(horizontal = if (cover) 0.dp else MobileDimens.ScreenPaddingH),
+            pageSpacing = if (cover) 0.dp else MobileDimens.GapSmall,
         ) { page ->
             val item = items[page]
             Box(
                 Modifier
                     .fillMaxWidth()
-                    .aspectRatio(16f / 10f)
-                    .clip(RoundedCornerShape(20.dp))
+                    .aspectRatio(if (cover) COVER_RATIO else 16f / 10f)
+                    .clip(RoundedCornerShape(if (cover) 0.dp else 20.dp))
                     .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                     .clickable {
                         when (item) {
@@ -269,9 +273,22 @@ internal fun FeaturedCarousel(
                         }
                     },
             ) {
-                AsyncImage(model = slides[page].second, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
-                Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.25f to Color.Transparent, 0.6f to Color.Black.copy(alpha = 0.75f), 1f to Color.Black.copy(alpha = 0.97f))))
-                Column(Modifier.align(Alignment.BottomStart).padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (cover) {
+                    // A slow push into the picture while its slide is on screen.
+                    val zoom = remember(page) { androidx.compose.animation.core.Animatable(1f) }
+                    LaunchedEffect(pager.settledPage == page) {
+                        if (pager.settledPage == page) zoom.animateTo(1.08f, androidx.compose.animation.core.tween(9_000, easing = androidx.compose.animation.core.LinearEasing)) else zoom.snapTo(1f)
+                    }
+                    AsyncImage(
+                        model = slides[page].second, contentDescription = null, contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize().graphicsLayer { scaleX = zoom.value; scaleY = zoom.value },
+                    )
+                    Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0f to Color.Black.copy(alpha = 0.35f), 0.22f to Color.Transparent, 0.55f to Color.Transparent, 0.8f to page0.copy(alpha = 0.8f), 1f to page0)))
+                } else {
+                    AsyncImage(model = slides[page].second, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+                    Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.25f to Color.Transparent, 0.6f to Color.Black.copy(alpha = 0.75f), 1f to Color.Black.copy(alpha = 0.97f))))
+                }
+                Column(Modifier.align(Alignment.BottomStart).padding(horizontal = if (cover) 20.dp else 16.dp, vertical = if (cover) 22.dp else 16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                         when (item) {
                             is FeaturedItem.Live -> {
@@ -289,7 +306,8 @@ internal fun FeaturedCarousel(
                             is FeaturedItem.Movie -> item.movie.name
                             is FeaturedItem.Series -> item.series.name
                         },
-                        color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis,
+                        color = if (cover) tv.own.owntv.mobile.ui.stage.LocalStagePalette.current.text else Color.White,
+                        fontSize = if (cover) 30.sp else 22.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis,
                     )
                     val line = when (item) {
                         is FeaturedItem.Live -> listOfNotNull(
@@ -299,7 +317,7 @@ internal fun FeaturedCarousel(
                         is FeaturedItem.Movie -> listOfNotNull(item.movie.year?.toString(), item.movie.rating?.let { "★ %.1f".format(it) }).joinToString("  ·  ")
                         is FeaturedItem.Series -> listOfNotNull(item.series.year?.toString(), item.series.rating?.let { "★ %.1f".format(it) }).joinToString("  ·  ")
                     }
-                    if (line.isNotBlank()) Text(line, color = Color.White.copy(alpha = 0.8f), fontSize = 13.sp)
+                    if (line.isNotBlank()) Text(line, color = if (cover) tv.own.owntv.mobile.ui.stage.LocalStagePalette.current.body else Color.White.copy(alpha = 0.8f), fontSize = 13.sp)
                 }
             }
         }
@@ -321,3 +339,6 @@ internal fun FeaturedCarousel(
         }
     }
 }
+
+/** glcn: the cover's shape — a phone's width, a little taller than wide. */
+private const val COVER_RATIO = 0.8f
