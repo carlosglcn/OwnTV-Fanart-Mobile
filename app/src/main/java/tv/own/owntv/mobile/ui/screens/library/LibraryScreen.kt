@@ -299,6 +299,7 @@ fun LibraryScreen(
                         StagePoster(
                             imageUrl = item.posterUrl,
                             title = item.name,
+                            badges = androidx.compose.runtime.remember(item.name) { tv.own.owntv.core.catalog.ProviderCatalogMetadataParser.posterBadges(item.name) },
                             rating = item.rating?.takeIf { it > 0 }?.let(::formatRating),
                             mark = marks[item.sourceId],
                             watched = item.id in watched,

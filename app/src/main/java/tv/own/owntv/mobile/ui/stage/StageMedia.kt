@@ -76,6 +76,8 @@ fun StagePoster(
     selected: Boolean = false,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
+    /** glcn: the quality marks the title advertises (DV, 4K, REMUX…), at most two, along the artwork's foot. */
+    badges: List<String> = emptyList(),
 ) {
     val palette = LocalStagePalette.current
     val accent = stageAccent
@@ -128,6 +130,18 @@ fun StagePoster(
                 layout(constraints.maxWidth, maxOf(left?.height ?: 0, right?.height ?: 0)) {
                     left?.place(0, 0)
                     right?.place(constraints.maxWidth - right.width, 0)
+                }
+            }
+            if (badges.isNotEmpty()) Row(
+                Modifier.align(Alignment.BottomStart).padding(start = 5.dp, bottom = if (progress != null) 9.dp else 5.dp),
+                horizontalArrangement = Arrangement.spacedBy(3.dp),
+            ) {
+                badges.take(2).forEach { b ->
+                    Text(
+                        b, style = stageText(9.5f, 800), maxLines = 1,
+                        color = if (b.startsWith("HDR") || b == "DV") Color(0xFFF2C14E) else Color.White,
+                        modifier = Modifier.background(Color(8, 12, 14).copy(alpha = 0.82f), RoundedCornerShape(5.dp)).padding(horizontal = 4.dp, vertical = 1.dp),
+                    )
                 }
             }
             progress?.let { WatchProgress(it) }
