@@ -278,7 +278,7 @@ private fun QuickZapRow(channel: ChannelEntity, epg: EpgNowNext?, playing: Boole
                     Text(it.toString(), style = stageText(12f, 700), color = if (playing) accent else Color.White.copy(alpha = 0.5f), maxLines = 1)
                 }
                 Text(
-                    ProviderTags.parse(channel.name).name, style = stageText(15f, if (playing) 800 else 700), color = Color.White,
+                    ProviderTags.displayName(channel.name), style = stageText(15f, if (playing) 800 else 700), color = Color.White,
                     maxLines = 1, overflow = TextOverflow.Ellipsis,
                 )
             }
