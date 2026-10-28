@@ -11,3 +11,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - ¹² TV guide and zap panels: a channel's feed number written as a superscript (M+ Terror ¹, M+ Terror ²) is kept in its name, so two feeds of one channel no longer look like the same row
 - 🏷️ Movies and Series: quality badges read from the title — on the posters the best picture mark (DV in gold, HDR10+, HDR10, HDR, else 4K) and REMUX (also when written as [4K R] / [DV R]); on the title's page every mark (resolution, REMUX, HDR, Atmos/7.1/5.1)
 - 🎨 About: the OwnTV Fanart Telegram QR is now drawn like Telegram's own group codes — rounded dots in the Fanart colours, the Telegram plane in the middle and @OWNTVFANART below
+- 🖼️ TV guide: programme pictures are stored again on every guide update (they had been left out since the core update)
