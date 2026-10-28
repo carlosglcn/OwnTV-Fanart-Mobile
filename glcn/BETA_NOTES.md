@@ -15,3 +15,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 📺 Sports › Watch live: channels ordered by how surely their guide names the match, then by picture quality
 - 🖼️ Films and series with a TMDB id typed by hand: the TMDB poster replaces the provider's on every card, also after re-syncs
 - ⚽ Sports: Ourense CF is named as such (ESPN calls it "Auriense")
+- 🆕 Movies and Series open sorted by date added (newest first) unless you chose another order
