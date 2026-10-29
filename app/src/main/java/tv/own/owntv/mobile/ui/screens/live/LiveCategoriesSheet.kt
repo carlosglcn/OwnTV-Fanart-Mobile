@@ -62,9 +62,12 @@ internal fun LiveCategoriesSheet(
     extra: String = stringResource(R.string.common_nav_live_tv),
 ) {
     var query by remember { mutableStateOf("") }
+    val nested = categories.filter { it.nested }
     val fixed = listOf(LiveKey.Favorites, LiveKey.History, LiveKey.Catchup, LiveKey.All)
         .mapNotNull { key -> categories.firstOrNull { it.key == key } }
-    val groups = categories.filter { it.builtIn == null }
+        // glcn: Favourites' groups right under it.
+        .flatMap { if (it.key == LiveKey.Favorites) listOf(it) + nested else listOf(it) }
+    val groups = categories.filter { it.builtIn == null && !it.nested }
     val parsed = remember(groups) { groups.associateWith { ProviderTags.parse(it.title.orEmpty()) } }
     val country = remember(parsed) { ProviderTags.sharedCountry(parsed.values.toList()) }
     val heading = if (country != null) stringResource(R.string.content_live_groups_country, country) else stringResource(R.string.content_live_groups)
@@ -94,6 +97,7 @@ internal fun LiveCategoriesSheet(
                     label = labels.getValue(c),
                     onClick = { pick(c.key) },
                     icon = c.icon(),
+                    modifier = if (c.nested) Modifier.padding(start = 24.dp) else Modifier,
                     filled = c.key == selected,
                     count = countOf(c.key),
                 )
@@ -115,7 +119,7 @@ internal fun LiveCategoriesSheet(
     }
 }
 
-private fun LiveCategory.icon() = when (builtIn) {
+private fun LiveCategory.icon() = if (nested) MobileIcons.Folder else when (builtIn) {
     LiveCategory.BuiltIn.FAVORITES -> MobileIcons.FavoriteBorder
     LiveCategory.BuiltIn.HISTORY -> MobileIcons.History
     LiveCategory.BuiltIn.CATCHUP -> MobileIcons.Catchup

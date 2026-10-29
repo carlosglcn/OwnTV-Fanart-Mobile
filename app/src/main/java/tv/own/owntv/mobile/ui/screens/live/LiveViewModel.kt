@@ -78,6 +78,8 @@ data class LiveCategory(
     val builtIn: BuiltIn? = null,
     /** The playlist a provider folder comes from, for its mark in the categories sheet. */
     val sourceId: Long? = null,
+    /** glcn: a group inside Favourites (made on the TV), listed under it. */
+    val nested: Boolean = false,
 ) {
     enum class BuiltIn { ALL, FAVORITES, HISTORY, CATCHUP }
 }
@@ -225,6 +227,18 @@ class LiveViewModel(
                     ),
                 )
             }
+        }
+    }.combine(
+        ctx.flatMapLatest { c ->
+            if (c.profileId < 0) flowOf(emptyList())
+            else org.koin.core.context.GlobalContext.get().get<tv.own.owntv.core.live.FavoriteGroups>().observeNames(c.profileId)
+        },
+    ) { list, groups ->
+        // glcn: Favourites' groups, right under it.
+        if (groups.isEmpty()) list
+        else list.flatMap { c ->
+            if (c.key != LiveKey.Favorites) listOf(c)
+            else listOf(c) + groups.map { g -> LiveCategory(LiveKey.Custom(tv.own.owntv.core.live.FavoriteGroups.keyOf(g)), title = g, nested = true) }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 

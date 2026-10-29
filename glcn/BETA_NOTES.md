@@ -20,3 +20,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🎮 More › TV remote: the phone as the paired TV's remote (arrows, OK, Back, play/pause, channel, volume) and keyboard (typed words open Search on the TV).
 - 🖼️ Home: with Featured first, its slides become a tall edge-to-edge fanart cover with a slow push-in, fading into the page.
 - 🧩 New home-screen widget "On now in your favourites": what four favourite channels are showing; tap to watch.
+- 📁 Live TV: the Favourites groups made on the TV show as folders under Favourites.
