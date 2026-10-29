@@ -190,6 +190,7 @@ private fun HomeRow.titleRes() = when (this) {
     HomeRow.FEATURED -> R.string.glcn_featured
     HomeRow.TONIGHT -> R.string.glcn_tonight
     HomeRow.GENRES -> R.string.glcn_genres
+    HomeRow.STARTING_SOON -> R.string.glcn_starting_soon
 }
 
 private fun HomeRow.descriptionRes() = when (this) {
@@ -208,6 +209,7 @@ private fun HomeRow.descriptionRes() = when (this) {
     HomeRow.FEATURED -> R.string.glcn_featured_description
     HomeRow.TONIGHT -> R.string.glcn_tonight_description
     HomeRow.GENRES -> R.string.glcn_genres_description
+    HomeRow.STARTING_SOON -> R.string.glcn_starting_soon_description
 }
 
 /** Which of the two channel rows this is, and the shape it is currently drawn in. */

@@ -21,3 +21,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🖼️ Home: with Featured first, its slides become a tall edge-to-edge fanart cover with a slow push-in, fading into the page.
 - 🧩 New home-screen widget "On now in your favourites": what four favourite channels are showing; tap to watch.
 - 📁 Live TV: the Favourites groups made on the TV show as folders under Favourites.
+- ⏰ Home: new "Starting soon" row (what starts within the half hour on your favourite and recent channels).

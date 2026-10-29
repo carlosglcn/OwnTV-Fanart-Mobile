@@ -192,12 +192,14 @@ internal fun TonightRowMobile(
     reminded: (TonightItem) -> Boolean,
     onToggleReminder: (TonightItem) -> Unit,
     onOpenChannel: (Long) -> Unit,
+    /** glcn: the row's heading ("Tonight" unless said otherwise — "Starting soon" uses the same row). */
+    title: String? = null,
 ) {
     if (items.isEmpty()) return
     val context = LocalContext.current
     val fmt = remember { android.text.format.DateFormat.getTimeFormat(context) }
     Column {
-        StageGroupLabel(stringResource(R.string.glcn_tonight))
+        StageGroupLabel(title ?: stringResource(R.string.glcn_tonight))
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(MobileDimens.GapSmall),
             contentPadding = PaddingValues(horizontal = MobileDimens.ScreenPaddingH),
