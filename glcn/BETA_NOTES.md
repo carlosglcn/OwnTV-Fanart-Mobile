@@ -24,3 +24,12 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - ⏰ Home: new "Starting soon" row (what starts within the half hour on your favourite and recent channels).
 - 🗣️ Trailers in your language first (metadata language, else the app's or the system's), English as the fallback.
 - 🔒 Beta: test builds are now published to a private repository, so only the beta can see them. Paste the read-only access token once in About › Beta access to keep updating from the app
+- 🔄 Merged the latest from the original OwnTV (thanks, ahXN00 and its contributors):
+  - 🔒 Lock a category behind the Customize PIN, and ask for the PIN to open Settings — per profile; reminders on a locked channel wait until it is opened
+  - 📝 Playlists: edits re-sync through the shared core; a backup restored without passwords keeps the playlists' names
+  - ↕️ Moved items keep their place, deleting asks first, and no "0 min" after Mark as watched
+- 🧠 Now on the same core as the TV app:
+  - 💬 Live TV: teletext subtitles (page 888) — Movistar+, La 1 and most Spanish channels — on the standard player
+  - 🔈 Live TV on mpv in stereo (Dolby 5.1 channels froze on one frame)
+  - 🎞️ Films: each file opens on the player that suits it (4K/HDR/Dolby Vision on ExoPlayer, unusual containers on mpv); Dolby Vision profile 7 plays as 8.1; a film stuck on its first frame moves to the other player
+  - ⏰ Habit reminders one at a time: the most watched keeps the slot
