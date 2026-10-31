@@ -34,3 +34,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
   - 🎞️ Films: each file opens on the player that suits it (4K/HDR/Dolby Vision on ExoPlayer, unusual containers on mpv); Dolby Vision profile 7 plays as 8.1; a film stuck on its first frame moves to the other player
   - ⏰ Habit reminders one at a time: the most watched keeps the slot
 - 📺 Live TV: when a guide lists two programmes at once, every screen names the same one, and "Up next" is what starts after it ends
+- 🔐 Emby / Jellyfin and WebDAV: they now use the app's own connection settings — the newer Let's Encrypt certificates the TV does not know, your custom DNS and proxy. A server whose certificate moved to the new roots said "Could not reach the server" on the TV while the phone reached it
