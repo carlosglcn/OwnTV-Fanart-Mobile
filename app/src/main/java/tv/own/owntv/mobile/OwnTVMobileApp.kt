@@ -98,7 +98,12 @@ class OwnTVMobileApp : Application(), androidx.work.Configuration.Provider {
         // would offer OwnTV-v*.apk — a different applicationId, which the installer refuses after
         // the whole download.
         CoreBuildInfo.releaseRepo = "carlosglcn/OwnTV-Fanart-Mobile" // glcn: our own releases
-        if (BuildConfig.GLCN_BETA) tv.own.owntv.core.CoreBuildInfo.releaseTag = "beta-latest" // glcn: the beta follows its own pre-release
+        // glcn: the beta is published only to a private repository, read with the token pasted once in About.
+        if (BuildConfig.GLCN_BETA) {
+            CoreBuildInfo.releaseRepo = "carlosglcn/OwnTV-Fanart-Beta"
+            CoreBuildInfo.releaseTag = "beta-mobile"
+            CoreBuildInfo.releaseNeedsToken = true
+        }
         // Fixed for this process before any player exists: the setting applies only after a restart.
         tv.own.owntv.core.player.FfmpegAudioSetting.load(this)
         // First thing after the context exists: a crash from here on leaves a trace on disk instead

@@ -82,6 +82,7 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
     val updateState by updates.state.collectAsStateWithLifecycle()
     val checkedAt by settings.lastUpdateCheckAt.collectAsStateWithLifecycle(initialValue = null)
     var updateSheet by remember { mutableStateOf(false) }
+    var tokenSheet by remember { mutableStateOf(false) }
     val sep = stringResource(R.string.content_epg_bits_separator)
 
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(start = 18.dp, end = 18.dp, top = 35.dp, bottom = 24.dp)) {
@@ -193,9 +194,38 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
             val languages = tv.own.owntv.core.i18n.SupportedLocales.all.count { it.packaged }
             StageTool(onClick = onOpenLanguage, label = pluralStringResource(R.plurals.more_about_languages, languages, languages), icon = MobileIcons.Translate)
             StageTool(onClick = { updateSheet = true }, label = stringResource(R.string.settings_check_updates), icon = MobileIcons.Refresh)
+            // glcn: the beta's updates come from a private repository; its token is pasted here once.
+            if (BuildConfig.GLCN_BETA) {
+                StageTool(onClick = { tokenSheet = true }, label = stringResource(R.string.glcn_beta_token), icon = MobileIcons.Lock)
+            }
         }
     }
     if (updateSheet) UpdateSheet(onDismiss = { updateSheet = false }, checkOnOpen = true)
+    if (tokenSheet) {
+        var token by remember { mutableStateOf("") }
+        val saved = updates.accessToken != null
+        tv.own.owntv.mobile.ui.components.MobileBottomSheet(onDismissRequest = { tokenSheet = false }) {
+            tv.own.owntv.mobile.ui.stage.StageSheetHeader(stringResource(R.string.glcn_beta_token_title))
+            SheetText(stringResource(R.string.glcn_beta_token_hint))
+            tv.own.owntv.mobile.ui.stage.StageField(
+                value = token,
+                onValueChange = { token = it },
+                label = stringResource(R.string.glcn_beta_token_label),
+                password = true,
+                supportingText = if (saved) stringResource(R.string.glcn_beta_token_saved) else null,
+                modifier = Modifier.padding(horizontal = 6.dp),
+            )
+            Row(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StageButton(onClick = { tokenSheet = false }, text = stringResource(R.string.common_cancel), modifier = Modifier.weight(1f))
+                StageButton(
+                    onClick = { updates.accessToken = token; tokenSheet = false; updateSheet = true },
+                    text = stringResource(R.string.common_save),
+                    style = StageButtonStyle.PRIMARY,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+    }
 }
 
 /**

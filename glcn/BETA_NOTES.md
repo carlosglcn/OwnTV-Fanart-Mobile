@@ -23,3 +23,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 📁 Live TV: the Favourites groups made on the TV show as folders under Favourites.
 - ⏰ Home: new "Starting soon" row (what starts within the half hour on your favourite and recent channels).
 - 🗣️ Trailers in your language first (metadata language, else the app's or the system's), English as the fallback.
+- 🔒 Beta: test builds are now published to a private repository, so only the beta can see them. Paste the read-only access token once in About › Beta access to keep updating from the app
