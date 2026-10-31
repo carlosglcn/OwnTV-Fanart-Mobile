@@ -33,3 +33,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
   - 🔈 Live TV on mpv in stereo (Dolby 5.1 channels froze on one frame)
   - 🎞️ Films: each file opens on the player that suits it (4K/HDR/Dolby Vision on ExoPlayer, unusual containers on mpv); Dolby Vision profile 7 plays as 8.1; a film stuck on its first frame moves to the other player
   - ⏰ Habit reminders one at a time: the most watched keeps the slot
+- 📺 Live TV: when a guide lists two programmes at once, every screen names the same one, and "Up next" is what starts after it ends
