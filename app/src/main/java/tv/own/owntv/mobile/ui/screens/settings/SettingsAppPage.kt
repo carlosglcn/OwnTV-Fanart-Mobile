@@ -82,6 +82,7 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
     val updateState by updates.state.collectAsStateWithLifecycle()
     val checkedAt by settings.lastUpdateCheckAt.collectAsStateWithLifecycle(initialValue = null)
     var updateSheet by remember { mutableStateOf(false) }
+    var tokenSheet by remember { mutableStateOf(false) }
     val sep = stringResource(R.string.content_epg_bits_separator)
 
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(start = 18.dp, end = 18.dp, top = 35.dp, bottom = 24.dp)) {
@@ -135,6 +136,7 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
         )
         // The Telegram card: the QR drawn from the address (never shipped as a picture, so the two cannot
         // drift), the group, the address in the accent, and the whole card opens it.
+        // glcn: this version's own group first, then the original project's.
         val interaction = remember { MutableInteractionSource() }
         Row(
             Modifier
@@ -142,7 +144,31 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(18.dp))
                 .background(palette.ink.copy(alpha = 0.045f))
-                .stageClickable(interaction, { openLink(context, "https://$TELEGRAM_LINK") }, null)
+                .stageClickable(interaction, { openLink(context, "https://$GLCN_TELEGRAM_LINK") }, null)
+                .padding(14.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            // glcn: drawn like Telegram's own group codes (rounded dots, the plane in the middle, the name below).
+            Image(
+                painter = androidx.compose.ui.res.painterResource(R.drawable.telegram_qr_fanart),
+                contentDescription = stringResource(R.string.settings_telegram_qr),
+                modifier = Modifier.size(84.dp).clip(RoundedCornerShape(10.dp)).background(Color.White).padding(4.dp),
+            )
+            Column {
+                        Text(stringResource(R.string.glcn_about_community_fanart), style = stageText(14f, 800), color = palette.text)
+                Text(GLCN_TELEGRAM_LINK, style = stageText(11f, 500), color = stageAccent.accent)
+                Text(stringResource(R.string.more_about_scan_mobile), style = stageText(11f, 500), color = palette.muted)
+            }
+        }
+        val interactionOriginal = remember { MutableInteractionSource() }
+        Row(
+            Modifier
+                .padding(top = 10.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(18.dp))
+                .background(palette.ink.copy(alpha = 0.045f))
+                .stageClickable(interactionOriginal, { openLink(context, "https://$TELEGRAM_LINK") }, null)
                 .padding(14.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -155,8 +181,7 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
                 )
             }
             Column {
-                // glcn: the original project's community, named as such.
-                Text(stringResource(R.string.glcn_about_community), style = stageText(14f, 800), color = palette.text)
+                        Text(stringResource(R.string.glcn_about_community), style = stageText(14f, 800), color = palette.text)
                 Text(TELEGRAM_LINK, style = stageText(11f, 500), color = stageAccent.accent)
                 Text(stringResource(R.string.more_about_scan_mobile), style = stageText(11f, 500), color = palette.muted)
             }
@@ -169,9 +194,38 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
             val languages = tv.own.owntv.core.i18n.SupportedLocales.all.count { it.packaged }
             StageTool(onClick = onOpenLanguage, label = pluralStringResource(R.plurals.more_about_languages, languages, languages), icon = MobileIcons.Translate)
             StageTool(onClick = { updateSheet = true }, label = stringResource(R.string.settings_check_updates), icon = MobileIcons.Refresh)
+            // glcn: the beta's updates come from a private repository; its token is pasted here once.
+            if (BuildConfig.GLCN_BETA) {
+                StageTool(onClick = { tokenSheet = true }, label = stringResource(R.string.glcn_beta_token), icon = MobileIcons.Lock)
+            }
         }
     }
     if (updateSheet) UpdateSheet(onDismiss = { updateSheet = false }, checkOnOpen = true)
+    if (tokenSheet) {
+        var token by remember { mutableStateOf("") }
+        val saved = updates.accessToken != null
+        tv.own.owntv.mobile.ui.components.MobileBottomSheet(onDismissRequest = { tokenSheet = false }) {
+            tv.own.owntv.mobile.ui.stage.StageSheetHeader(stringResource(R.string.glcn_beta_token_title))
+            SheetText(stringResource(R.string.glcn_beta_token_hint))
+            tv.own.owntv.mobile.ui.stage.StageField(
+                value = token,
+                onValueChange = { token = it },
+                label = stringResource(R.string.glcn_beta_token_label),
+                password = true,
+                supportingText = if (saved) stringResource(R.string.glcn_beta_token_saved) else null,
+                modifier = Modifier.padding(horizontal = 6.dp),
+            )
+            Row(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StageButton(onClick = { tokenSheet = false }, text = stringResource(R.string.common_cancel), modifier = Modifier.weight(1f))
+                StageButton(
+                    onClick = { updates.accessToken = token; tokenSheet = false; updateSheet = true },
+                    text = stringResource(R.string.common_save),
+                    style = StageButtonStyle.PRIMARY,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+    }
 }
 
 /**
@@ -321,6 +375,7 @@ internal fun loggedWhen(atMs: Long): String {
 private const val GITHUB_REPO = "github.com/ahXN00/OwnTV_Mobile"
 private const val GLCN_REPO = "github.com/carlosglcn/OwnTV-Fanart-Mobile"
 private const val TELEGRAM_LINK = "t.me/owntvplayer"
+private const val GLCN_TELEGRAM_LINK = "t.me/owntvfanart"
 
 
 private fun openLink(context: Context, url: String) {

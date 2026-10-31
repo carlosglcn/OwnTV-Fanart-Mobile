@@ -19,6 +19,8 @@ enum class MoreLeaf(slug: String, @param:StringRes val titleRes: Int) {
     HISTORY("history", R.string.content_category_history),
     BACKUP("backup", R.string.settings_backup_title),
     LOCAL_SYNC("localsync", R.string.local_sync_title),
+    /** glcn: the phone as the paired TV's remote and keyboard. */
+    REMOTE("remote", R.string.glcn_remote_title),
     ERROR_LOG("errorlog", R.string.settings_playback_error_log),
     ABOUT("about", R.string.settings_about),
     ;

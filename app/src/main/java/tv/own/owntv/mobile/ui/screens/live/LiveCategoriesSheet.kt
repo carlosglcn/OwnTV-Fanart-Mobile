@@ -45,7 +45,8 @@ import tv.own.owntv.mobile.ui.stage.stageText
  * The categories sheet: "Categories · Live TV", search, the fixed entries with
  * their icons — Favourites, Recently watched, Catch-up, All channels — then "GROUPS · DE" and the
  * provider groups by their parsed names, with tags, counts (Show counts) and playlist marks. The open
- * category is filled. A hold on a group opens its menu ([onHold]).
+ * category is filled. A hold on a group opens its menu ([onHold]). A locked group carries the lock, and
+ * one the PIN has not opened shows no count: how much it holds is the lock's business.
  */
 @Composable
 internal fun LiveCategoriesSheet(
@@ -62,9 +63,12 @@ internal fun LiveCategoriesSheet(
     extra: String = stringResource(R.string.common_nav_live_tv),
 ) {
     var query by remember { mutableStateOf("") }
+    val nested = categories.filter { it.nested }
     val fixed = listOf(LiveKey.Favorites, LiveKey.History, LiveKey.Catchup, LiveKey.All)
         .mapNotNull { key -> categories.firstOrNull { it.key == key } }
-    val groups = categories.filter { it.builtIn == null }
+        // glcn: Favourites' groups right under it.
+        .flatMap { if (it.key == LiveKey.Favorites) listOf(it) + nested else listOf(it) }
+    val groups = categories.filter { it.builtIn == null && !it.nested }
     val parsed = remember(groups) { groups.associateWith { ProviderTags.parse(it.title.orEmpty()) } }
     val country = remember(parsed) { ProviderTags.sharedCountry(parsed.values.toList()) }
     val heading = if (country != null) stringResource(R.string.content_live_groups_country, country) else stringResource(R.string.content_live_groups)
@@ -94,6 +98,7 @@ internal fun LiveCategoriesSheet(
                     label = labels.getValue(c),
                     onClick = { pick(c.key) },
                     icon = c.icon(),
+                    modifier = if (c.nested) Modifier.padding(start = 24.dp) else Modifier,
                     filled = c.key == selected,
                     count = countOf(c.key),
                 )
@@ -105,8 +110,9 @@ internal fun LiveCategoriesSheet(
                     label = ProviderTags.groupLabel(name, country),
                     onClick = { pick(c.key) },
                     onLongClick = { onHold(c) },
+                    icon = if (c.locked) MobileIcons.Lock else null,
                     filled = c.key == selected,
-                    count = countOf(c.key),
+                    count = if (c.sealed) null else countOf(c.key),
                     tags = if (name.tags.isEmpty()) null else { { name.tags.forEach { StageTag(it) } } },
                     mark = c.sourceId?.let(marks::get),
                 )
@@ -115,7 +121,7 @@ internal fun LiveCategoriesSheet(
     }
 }
 
-private fun LiveCategory.icon() = when (builtIn) {
+private fun LiveCategory.icon() = if (nested) MobileIcons.Folder else when (builtIn) {
     LiveCategory.BuiltIn.FAVORITES -> MobileIcons.FavoriteBorder
     LiveCategory.BuiltIn.HISTORY -> MobileIcons.History
     LiveCategory.BuiltIn.CATCHUP -> MobileIcons.Catchup
@@ -123,8 +129,9 @@ private fun LiveCategory.icon() = when (builtIn) {
 }
 
 /**
- * Hold a category: move it through the list, hide it, or restore it to the playlist's default
- * ("Restore to default" for a combined category) — the TV's menu. Restore asks first ([CategoryRestoreConfirm]).
+ * Hold a category: move it through the list, hide it, lock it with the PIN, or restore it to the
+ * playlist's default ("Restore to default" for a combined category) — the TV's menu. Restore asks first
+ * ([CategoryRestoreConfirm]). [locked] offers Lock with PIN (false) or Remove lock (true); null neither.
  */
 @Composable
 internal fun LiveCategoryMenu(
@@ -134,6 +141,8 @@ internal fun LiveCategoryMenu(
     onHide: () -> Unit,
     onRestore: () -> Unit,
     onDismiss: () -> Unit,
+    locked: Boolean? = null,
+    onToggleLock: () -> Unit = {},
 ) {
     MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(title = title)
@@ -146,6 +155,13 @@ internal fun LiveCategoryMenu(
             StageMenuItem(stringResource(label), onClick = { onDismiss(); onMove(kind) }, icon = icon)
         }
         StageMenuItem(stringResource(R.string.settings_customize_hide), onClick = { onDismiss(); onHide() }, icon = MobileIcons.VisibilityOff)
+        if (locked != null) {
+            StageMenuItem(
+                stringResource(if (locked) R.string.settings_customize_remove_lock else R.string.content_category_lock),
+                onClick = { onDismiss(); onToggleLock() },
+                icon = MobileIcons.Lock,
+            )
+        }
         StageMenuItem(
             stringResource(if (custom) R.string.content_category_restore_custom else R.string.content_category_restore_playlist),
             onClick = onRestore,

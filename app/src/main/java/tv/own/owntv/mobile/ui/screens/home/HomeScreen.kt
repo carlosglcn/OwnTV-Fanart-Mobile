@@ -365,12 +365,21 @@ fun HomeScreen(
                         onOpenChannel = onOpenChannel,
                         onOpenMovie = onOpenMovie,
                         onOpenSeries = onOpenSeries,
+                        cover = rows.firstOrNull() == HomeRow.FEATURED,
                     )
                     HomeRow.TONIGHT -> TonightRowMobile(
                         items = state.tonight,
                         reminded = { t -> reminders.any { it.channelId == t.channel.id && it.startMs == t.programme.startMs } },
                         onToggleReminder = vm::toggleTonightReminder,
                         onOpenChannel = onOpenChannel,
+                    )
+                    // glcn: what starts within the half hour on the user's own channels.
+                    HomeRow.STARTING_SOON -> TonightRowMobile(
+                        items = state.startingSoon,
+                        reminded = { t -> reminders.any { it.channelId == t.channel.id && it.startMs == t.programme.startMs } },
+                        onToggleReminder = vm::toggleTonightReminder,
+                        onOpenChannel = onOpenChannel,
+                        title = stringResource(R.string.glcn_starting_soon),
                     )
                     HomeRow.GENRES -> Column(verticalArrangement = Arrangement.spacedBy(22.dp)) {
                         state.genres.forEach { genre ->
@@ -490,6 +499,7 @@ private fun HomeFeed.hasContent(row: HomeRow): Boolean = when (row) {
     HomeRow.FEATURED -> featured.isNotEmpty()
     HomeRow.TONIGHT -> tonight.isNotEmpty()
     HomeRow.GENRES -> genres.isNotEmpty()
+    HomeRow.STARTING_SOON -> startingSoon.isNotEmpty()
     // Decided by the Sports row's own matches, in HomeScreen.
     HomeRow.LIVE_SPORTS -> false
 }

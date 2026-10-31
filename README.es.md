@@ -35,7 +35,9 @@ OwnTV Fanart es gratis y se hace en ratos libres. Si te gusta cómo deja tu TV, 
 - **Un Inicio nuevo** — cuatro diseños (*Clásico*, *Cine*, *Panel* y *Dock*), con destacados, Deportes ahora, Esta noche (con recordatorios) y películas y series recientes.
 - **Una pantalla para lo que estás viendo** — pulsa Info en TV en directo: fanart del programa, logo, valoración, sinopsis, qué viene después y cuándo se vuelve a emitir esta semana.
 - **Valoración, año y sinopsis de TMDB** junto a películas y series en directo.
-- **Deportes** — fútbol, baloncesto (ACB, Euroliga), balonmano, tenis, Fórmula 1 y MotoGP con calendarios, marcadores en directo y clasificaciones.
+- **Deportes** — fútbol, baloncesto (ACB, Euroliga), balonmano, tenis, ciclismo, snooker, Fórmula 1 y MotoGP con calendarios, marcadores en directo y clasificaciones.
+- **El móvil como mando de la TV** — flechas, OK, canal y volumen en tu TV emparejada, escribir para buscar y un panel de zapping rápido en el reproductor.
+- **Subtítulos de teletexto** (página 888) en los canales españoles.
 - **Movimiento suave y tranquilo** — filas que se deslizan hasta el foco, tarjetas flotantes y un barrido de luz, o un estilo *Sutil*; un *Modo ligero* para aparatos antiguos.
 - **Temas de temporada** (opcional) — Halloween, Navidad, Nochevieja, Carnaval y San Valentín, sonidos de menú y un acorde de apertura.
 - **Sonido** — la mejor pista de audio en tu idioma, diálogos más claros y (en SHIELD) paso de Dolby/DTS también desde mpv.

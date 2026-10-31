@@ -551,7 +551,7 @@ private fun ChannelSheetBody(
                 listOfNotNull(
                     stringResource(R.string.shell_now_playing),
                     ch.number?.takeIf { it > 0 }?.let(::formatYear),
-                    ProviderTags.parse(ch.name).name,
+                    ProviderTags.displayName(ch.name),
                 ).joinToString(sep)
             },
         )

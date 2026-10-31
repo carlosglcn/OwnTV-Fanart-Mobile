@@ -150,6 +150,18 @@ fun PlayerScreen(
     val autoFrameRate by settings.autoFrameRate.collectAsStateWithLifecycle(initialValue = false)
     val previousChannel by tuner.previousChannel.collectAsStateWithLifecycle()
     val film by vodTuner.playing.collectAsStateWithLifecycle()
+    // glcn: "Watch on TV" from the player — the channel or film on screen opens on the paired TV, found there by name.
+    val syncAuto = koinInject<tv.own.owntv.core.sync.local.AutoSyncManager>()
+    val pairedTvs by syncAuto.devices.collectAsStateWithLifecycle(initialValue = emptyList())
+    val appCtx = androidx.compose.ui.platform.LocalContext.current.applicationContext
+    val tvFail = stringResource(R.string.glcn_tv_unreachable)
+    val sendLink = channel?.let { tv.own.owntv.core.launcher.LauncherDeepLink.Live(name = it.name) }
+        ?: film?.takeIf { it.mediaType == tv.own.owntv.core.model.MediaType.MOVIE }?.let { tv.own.owntv.core.launcher.LauncherDeepLink.Movie(name = it.title) }
+    val sendToTv: (() -> Unit)? = if (pairedTvs.isNotEmpty() && sendLink != null) ({
+        syncAuto.sendCommandInBackground(sendLink.toUri().toString()) { r ->
+            android.widget.Toast.makeText(appCtx, r.getOrNull()?.let { appCtx.getString(R.string.glcn_sent_to_tv, it.name) } ?: tvFail, android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }) else null
     val nowNext by tuner.nowNext.collectAsStateWithLifecycle()
     val siblings by tuner.siblings.collectAsStateWithLifecycle()
     // Held as States, not values: both tick about once a second while an archive plays, and only
@@ -197,6 +209,17 @@ fun PlayerScreen(
     var multiview by remember {
         mutableStateOf<tv.own.owntv.mobile.ui.screens.multiview.MobileMultiviewState?>(null)
     }
+    // The relock reads the grid's tiles and empties those on a channel of a category it has just closed.
+    val sealedHost = koinInject<tv.own.owntv.mobile.ui.categorylock.SealedPlaybackHost>()
+    androidx.compose.runtime.DisposableEffect(multiview, sealedHost) {
+        val grid = multiview
+        sealedHost.tiles = grid?.let { g -> { g.tiles.map { it.channel?.categoryId } } }
+        sealedHost.clear = grid?.let { g -> g::clear }
+        onDispose {
+            sealedHost.tiles = null
+            sealedHost.clear = null
+        }
+    }
     var multiviewPickFor by remember { mutableStateOf<Int?>(null) }
     // Which category the Multiview picker is inside, and what it holds. Null = showing categories.
     var multiviewCategory by remember { mutableStateOf<LiveKey?>(null) }
@@ -207,6 +230,8 @@ fun PlayerScreen(
     var playerChannels by remember { mutableStateOf<List<ChannelEntity>>(emptyList()) }
     var playerCategories by remember { mutableStateOf<List<Pair<LiveKey, String>>>(emptyList()) }
     var playerCategoriesLoaded by remember { mutableStateOf(false) }
+    // glcn: the quick zap panel (the list button and a swipe up).
+    var quickZap by remember { mutableStateOf(false) }
     // Loaded when the picker opens, not when the player does: it is a database read nobody watching
     // a channel has asked for.
     LaunchedEffect(multiviewPickFor) {
@@ -610,7 +635,8 @@ fun PlayerScreen(
                     showHud(GestureFeedback.Zoom(mode))
                 },
                 onSwipeDown = onExit,
-                onSwipeUp = { if (isLive) sheet = PlayerSheet.CHANNELS },
+                // glcn: swiping up opens the quick zap panel (the categories are a button on the bar).
+                onSwipeUp = { if (isLive) quickZap = true },
                 onSpeedHold = { held ->
                     if (isLive) return@playerGestures
                     if (held) {
@@ -736,7 +762,7 @@ fun PlayerScreen(
             // Nothing is drawn over the picture in the little window: it is a thumbnail, and the
             // system draws its own buttons on top of it.
             // Held sideways the channel list is a panel over the picture alone: the controls step aside.
-            visible = controlsVisible && !inPip && !(sheet == PlayerSheet.CHANNELS && landscape),
+            visible = controlsVisible && !inPip && !quickZap && !(sheet == PlayerSheet.CHANNELS && landscape),
             isLive = isLive,
             offsetSec = offsetSecState,
             archiveWindowSec = archiveWindowSec,
@@ -762,9 +788,11 @@ fun PlayerScreen(
             // or floating as the user set it. This is the app's own small window and stays inside the
             // app — the system one that floats over *other* apps is what pressing Home gives.
             onMini = onExit,
-            onChannelList = { sheet = PlayerSheet.CHANNELS }.takeIf { isLive },
+            // glcn: the list button opens the quick zap panel; the bar's own button keeps the categories.
+            onChannelList = { quickZap = true }.takeIf { isLive },
             onGuide = onOpenGuide.takeIf { isLive },
             onCopies = { sheet = PlayerSheet.COPIES }.takeIf { isLive && copies.size > 1 },
+            onSendToTv = sendToTv,
             // A stream with no video track has nothing to go back to, so for that one the button
             // only ever reports the state it is already in. Every other stream is showing its
             // picture here, because full screen is never sound-only — so the button is only ever
@@ -850,6 +878,18 @@ fun PlayerScreen(
                 { tv.own.owntv.mobile.ui.screens.sports.MatchScoreLine(sportsPlayback, session.match, sportsConfig.spoilerFree) }
             },
             onOtherChannels = matchSession?.takeIf { it.options.size > 1 }?.let { { otherChannels = true } },
+        )
+        // glcn: the quick zap panel — the list being watched, with what is on and what follows, and a search.
+        QuickZapPanel(
+            visible = quickZap && isLive && !inPip && multiview == null,
+            channels = siblings,
+            currentId = channel?.id,
+            showNumber = showChannelNumbers,
+            landscape = landscape,
+            loadNowNext = tuner::nowNextFor,
+            search = tuner::searchChannels,
+            onPick = { tuner.switchTo(it); quickZap = false },
+            onDismiss = { quickZap = false },
         )
         if (otherChannels) {
             val session = matchSession

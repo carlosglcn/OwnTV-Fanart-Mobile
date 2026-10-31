@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import tv.own.owntv.core.sports.FollowedTeam
+import tv.own.owntv.core.sports.model.isRace
 import tv.own.owntv.core.sports.MatchNotifications
 import tv.own.owntv.core.sports.SportsConfig
 import tv.own.owntv.core.sports.WatchOption
@@ -163,7 +164,7 @@ internal fun FollowRemindSheet(
     val context = LocalContext.current
     MobileBottomSheet(onDismissRequest = onDismiss) {
         StageSheetHeader(MatchNotifications.pair(context, match), subtitle = leagueName(match))
-        match.competitors.forEach { c ->
+        (if (match.sport.isRace) match.competitors.take(3) else match.competitors).forEach { c ->
             val team = FollowedTeam(match.sport, c.team.id, c.team.name, c.team.abbreviation)
             val following = config.teams.any { it.key == team.key }
             StageMenuItem(
