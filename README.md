@@ -182,7 +182,7 @@ Problems with **this version** go to the Fanart group; the original group is for
 
 ### 👥 Profiles, sync & settings
 
-- **Profiles** with a picture of your own, locking, and kids profiles.
+- **Profiles** with a picture of your own, locking, and kids profiles; lock single categories behind a PIN, and optionally Settings too.
 - **Backup & restore** with a password and your own file picker, choosing which profiles and which
   parts of your data travel.
 - **Local sync** over your own Wi-Fi — pair by QR or on the network, see exactly what will change

@@ -19,6 +19,8 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Constraints
 import kotlin.math.roundToInt
+import tv.own.owntv.core.categorylock.firstUnsealed
+import tv.own.owntv.core.categorylock.sealedCategoryIds
 import tv.own.owntv.core.ui.stage.PlaylistMark
 import tv.own.owntv.mobile.ui.stage.stageBackground
 import tv.own.owntv.mobile.cast.CastController
@@ -683,12 +685,19 @@ fun MobileShell(
     // Programme reminders: when one comes up, ask to switch, or switch — over whatever is on screen,
     // the player included. Notify only is a notification (ReminderNotifier), so nothing is drawn here.
     val reminders: tv.own.owntv.core.reminder.ReminderManager = koinInject()
-    val dueReminders by reminders.due.collectAsStateWithLifecycle()
     val reminderModeSaved by settings.reminderMode.collectAsStateWithLifecycle(SettingsRepository.ReminderMode.ASK)
     val alertsOutside by settings.alertsOutsideApp.collectAsStateWithLifecycle(true)
     // glcn: "Notify" is a notification; with those switched off the open app asks instead.
     val reminderMode = if (reminderModeSaved == SettingsRepository.ReminderMode.NOTIFY && !alertsOutside) SettingsRepository.ReminderMode.ASK else reminderModeSaved
-    val dueReminder = dueReminders.firstOrNull { it.profileId == activeId }
+    // One on a channel filed under a locked category waits: it neither asks nor switches until the PIN
+    // opens the category, so a reminder cannot show or tune what the lock keeps out of sight.
+    val lockStore: tv.own.owntv.core.customize.CustomizationStore = koinInject()
+    val reminderChannels: tv.own.owntv.core.database.dao.ChannelDao = koinInject()
+    val dueReminder = remember(activeId, reminders, lockStore, reminderChannels) {
+        reminders.due.firstUnsealed(activeId, lockStore.sealedCategoryIds(activeId, tv.own.owntv.core.model.MediaType.LIVE)) {
+            reminderChannels.getById(it)?.categoryId
+        }
+    }.collectAsStateWithLifecycle(null).value
     // glcn: the logo plate setting (Settings › Fanart) reaches every logo through one state object.
     val logoPlate by settings.logoPlate.collectAsStateWithLifecycle(0)
     LaunchedEffect(logoPlate) { tv.own.owntv.mobile.ui.components.LogoPlateMode.mode = logoPlate }

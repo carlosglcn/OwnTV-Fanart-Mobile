@@ -44,7 +44,9 @@ before it changes. A phone being set up only ever *receives* — nothing on the 
 A backup made on the TV also restores here, encrypted ones included — and **Restore a backup** asks
 what to bring back before it applies anything, so you can take the playlists and leave the old
 device's settings behind. The app opens once the restore is complete and starts downloading the
-restored playlists straight away. Later on, the full two-way version lives at
+restored playlists straight away. An Xtream playlist whose password was not in the backup waits
+instead: the last screen names it, and typing the password in that playlist's **Edit** form loads it.
+Later on, the full two-way version lives at
 More → [Local sync](#-local-sync-with-your-tv).
 
 ---
@@ -122,6 +124,8 @@ moves per centimetre of finger, without changing how far you must travel to star
 or **Stalker/Ministra** (portal URL + MAC, with optional Serial Number, Device IDs and Signature).
 An M3U link of the form `…/get.php?username=…&password=…` is really an Xtream account: when the
 provider's server confirms it, it is added as **Xtream**, with movies and series in their own tabs.
+A name another playlist already has gets a number, so two unnamed playlists are **My IPTV** and
+**My IPTV 2**.
 Under **User-Agent** there is an optional **Referer** — leave it empty unless your provider asks
 for one; it is then sent with every stream of that playlist.
 
@@ -177,6 +181,8 @@ in **Search** opens Live TV with it in the preview.
 **Where:** long-press any channel
 Favourite · Rename · Hide · Match EPG · EPG offset · Move · Move to category · **Record** ·
 **Add to Multiview** · Catch-up · Play in another app. Inside a custom category: **Remove from this category**.
+What you **Move** keeps its place in **A–Z** and **Provider** alike; everything you never moved follows the
+sort around it. Deleting a download or a recording asks first.
 
 ### 🏷️ Categories
 **Tap the line under the title** for the categories sheet: Favourites, Recently watched, Catch-up,
@@ -509,7 +515,16 @@ Six font families for the interface and for popups, and interface zoom.
 Hide, rename, reorder and regroup categories and items, with **bulk rename** (rules, automatic
 cleanup, a review step and restore-originals — for category names too, from the categories page),
 **custom categories**, span selection, and an optional
-**PIN lock**.
+**PIN lock**. With a PIN set, **⋯ → Ask for PIN to open Settings** makes Settings, Backup & Restore and
+Local sync ask for the same PIN, on this profile. Removing the PIN turns it off.
+
+**Lock a category with a PIN** — in the categories sheet of Live TV, the TV Guide, Movies or Series,
+hold a playlist category → **Lock with PIN**. It uses the Customize PIN (the first lock asks you to set
+one). The category stays in the list with a lock; its channels, films and shows stay out of everything
+else (search, Guide, Home, favourites, history, Downloads, recordings) until you open it with
+**Enter PIN**. It stays open until you leave the app or switch profile — leaving also stops anything
+playing from it, the floating window included. **Remove lock** in the same menu asks the PIN, and
+removing the Customize PIN unlocks every category. 5 wrong PINs → a 30 s wait.
 
 ### 🏠 Home & layout
 **Where:** Settings → Layout → **Home screen**
