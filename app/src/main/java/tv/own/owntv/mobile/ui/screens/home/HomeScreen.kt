@@ -391,9 +391,13 @@ fun HomeScreen(
                             )
                         }
                     }
+                    // glcn: not the channels already in the cover above (the same match shown twice in a row).
                     HomeRow.SPORTS_NOW -> LiveRow(
                         title = stringResource(R.string.glcn_sports_now),
-                        channels = state.sportsGuide.channels,
+                        channels = state.sportsGuide.channels.let { all ->
+                            val inCover = if (HomeRow.FEATURED in rows) state.featured.mapNotNull { (it as? tv.own.owntv.core.home.FeaturedItem.Live)?.channel?.id }.toSet() else emptySet()
+                            all.filterNot { it.id in inCover }.ifEmpty { all }
+                        },
                         guide = state.sportsGuide,
                         mode = HomeLiveRowMode.ON_NOW,
                         onToggleMode = null,
@@ -516,7 +520,7 @@ private fun HeroItem.menuTarget(): ContentTarget = when (this) {
  * rows' mode ("On now", 12 / 700), which switches the mode when tapped.
  */
 @Composable
-private fun RowHeading(title: String, count: Int? = null, mode: String? = null, onMode: (() -> Unit)? = null) {
+internal fun RowHeading(title: String, count: Int? = null, mode: String? = null, onMode: (() -> Unit)? = null) {
     val palette = LocalStagePalette.current
     val interaction = remember { MutableInteractionSource() }
     Row(Modifier.padding(start = 18.dp, end = 18.dp, bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {

@@ -603,10 +603,12 @@ fun MobileShell(
                             recordingsOnly = true,
                         )
                     } else {
+                        // glcn: at the top, small, just under the status bar — low over the page it sat on the cards.
                         SyncStatusPill(
                             Modifier
-                                .align(Alignment.BottomCenter)
-                                .padding(bottom = 8.dp),
+                                .align(Alignment.TopCenter)
+                                .statusBarsPadding(),
+                            compact = true,
                             onOpenDownloads = { navController.navigate(MobileDestination.DOWNLOADS.route) },
                         )
                     }

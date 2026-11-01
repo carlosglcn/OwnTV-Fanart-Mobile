@@ -48,6 +48,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -254,41 +255,31 @@ fun LiveScreen(
             )
         } else {
             // `.tools`: the search field takes the room, then the order tool (Provider / A–Z), then Guide view.
-            Row(
-                Modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, top = TOOLS_TOP, bottom = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                StageSearchField(
-                    value = query,
-                    onValueChange = vm::setQuery,
-                    placeholder = stringResource(R.string.content_search_in, categoryLabel),
-                    inline = true,
-                    modifier = Modifier.weight(1f),
-                )
-                StageTool(
-                    onClick = vm::toggleSort,
-                    icon = MobileIcons.Sort,
-                    label = stringResource(
-                        if (sort == SettingsRepository.SortMode.ALPHA) R.string.settings_sort_alpha else R.string.content_epg_sort_provider,
-                    ),
-                )
-                StageTool(
-                    onClick = vm::toggleLiveView,
-                    icon = MobileIcons.Guide,
-                    contentDescription = stringResource(R.string.content_live_guide_view),
-                )
-                // glcn: Sports now, and the channels as picture cards.
-                StageTool(
-                    onClick = { sportsOpen = true },
-                    icon = MobileIcons.Ball,
-                    contentDescription = stringResource(R.string.glcn_sports_now),
-                )
-                StageTool(
-                    onClick = { vm.setCardsView(!cardsView) },
-                    icon = if (cardsView) MobileIcons.FormatListBulleted else MobileIcons.GridView,
-                    contentDescription = stringResource(R.string.settings_live_layout),
-                )
+            // glcn: on a phone the search gets the whole width and the tools go under it, each with its name
+            // (four bare icons in a row said nothing); a tablet keeps them on one line.
+            val phoneTools = !twoPane
+            Column(Modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, top = TOOLS_TOP, bottom = 12.dp)) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    StageSearchField(
+                        value = query,
+                        onValueChange = vm::setQuery,
+                        placeholder = stringResource(R.string.content_search_in, categoryLabel),
+                        inline = true,
+                        modifier = Modifier.weight(1f),
+                    )
+                    if (!phoneTools) LiveTools(vm, sort, cardsView, labels = false, onSports = { sportsOpen = true })
+                }
+                if (phoneTools) {
+                    Row(
+                        Modifier.fillMaxWidth().padding(top = 8.dp).horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) { LiveTools(vm, sort, cardsView, labels = true, onSports = { sportsOpen = true }) }
+                }
             }
         }
         if (categoryPicker) {
@@ -601,3 +592,33 @@ private val PREVIEW_TOP = 20.dp
 
 /** How long the start-up channel's row is waited for before the list is left where it is. */
 internal const val STARTUP_ROW_WAIT_MS = 3_000L
+
+/** glcn: Live TV's tools — order, guide view, sports now, list or cards; [labels] names each one (phones). */
+@Composable
+private fun LiveTools(vm: LiveViewModel, sort: SettingsRepository.SortMode, cardsView: Boolean, labels: Boolean, onSports: () -> Unit) {
+    StageTool(
+        onClick = vm::toggleSort,
+        icon = MobileIcons.Sort,
+        label = stringResource(
+            if (sort == SettingsRepository.SortMode.ALPHA) R.string.settings_sort_alpha else R.string.content_epg_sort_provider,
+        ),
+    )
+    StageTool(
+        onClick = vm::toggleLiveView,
+        icon = MobileIcons.Guide,
+        label = if (labels) stringResource(R.string.common_nav_guide_short) else null,
+        contentDescription = stringResource(R.string.content_live_guide_view),
+    )
+    StageTool(
+        onClick = onSports,
+        icon = MobileIcons.Ball,
+        label = if (labels) stringResource(R.string.glcn_sports_now) else null,
+        contentDescription = stringResource(R.string.glcn_sports_now),
+    )
+    StageTool(
+        onClick = { vm.setCardsView(!cardsView) },
+        icon = if (cardsView) MobileIcons.FormatListBulleted else MobileIcons.GridView,
+        label = if (labels) stringResource(if (cardsView) R.string.glcn_view_list else R.string.glcn_view_cards) else null,
+        contentDescription = stringResource(R.string.settings_live_layout),
+    )
+}
