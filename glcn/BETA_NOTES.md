@@ -6,3 +6,5 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🏷️ Quality marks: the picture format before REMUX, and Dolby Vision spelled out on title pages
 - ⚡ Faster matching of sport and film programmes and provider tags (prepared once instead of on every call)
 - 🧯 Syncing several playlists no longer runs the app out of memory: on boxes with a small app memory (most TV boxes, the SHIELD included) the playlists sync one after another instead of all at once — a large list and Emby side by side filled it and the app froze
+- 🛟 More memory headroom: the app asks Android for the larger memory allowance TV boxes and phones give apps that need it, as a safety net for big playlists and guides
+- 🐢 With your own TMDB key, the app paces its calls (about five a second) instead of asking for hundreds of titles at once
