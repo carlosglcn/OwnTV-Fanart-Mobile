@@ -705,6 +705,7 @@
 1	preference-key	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsQuick.kt	vp_measured_stats
 1	preference-key	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsQuick.kt	vp_sw_above_1080p
 5	empty	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsScreen.kt	\0
+1	log	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsScreen.kt	$name · $it
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsScreen.kt	cards-$r
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsScreen.kt	empty
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsScreen.kt	hit-$i

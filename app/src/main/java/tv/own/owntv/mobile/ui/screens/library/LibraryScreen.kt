@@ -309,7 +309,9 @@ fun LibraryScreen(
                             title = item.name,
                             badges = androidx.compose.runtime.remember(item.name) { tv.own.owntv.core.catalog.ProviderCatalogMetadataParser.posterBadges(item.name) },
                             rating = item.rating?.takeIf { it > 0 }?.let(::formatRating),
-                            mark = marks[item.sourceId],
+                            // glcn: no playlist mark on the posters — on every one it was noise and sat over the title
+                            // art; the list view still says where a title comes from, at the end of its row.
+                            mark = null,
                             watched = item.id in watched,
                             progress = progressOf(item.id),
                             selected = item.id == (if (twoPane) openItem else lastOpened),

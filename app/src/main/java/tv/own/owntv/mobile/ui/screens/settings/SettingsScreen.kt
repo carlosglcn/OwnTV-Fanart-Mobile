@@ -101,7 +101,8 @@ fun SettingsScreen(
                 else -> all.getValue(group).sumOf { it.items.size }
             }
         }
-        SettingsGroup.entries.chunked(2).forEachIndexed { r, pair ->
+        // glcn: Picture, Sound & subtitles and Watching & recording live inside Playback (the Player card): 13 cards were a lot.
+        SettingsGroup.entries.filterNot { it in MERGED_INTO_PLAYER }.chunked(2).forEachIndexed { r, pair ->
             item(key = "cards-$r") {
                 Row(Modifier.padding(horizontal = 8.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     pair.forEach { group ->
@@ -135,10 +136,11 @@ private fun GroupCard(group: SettingsGroup, count: Int, modifier: Modifier, onCl
     ) {
         Column(Modifier.fillMaxWidth()) {
             StageIcon(group.icon, 18.dp, palette.muted)
-            Text(stringResource(group.titleRes), style = stageText(13.5f, 800), color = palette.text, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 12.dp))
-            Text(stringResource(group.cardRes), style = stageText(10.5f, 500, lineHeight = 1.25f), color = palette.muted, modifier = Modifier.padding(top = 2.dp))
+            val merged = group == SettingsGroup.PLAYER
+            Text(stringResource(if (merged) R.string.glcn_settings_playback else group.titleRes), style = stageText(13.5f, 800), color = palette.text, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 12.dp))
+            Text(stringResource(if (merged) R.string.glcn_settings_playback_card else group.cardRes), style = stageText(10.5f, 500, lineHeight = 1.25f), color = palette.muted, modifier = Modifier.padding(top = 2.dp))
         }
-        Text(count.toString(), style = stageText(11f, 700), color = palette.dim, modifier = Modifier.align(Alignment.TopEnd))
+        // glcn: no count in the corner — a number of settings told nobody anything.
     }
 }
 
@@ -271,6 +273,13 @@ fun SettingsGroupScreen(group: SettingsGroup, modifier: Modifier = Modifier, vm:
     val sections = if (group == SettingsGroup.QUICK) {
         val rows = quickRows(allGroupSections(vm), pins)
         if (rows.isEmpty()) emptyList() else listOf(SettingSection(null, rows))
+    } else if (group == SettingsGroup.PLAYER) {
+        // glcn: Playback — the player's own settings, then Picture, Sound & subtitles and Watching & recording,
+        // each under its name.
+        groupSections(group, vm) + MERGED_INTO_PLAYER.flatMap { g ->
+            val name = stringResource(g.titleRes)
+            groupSections(g, vm).mapIndexed { i, s -> if (i == 0) SettingSection(s.title?.let { "$name · $it" } ?: name, s.items, s.note) else s }
+        }
     } else {
         groupSections(group, vm)
     }
@@ -301,3 +310,6 @@ fun SettingsCrumb(detail: String?, group: SettingsGroup? = null) {
     val text = listOfNotNull(stringResource(R.string.common_nav_settings), group?.let { stringResource(it.titleRes) }, detail).joinToString(sep)
     ProvidePageCrumb { owner -> PageCrumb(accent = "", rest = null, owner = owner, styled = AnnotatedString(text), onClick = { back?.onBackPressed() }) }
 }
+
+/** glcn: the groups shown inside Playback (the Player card) instead of on cards of their own. */
+private val MERGED_INTO_PLAYER = listOf(SettingsGroup.PICTURE, SettingsGroup.SOUND, SettingsGroup.WATCHING)

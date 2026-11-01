@@ -10,3 +10,5 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 📺 **Live TV, quicker to run through:** the picture cards go two to a row on a phone (one card used to fill half the screen), and the tools sit under the search with their names — Provider, Guide, Sports now, List / Cards
 - 🏠 **Home:** the cover is lower (Keep watching shows under it), "Sports now" leaves out the match already in the cover, and Starting soon / Tonight have the same heading as the other rows
 - 🔄 **Sync notice at the top, small:** "Syncing Emby" no longer sits over the cards at the foot of the screen
+- 🎞️ **Library posters without the playlist mark** ("EMBY" on every poster sat over the title art); the list view still says where each title comes from
+- ⚙️ **Settings in fewer cards:** Picture, Sound & subtitles and Watching & recording now live inside Playback, each under its own heading (10 cards instead of 13), and the cards lose the setting counts
