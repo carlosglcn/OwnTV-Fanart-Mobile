@@ -12,3 +12,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🔄 **Sync notice at the top, small:** "Syncing Emby" no longer sits over the cards at the foot of the screen
 - 🎞️ **Library posters without the playlist mark** ("EMBY" on every poster sat over the title art); the list view still says where each title comes from
 - ⚙️ **Settings in fewer cards:** Picture, Sound & subtitles and Watching & recording now live inside Playback, each under its own heading (10 cards instead of 13), and the cards lose the setting counts
+- 🧠 Emby/Jellyfin sync uses far less memory: the library is written to a file as it is read instead of being held whole in memory.
