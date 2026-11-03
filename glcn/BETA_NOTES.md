@@ -13,3 +13,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🎞️ **Library posters without the playlist mark** ("EMBY" on every poster sat over the title art); the list view still says where each title comes from
 - ⚙️ **Settings in fewer cards:** Picture, Sound & subtitles and Watching & recording now live inside Playback, each under its own heading (10 cards instead of 13), and the cards lose the setting counts
 - 🧠 Emby/Jellyfin sync uses far less memory: the library is written to a file as it is read instead of being held whole in memory.
+- 📋 Playback report: the diagnostic lines come from the saved file, so what happened just before a freeze or a crash is in the report.
