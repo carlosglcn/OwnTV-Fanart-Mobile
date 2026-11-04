@@ -283,7 +283,8 @@ fun MobileShell(
     LaunchedEffect(Unit) {
         if (startupHandled) return@LaunchedEffect
         startupHandled = true
-        when (val target = shellViewModel.resolveStartup()) {
+        val target = shellViewModel.resolveStartup()
+        when (target) {
             StartupTarget.Home -> Unit
             StartupTarget.Favorites -> {
                 startupLive.requestFavorites()
