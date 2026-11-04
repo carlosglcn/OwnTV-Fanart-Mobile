@@ -2,7 +2,7 @@
 <resources>
     <string name="glcn_star_action">Estrella en GitHub</string>
     <string name="glcn_star_title">¿Te gusta OwnTV Fanart?</string>
-    <string name="glcn_star_body">Una ⭐ en GitHub ayuda a que más gente la descubra. ¡Gracias!</string>
+    <string name="glcn_star_body">Apoya el proyecto con una ⭐ en GitHub. ¡Gracias!</string>
     <string name="glcn_star_open">Abrir GitHub</string>
     <string name="glcn_star_done">Ya lo hice</string>
     <string name="glcn_star_later">Ahora no</string>
