@@ -189,6 +189,8 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
         @OptIn(ExperimentalLayoutApi::class)
         FlowRow(Modifier.padding(top = 14.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             // glcn: this version first (where its problems go), then the project it is built on.
+            // glcn: the same place the occasional prompt points to, always here for whoever wants it.
+            StageTool(onClick = { tv.own.owntv.mobile.glcn.GitHubStar.done(context); openLink(context, tv.own.owntv.mobile.glcn.GitHubStar.URL) }, label = stringResource(R.string.glcn_star_action), icon = MobileIcons.Star)
             StageTool(onClick = { openLink(context, "https://$GLCN_REPO") }, label = stringResource(R.string.glcn_about_this), icon = MobileIcons.OpenInNew)
             StageTool(onClick = { openLink(context, "https://$GITHUB_REPO") }, label = stringResource(R.string.glcn_about_original) + " · ahXN00", icon = MobileIcons.OpenInNew)
             val languages = tv.own.owntv.core.i18n.SupportedLocales.all.count { it.packaged }

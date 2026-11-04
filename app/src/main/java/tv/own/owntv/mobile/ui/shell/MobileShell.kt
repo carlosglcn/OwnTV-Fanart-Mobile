@@ -276,6 +276,8 @@ fun MobileShell(
     val startupLive: StartupLiveSelection = koinInject()
     val startupUnavailable = stringResource(tv.own.owntv.mobile.R.string.settings_startup_channel_unavailable)
     var startupHandled by remember { mutableStateOf(false) }
+    // glcn: the occasional GitHub-star prompt — only on a plain start at Home, a moment after it settles.
+    var starPrompt by remember { mutableStateOf(false) }
     // Reaching this point already means the setup flow and the profile chooser are both behind us —
     // that is what the branches above guarantee — so there is nothing left to wait for.
     LaunchedEffect(Unit) {
@@ -299,7 +301,13 @@ fun MobileShell(
             StartupTarget.ChannelUnavailable ->
                 Toast.makeText(context, startupUnavailable, Toast.LENGTH_LONG).show()
         }
+        val starDue = tv.own.owntv.mobile.glcn.GitHubStar.launchAndCheck(context)
+        if (starDue && target == StartupTarget.Home) {
+            kotlinx.coroutines.delay(2_500)
+            starPrompt = true
+        }
     }
+    if (starPrompt) tv.own.owntv.mobile.glcn.GitHubStarSheet(onClose = { starPrompt = false })
     // The wizard's "Add a TV guide": setup is over, so EPG sources opens — and its Add opens itself.
     val addEpg = tv.own.owntv.mobile.ui.setup.SetupHandoff.addEpg
     LaunchedEffect(addEpg) {

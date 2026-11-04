@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="glcn_star_action">Star on GitHub</string>
+    <string name="glcn_star_title">Do you like OwnTV Fanart?</string>
+    <string name="glcn_star_body">A ⭐ on GitHub helps more people discover it. Thank you!</string>
+    <string name="glcn_star_open">Open GitHub</string>
+    <string name="glcn_star_done">Already done</string>
+    <string name="glcn_star_later">Not now</string>
+</resources>

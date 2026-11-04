@@ -14,3 +14,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - ⚙️ **Settings in fewer cards:** Picture, Sound & subtitles and Watching & recording now live inside Playback, each under its own heading (10 cards instead of 13), and the cards lose the setting counts
 - 🧠 Emby/Jellyfin sync uses far less memory: the library is written to a file as it is read instead of being held whole in memory.
 - 📋 Playback report: the diagnostic lines come from the saved file, so what happened just before a freeze or a crash is in the report.
+- ⭐ Occasional "Star on GitHub?" prompt (after a week and 10 launches, at most twice; "Already done" or "Open GitHub" hides it for good) and the same option in About
