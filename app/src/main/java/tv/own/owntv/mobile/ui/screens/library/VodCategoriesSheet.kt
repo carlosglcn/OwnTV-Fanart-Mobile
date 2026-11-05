@@ -54,6 +54,11 @@ internal fun VodCategoriesSheet(
     val q = query.trim()
     val shownFixed = fixed.filter { q.isEmpty() || labels.getValue(it).contains(q, ignoreCase = true) }
     val shownGroups = groups.filter { q.isEmpty() || ProviderTags.groupLabel(parsed.getValue(it), headingCountry = null).contains(q, ignoreCase = true) }
+    // glcn: platforms, genres, then the rest, each under its heading (as on the TV); a search shows them as found.
+    val sectionOf = remember(groups) { groups.associateWith { tv.own.owntv.core.live.VodSections.of(parsed.getValue(it).name) } }
+    val sectioned = if (q.isEmpty()) shownGroups.sortedBy { sectionOf.getValue(it) } else shownGroups
+    // glcn: no playlist mark when every category comes from the same playlist.
+    val oneSource = groups.mapNotNull { it.sourceId }.distinct().size <= 1
     fun pick(key: LiveKey) {
         onSelect(key)
         onDismiss()
@@ -88,8 +93,13 @@ internal fun VodCategoriesSheet(
                     count = countOf(c.key),
                 )
             }
-            if (shownGroups.isNotEmpty()) item(key = "heading") { StageGroupLabel(stringResource(R.string.content_vod_providers)) }
-            items(shownGroups, key = { it.key.toString() }) { c ->
+            if (q.isNotEmpty() && sectioned.isNotEmpty()) item(key = "heading") { StageGroupLabel(stringResource(R.string.content_vod_providers)) }
+            sectioned.forEachIndexed { i, c ->
+                val sec = sectionOf.getValue(c)
+                if (q.isEmpty() && (i == 0 || sectionOf.getValue(sectioned[i - 1]) != sec)) item(key = "heading$sec") {
+                    StageGroupLabel(stringResource(tv.own.owntv.core.live.VodSections.TITLES[sec]))
+                }
+                item(key = c.key.toString()) {
                 val name = parsed.getValue(c)
                 StageMenuItem(
                     label = ProviderTags.groupLabel(name, headingCountry = null),
@@ -100,8 +110,9 @@ internal fun VodCategoriesSheet(
                     filled = c.key == selected,
                     count = if (c.sealed) null else countOf(c.key),
                     tags = if (name.tags.isEmpty()) null else { { name.tags.forEach { StageTag(it) } } },
-                    mark = c.sourceId?.let(marks::get),
+                    mark = if (oneSource) null else c.sourceId?.let(marks::get),
                 )
+                }
             }
         }
     }

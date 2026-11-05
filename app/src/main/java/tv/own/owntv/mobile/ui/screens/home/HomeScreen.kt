@@ -418,8 +418,18 @@ fun HomeScreen(
                     )
                     // Sports: followed matches live or within the hour, in the user's
                     // order; a tap opens the match, where its channels are found.
-                    // The television's split Trending rows; the phone keeps the mixed one.
-                    HomeRow.TRENDING_MOVIES, HomeRow.TRENDING_SERIES -> Unit
+                    // glcn: films / series trending, each in a row of its own (set with Trending, shown under it).
+                    HomeRow.TRENDING_MOVIES, HomeRow.TRENDING_SERIES -> PosterRow(
+                        title = stringResource(if (row == HomeRow.TRENDING_MOVIES) R.string.glcn_home_row_trending_movies else R.string.glcn_home_row_trending_series),
+                        posters = (if (row == HomeRow.TRENDING_MOVIES) state.trendingMovies else state.trendingSeries).map { t ->
+                            when (t) {
+                                is TrendingHomeItem.Movie -> HomePoster(ContentTarget(MediaType.MOVIE, t.movie.id, t.movie.name, t.movie.posterUrl), t.movie.posterUrl, t.movie.rating, progress = movieProgress[t.movie.id])
+                                is TrendingHomeItem.Series -> HomePoster(ContentTarget(MediaType.SERIES, t.series.id, t.series.name, t.series.posterUrl), t.series.posterUrl, t.series.rating, progress = seriesProgress[t.series.id])
+                            }
+                        },
+                        onOpen = { if (it.type == MediaType.MOVIE) onOpenMovie(it.id) else onOpenSeries(it.id) },
+                        onMenu = { menuFor = it },
+                    )
                     HomeRow.LIVE_SPORTS -> Column {
                         Text(
                             stringResource(R.string.sports_title), style = stageText(17f, 800), color = LocalStagePalette.current.text,
@@ -508,7 +518,8 @@ private fun HomeFeed.hasContent(row: HomeRow): Boolean = when (row) {
     HomeRow.STARTING_SOON -> startingSoon.isNotEmpty()
     // Decided by the Sports row's own matches, in HomeScreen.
     HomeRow.LIVE_SPORTS -> false
-    HomeRow.TRENDING_MOVIES, HomeRow.TRENDING_SERIES -> false
+    HomeRow.TRENDING_MOVIES -> trendingMovies.isNotEmpty()
+    HomeRow.TRENDING_SERIES -> trendingSeries.isNotEmpty()
 }
 
 /** A half-watched episode's menu is its show's: the show is what can be favourited or hidden. */

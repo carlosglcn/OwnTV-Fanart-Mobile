@@ -16,3 +16,8 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 📋 Playback report: the diagnostic lines come from the saved file, so what happened just before a freeze or a crash is in the report.
 - ⭐ Occasional "Star on GitHub?" prompt (after a week and 10 launches, at most twice; "Already done" or "Open GitHub" hides it for good) and the same option in About
 - 🔑 Lists that refuse the usual player identity now play without touching anything: OwnTV Fanart tries another identity by itself and remembers the one that works for that list. If every one is refused, the error points you to the User-Agent setting.
+- 📂 Live TV: a "Categories" button at the start of the tools row (the green "‹ All channels" still opens them too).
+- 🔥 Home: "Trending films" and "Trending series" rows of their own, switched on under Now trending in Home settings (off by default; the mixed row stays).
+- 🗂️ Library categories in sections — Platforms, Genres and More categories — and no playlist mark when everything comes from one playlist.
+- ⏭️ Skip intro: each episode's real intro times from TheIntroDB; with nothing known the button no longer appears (no blind jump).
+- ⭐ Star prompt: notes you can sign in to GitHub with your Google account.

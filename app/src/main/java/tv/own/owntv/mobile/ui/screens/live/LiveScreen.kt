@@ -271,14 +271,14 @@ fun LiveScreen(
                         inline = true,
                         modifier = Modifier.weight(1f),
                     )
-                    if (!phoneTools) LiveTools(vm, sort, cardsView, labels = false, onSports = { sportsOpen = true })
+                    if (!phoneTools) LiveTools(vm, sort, cardsView, labels = false, onSports = { sportsOpen = true }, onCategories = { categoryPicker = true })
                 }
                 if (phoneTools) {
                     Row(
                         Modifier.fillMaxWidth().padding(top = 8.dp).horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                    ) { LiveTools(vm, sort, cardsView, labels = true, onSports = { sportsOpen = true }) }
+                    ) { LiveTools(vm, sort, cardsView, labels = true, onSports = { sportsOpen = true }, onCategories = { categoryPicker = true }) }
                 }
             }
         }
@@ -595,7 +595,14 @@ internal const val STARTUP_ROW_WAIT_MS = 3_000L
 
 /** glcn: Live TV's tools — order, guide view, sports now, list or cards; [labels] names each one (phones). */
 @Composable
-private fun LiveTools(vm: LiveViewModel, sort: SettingsRepository.SortMode, cardsView: Boolean, labels: Boolean, onSports: () -> Unit) {
+private fun LiveTools(vm: LiveViewModel, sort: SettingsRepository.SortMode, cardsView: Boolean, labels: Boolean, onSports: () -> Unit, onCategories: () -> Unit) {
+    // glcn: the categories as a button too — tapping the green "‹ All channels" above was easy to miss.
+    StageTool(
+        onClick = onCategories,
+        icon = MobileIcons.Folder,
+        label = if (labels) stringResource(R.string.content_category_browser_title) else null,
+        contentDescription = stringResource(R.string.content_category_browser_title),
+    )
     StageTool(
         onClick = vm::toggleSort,
         icon = MobileIcons.Sort,

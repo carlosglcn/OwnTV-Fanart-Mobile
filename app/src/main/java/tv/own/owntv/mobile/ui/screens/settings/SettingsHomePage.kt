@@ -81,6 +81,16 @@ fun SettingsHomePage(
                     )
                 }
             }
+            // glcn: films and series trending in rows of their own, set with Trending (on Home they sit under it).
+            listOf(HomeRow.TRENDING_MOVIES to R.string.glcn_home_row_trending_movies, HomeRow.TRENDING_SERIES to R.string.glcn_home_row_trending_series).forEach { (row, title) ->
+                val on = row !in home.hidden
+                StageSettingRow(
+                    title = stringResource(title),
+                    subtitle = stringResource(if (row == HomeRow.TRENDING_MOVIES) R.string.glcn_home_row_trending_movies_desc else R.string.glcn_home_row_trending_series_desc),
+                    role = Role.Switch,
+                    onClick = { editHome { it.copy(hidden = if (on) it.hidden + row else it.hidden - row) } },
+                ) { StageSwitch(on) }
+            }
         }
 
         settingsSection(R.string.settings_sections)

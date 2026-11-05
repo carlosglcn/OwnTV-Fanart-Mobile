@@ -83,6 +83,8 @@ fun GitHubStarSheet(onClose: () -> Unit) {
     MobileBottomSheet(onDismissRequest = { GitHubStar.later(context); onClose() }) {
         StageSheetHeader(stringResource(R.string.glcn_star_title))
         SheetText(stringResource(R.string.glcn_star_body))
+        // glcn: no GitHub account needed up front — Google sign-in works there.
+        SheetText(stringResource(R.string.glcn_star_google))
         Column(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             StageButton(
                 onClick = { GitHubStar.done(context); GitHubStar.open(context); onClose() },

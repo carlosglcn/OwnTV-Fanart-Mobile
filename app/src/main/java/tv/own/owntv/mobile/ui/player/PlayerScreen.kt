@@ -902,8 +902,24 @@ fun PlayerScreen(
             )
         }
 
-        // glcn: "Skip intro" on a series episode.
+        // glcn: "Skip intro" on a series episode — with the show's TMDB id, season and episode for TheIntroDB.
+        val introSeriesDao: tv.own.owntv.core.database.dao.SeriesDao = org.koin.compose.koinInject()
+        val introMeta: tv.own.owntv.core.metadata.MetadataRepository = org.koin.compose.koinInject()
+        val introLookup by androidx.compose.runtime.produceState<Triple<Int, Int, Int>?>(null, film?.seriesId, film?.itemId) {
+            value = null
+            val f = film ?: return@produceState
+            val showId = f.seriesId ?: return@produceState
+            value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                runCatching {
+                    val ep = introSeriesDao.getEpisodeById(f.itemId) ?: return@runCatching null
+                    val show = introSeriesDao.getSeriesById(showId) ?: return@runCatching null
+                    val tmdb = introMeta.resolveSeries(show)?.tmdbId ?: return@runCatching null
+                    Triple(tmdb, ep.seasonNumber, ep.episodeNumber)
+                }.getOrNull()
+            }
+        }
         GlcnIntroSkip.Chip(
+            lookup = introLookup,
             engine = activeEngine,
             enabled = channel == null && !inPip && failure == null,
             controlsVisible = controlsVisible,

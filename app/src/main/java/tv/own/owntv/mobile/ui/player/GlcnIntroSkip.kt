@@ -38,13 +38,12 @@ import tv.own.owntv.player.PlaybackEngine
  * glcn: "Skip intro" for series — the same rules as on the television, and the same memory, so a series
  * learned on one device's app is not relearned here: the first time the viewer jumps forward early in an
  * episode and keeps watching, that moment is remembered for the series; later episodes offer (or, with
- * Auto-skip on, make) the same jump. Before anything is learned the button jumps a typical intro.
+ * Auto-skip on, make) the same jump. glcn: the episode's own times from TheIntroDB come first; with nothing
+ * known the button stays away (a blind jump landed in shows without an intro).
  */
 object GlcnIntroSkip {
     private const val DEFAULT_JUMP_MS = 80_000L
     private const val WINDOW_MS = 8 * 60_000L
-    private const val SHOW_FROM_MS = 10_000L
-    private const val SHOW_UNTIL_MS = 4 * 60_000L
     private const val JUMP_MS = 15_000L
     private const val SETTLE_MS = 12_000L
 
@@ -55,11 +54,17 @@ object GlcnIntroSkip {
 
     /** The button, bottom-right over the picture; lifted above the controls while they show. */
     @Composable
-    fun Chip(engine: PlaybackEngine, enabled: Boolean, controlsVisible: Boolean, autoSkip: Boolean, modifier: Modifier = Modifier) {
+    fun Chip(engine: PlaybackEngine, enabled: Boolean, controlsVisible: Boolean, autoSkip: Boolean, modifier: Modifier = Modifier, lookup: Triple<Int, Int, Int>? = null) {
         val context = LocalContext.current
         val meta by engine.currentMeta.collectAsStateWithLifecycle()
         val series = meta.subtitle?.takeIf { enabled && meta.episodeNumber != null && it.isNotBlank() }
         val position by engine.position.collectAsStateWithLifecycle()
+        // glcn: the episode's intro from TheIntroDB (the show's TMDB id, season, episode).
+        val db by androidx.compose.runtime.produceState<tv.own.owntv.core.metadata.IntroDb.Segments?>(null, lookup) {
+            value = lookup?.let { (t, se, ep) -> tv.own.owntv.core.metadata.IntroDb.segments(t, se, ep) }
+        }
+        val dbStart = db?.introStart ?: 0L
+        val dbEnd = db?.introEnd ?: -1L
         var learnedEnd by remember(series) { mutableLongStateOf(series?.let { learned(context, it) } ?: -1L) }
         var autoDone by remember(meta) { mutableStateOf(false) }
 
@@ -87,17 +92,19 @@ object GlcnIntroSkip {
             }
         }
 
+        val exactEnd = if (dbEnd > 0) dbEnd else learnedEnd
         val inWindow = series != null && when {
+            dbEnd > 0 -> position in maxOf(2_000L, dbStart) until (dbEnd - 3_000L)
             learnedEnd > 0 -> position in 2_000L until (learnedEnd - 3_000L)
-            else -> position in SHOW_FROM_MS until SHOW_UNTIL_MS
+            else -> false // glcn: nothing known — no blind jump
         }
-        LaunchedEffect(inWindow, autoSkip, learnedEnd) {
-            if (autoSkip && inWindow && learnedEnd > 0 && !autoDone) {
+        LaunchedEffect(inWindow, autoSkip, exactEnd) {
+            if (autoSkip && inWindow && exactEnd > 0 && !autoDone) {
                 autoDone = true
-                engine.seekBy(learnedEnd - engine.position.value)
+                engine.seekBy(exactEnd - engine.position.value)
             }
         }
-        val visible = inWindow && !jumped && !(autoSkip && learnedEnd > 0)
+        val visible = inWindow && !jumped && !(autoSkip && exactEnd > 0)
         val lift by animateDpAsState(if (controlsVisible) 132.dp else 36.dp, label = "introLift")
         Box(modifier.fillMaxSize()) {
             AnimatedVisibility(visible, enter = fadeIn(), exit = fadeOut(), modifier = Modifier.align(Alignment.BottomEnd)) {
@@ -108,9 +115,9 @@ object GlcnIntroSkip {
                         .background(Color.Black.copy(alpha = 0.55f))
                         .border(1.5.dp, Color.White.copy(alpha = 0.85f), RoundedCornerShape(12.dp))
                         .clickable {
-                            val end = learnedEnd
+                            val end = exactEnd
                             val pos = engine.position.value
-                            engine.seekBy(if (end > pos) end - pos else DEFAULT_JUMP_MS)
+                            if (end > pos) engine.seekBy(end - pos)
                         }
                         .padding(horizontal = 18.dp, vertical = 10.dp),
                 ) {

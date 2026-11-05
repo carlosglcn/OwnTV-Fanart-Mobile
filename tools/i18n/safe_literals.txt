@@ -245,6 +245,7 @@
 1	preference-key	app/src/main/java/tv/own/owntv/mobile/ui/screens/library/VodActions.kt	tmdb_details
 1	empty	app/src/main/java/tv/own/owntv/mobile/ui/screens/library/VodCategoriesSheet.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/library/VodCategoriesSheet.kt	heading
+1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/library/VodCategoriesSheet.kt	heading$sec
 1	protocol	app/src/main/java/tv/own/owntv/mobile/ui/screens/library/VodTuner.kt	EPISODE
 1	protocol	app/src/main/java/tv/own/owntv/mobile/ui/screens/library/VodTuner.kt	MOVIE
 1	technical	app/src/main/java/tv/own/owntv/mobile/ui/screens/library/VodTuner.kt	SERIES

@@ -6,4 +6,5 @@
     <string name="glcn_star_open">Abrir GitHub</string>
     <string name="glcn_star_done">Ya lo hice</string>
     <string name="glcn_star_later">Ahora no</string>
+    <string name="glcn_star_google">Puedes entrar con tu cuenta de Google.</string>
 </resources>
