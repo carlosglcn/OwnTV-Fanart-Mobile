@@ -21,3 +21,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🗂️ Library categories in sections — Platforms, Genres and More categories — and no playlist mark when everything comes from one playlist.
 - ⏭️ Skip intro: each episode's real intro times from TheIntroDB; with nothing known the button no longer appears (no blind jump).
 - ⭐ Star prompt: notes you can sign in to GitHub with your Google account.
+- ⏱️ Channel banner stays 6 seconds by default (it was 3).
