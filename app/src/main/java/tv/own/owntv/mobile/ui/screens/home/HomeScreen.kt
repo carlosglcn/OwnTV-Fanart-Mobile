@@ -418,6 +418,8 @@ fun HomeScreen(
                     )
                     // Sports: followed matches live or within the hour, in the user's
                     // order; a tap opens the match, where its channels are found.
+                    // The television's split Trending rows; the phone keeps the mixed one.
+                    HomeRow.TRENDING_MOVIES, HomeRow.TRENDING_SERIES -> Unit
                     HomeRow.LIVE_SPORTS -> Column {
                         Text(
                             stringResource(R.string.sports_title), style = stageText(17f, 800), color = LocalStagePalette.current.text,
@@ -506,6 +508,7 @@ private fun HomeFeed.hasContent(row: HomeRow): Boolean = when (row) {
     HomeRow.STARTING_SOON -> startingSoon.isNotEmpty()
     // Decided by the Sports row's own matches, in HomeScreen.
     HomeRow.LIVE_SPORTS -> false
+    HomeRow.TRENDING_MOVIES, HomeRow.TRENDING_SERIES -> false
 }
 
 /** A half-watched episode's menu is its show's: the show is what can be favourited or hidden. */

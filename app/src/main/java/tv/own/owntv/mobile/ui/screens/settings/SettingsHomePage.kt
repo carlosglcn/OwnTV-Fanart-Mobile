@@ -175,7 +175,8 @@ private fun ReorderableSwitchRow(
 }
 
 private fun HomeRow.titleRes() = when (this) {
-    HomeRow.TRENDING -> R.string.home_row_now_trending
+    // Never listed: `settingsRows` leaves out the television's split Trending rows.
+    HomeRow.TRENDING, HomeRow.TRENDING_MOVIES, HomeRow.TRENDING_SERIES -> R.string.home_row_now_trending
     HomeRow.HERO -> R.string.settings_keep_watching
     HomeRow.LIVE_SPORTS -> R.string.sports_home_row
     HomeRow.RECENT_CHANNELS -> R.string.home_row_recent_channels
@@ -194,7 +195,7 @@ private fun HomeRow.titleRes() = when (this) {
 }
 
 private fun HomeRow.descriptionRes() = when (this) {
-    HomeRow.TRENDING -> R.string.home_row_trending_description
+    HomeRow.TRENDING, HomeRow.TRENDING_MOVIES, HomeRow.TRENDING_SERIES -> R.string.home_row_trending_description
     HomeRow.HERO -> R.string.home_row_hero_description
     HomeRow.LIVE_SPORTS -> R.string.sports_home_row_description
     HomeRow.RECENT_CHANNELS -> R.string.home_row_recent_description
