@@ -22,3 +22,8 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - ⏭️ Skip intro: each episode's real intro times from TheIntroDB; with nothing known the button no longer appears (no blind jump).
 - ⭐ Star prompt: notes you can sign in to GitHub with your Google account.
 - ⏱️ Channel banner stays 6 seconds by default (it was 3).
+- 🌈 Gradient styles, as on the TV: Aurora, Crepúsculo, Océano and Fanart vivo — their colours drawn behind the whole app (soft lights drifting slowly; still with animations off).
+- 🏞️ App wallpapers: Glass & background › Picture › "App wallpapers" — 9 animated (Aurora, Waves, Glints, Snowfall, Shooting stars, City lights, Pearl, Dawn, Petals) and 13 photos (8 dark, 5 light). Tap one and the whole screen shows it; "Set it" keeps it (a photo is downloaded once).
+- 🧸 Profile avatars: the TV's new 3D clay pictures — the 24 objects redone (each profile keeps its own) and 24 characters, the same numbers on TV and phone.
+- 🔒 Theme: while a style is on, light/dark shows "Set by the X style" (each style is made for its tone).
+- 🌗 A light background picture under the dark theme is darkened by itself just enough for the text to read (your own Darken still counts when it is more).

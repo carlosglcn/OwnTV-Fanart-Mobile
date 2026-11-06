@@ -87,11 +87,24 @@ fun SettingsGlassPage(
     val choosePicture = { runCatching { pickImage.launch(arrayOf("image/*")) }; Unit }
     // With a picture set, the row offers Change or Clear (the TV's chooser); without one it goes straight to the picker.
     var pictureMenu by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    // glcn: the app's own wallpapers (the TV's set), with a full-screen preview.
+    var wallGallery by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    if (wallGallery) tv.own.owntv.mobile.glcn.WallpaperGallery(
+        current = background.imagePath,
+        onPicked = { path, picture ->
+            vm.edit {
+                setNewBackgroundPicture(path)
+                if (picture) setPictureLook(PictureLook.SHARP)
+            }
+        },
+        onDismiss = { wallGallery = false },
+    )
     if (pictureMenu) {
         tv.own.owntv.mobile.ui.components.MobileBottomSheet(onDismissRequest = { pictureMenu = false }) {
             tv.own.owntv.mobile.ui.stage.StageSheetHeader(stringResource(R.string.settings_bg_picture), eyebrow = stringResource(R.string.settings_glass_bg_title))
+            tv.own.owntv.mobile.ui.stage.StageMenuItem(stringResource(R.string.glcn_wall_option), onClick = { pictureMenu = false; wallGallery = true }, icon = MobileIcons.Image)
             tv.own.owntv.mobile.ui.stage.StageMenuItem(stringResource(R.string.settings_bg_change), onClick = { pictureMenu = false; choosePicture() }, icon = MobileIcons.Folder)
-            tv.own.owntv.mobile.ui.stage.StageMenuItem(stringResource(R.string.common_clear), onClick = {
+            if (hasFile) tv.own.owntv.mobile.ui.stage.StageMenuItem(stringResource(R.string.common_clear), onClick = {
                 pictureMenu = false
                 vm.edit {
                     setBgImagePath("")
@@ -123,7 +136,7 @@ fun SettingsGlassPage(
                     onSelect = { i ->
                         vm.edit { setBackgroundStyle(styles[i]) }
                         // Picture with no picture yet goes straight to the picker (the TV's rule).
-                        if (styles[i] == BackgroundStyle.PICTURE && !hasFile) choosePicture()
+                        if (styles[i] == BackgroundStyle.PICTURE && !hasFile) pictureMenu = true
                     },
                 )
             }
@@ -137,7 +150,7 @@ fun SettingsGlassPage(
                 } else {
                     stringResource(R.string.settings_line_bg_picture_none_mobile)
                 },
-                onClick = { if (hasFile) pictureMenu = true else choosePicture() },
+                onClick = { pictureMenu = true },
             ) { StageRowValue(stringResource(if (hasFile) R.string.settings_bg_change else R.string.settings_bg_none), StageChevron.FORWARD) }
         }
         item(key = "look") {
