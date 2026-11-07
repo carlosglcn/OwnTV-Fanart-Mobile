@@ -118,13 +118,9 @@ fun SettingsBackupPage(
     var restoreChooser by remember { mutableStateOf(false) }
     var remoteRestore by remember { mutableStateOf(false) }
     var remoteExport by remember { mutableStateOf(false) }
-    // Held while the document picker is in front: the user has already said what to export, and the
-    // picker only decides where it goes.
-    var chosen by remember { mutableStateOf<ExportRequest?>(null) }
-
     val createDocument = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(BACKUP_MIME)) { uri ->
-        val request = chosen
-        chosen = null
+        val request = vm.pendingFileExport
+        vm.pendingFileExport = null
         if (uri != null && request != null) {
             vm.export(uri, BACKUP_FILE_NAME, request.sections, request.profileIds, request.password)
         }
@@ -209,13 +205,13 @@ fun SettingsBackupPage(
                 exportTarget = null
                 when (target) {
                     BackupTarget.FILE -> {
-                        chosen = request
-                        // Some phones ship without a system "save as" screen; share instead of crashing.
+                        vm.pendingFileExport = request
+                        // Some phones have no app that answers "save a file" (the system Files app
+                        // disabled or removed), and launching the picker there throws.
                         try {
                             createDocument.launch(BACKUP_FILE_NAME)
                         } catch (_: ActivityNotFoundException) {
-                            chosen = null
-                            shareBackup(request)
+                            vm.reportNoFileApp()
                         }
                     }
                     BackupTarget.REMOTE -> {
@@ -432,7 +428,7 @@ private fun CompanionFailure.text(): String = when (this) {
 }
 
 /** Everything the export needs, decided before the picker opens. */
-private data class ExportRequest(
+internal data class ExportRequest(
     val sections: Set<BackupManager.Section>,
     val profileIds: Set<Long>,
     val password: String?,

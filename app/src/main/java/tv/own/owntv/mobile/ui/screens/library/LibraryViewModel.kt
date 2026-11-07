@@ -20,6 +20,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -630,19 +632,35 @@ class LibraryViewModel(
     }
 
     init {
+        // The remembered category of each tab, at start and again after every profile switch: this view
+        // model outlives the switch, and each profile has its own. After a switch a tab with nothing it
+        // can show goes back to All rather than keep the previous profile's folder.
         viewModelScope.launch {
-            if (settings.rememberCategoryMovies.first()) {
-                parseLiveKey(settings.lastMoviesCategory.first())?.let {
-                    if (lockedKey == null) _selectedMovies.value = it
-                }
+            var atLaunch = true
+            ctx.filter { it.profileId >= 0L }.distinctUntilChanged { a, b -> a.profileId == b.profileId }.collect { c ->
+                val launch = atLaunch.also { atLaunch = false }
+                if (lockedKey != null) return@collect
+                suspend fun remembered(on: Boolean, stored: String, type: MediaType): LiveKey? =
+                    if (!on) null else parseLiveKey(stored)?.takeIf { !folderGone(it, c.sourceIdsFor(type)) }
+                val movies = remembered(settings.rememberCategoryMovies.first(), settings.lastMoviesCategory.first(), MediaType.MOVIE)
+                val series = remembered(settings.rememberCategorySeries.first(), settings.lastSeriesCategory.first(), MediaType.SERIES)
+                if (movies != null || !launch) _selectedMovies.value = movies ?: LiveKey.All
+                if (series != null || !launch) _selectedSeries.value = series ?: LiveKey.All
             }
-            if (settings.rememberCategorySeries.first()) {
-                parseLiveKey(settings.lastSeriesCategory.first())?.let {
-                    if (lockedKey == null) _selectedSeries.value = it
-                }
+        }
+        // Another playlist can leave a tab on a folder the playlists now shown do not have: its titles stayed
+        // listed under an empty label. Such a folder falls back to All, as on Live TV.
+        viewModelScope.launch {
+            ctx.filter { it.profileId >= 0L }.distinctUntilChanged { a, b -> a.sourceIds == b.sourceIds }.drop(1).collect { c ->
+                if (folderGone(_selectedMovies.value, c.sourceIdsFor(MediaType.MOVIE))) _selectedMovies.value = LiveKey.All
+                if (folderGone(_selectedSeries.value, c.sourceIdsFor(MediaType.SERIES))) _selectedSeries.value = LiveKey.All
             }
         }
     }
+
+    /** Whether [key] is a provider folder that none of [sourceIds] has (another playlist's, or deleted). */
+    private suspend fun folderGone(key: LiveKey, sourceIds: List<Long>): Boolean =
+        key is LiveKey.Folder && categoryDao.getById(key.id)?.sourceId !in sourceIds
 
     // --- The long-press actions ------------------------------------------------------------------
 

@@ -35,6 +35,9 @@
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/ContentActionsMenu.kt	remove_continue
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/Shimmer.kt	shimmer
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/Shimmer.kt	shimmerX
+1	app/src/main/java/tv/own/owntv/mobile/ui/nav/MobileNavHost.kt	$SPORTS_LEAGUE/${Uri.encode(it)}
+1	app/src/main/java/tv/own/owntv/mobile/ui/nav/MobileNavHost.kt	$SPORTS_LEAGUE/{$ARG_KEY}
+1	app/src/main/java/tv/own/owntv/mobile/ui/nav/MobileNavHost.kt	sports/league
 1	app/src/main/java/tv/own/owntv/mobile/ui/player/GlcnIntroSkip.kt	glcn_intro
 1	app/src/main/java/tv/own/owntv/mobile/ui/player/GlcnIntroSkip.kt	introLift
 1	app/src/main/java/tv/own/owntv/mobile/ui/player/PlayerSheets.kt	%.1f s
@@ -65,6 +68,7 @@
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsFanartRows.kt	glcn_season
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsFanartRows.kt	glcn_style
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsGroupRows.kt	alerts_outside
+1	app/src/main/java/tv/own/owntv/mobile/ui/screens/sports/SportsScreen.kt	head
 2	app/src/main/java/tv/own/owntv/mobile/ui/screens/sports/SportsSettingsViewModel.kt	\0
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/sports/SportsSettingsViewModel.kt	${league.sport.path}/${t.id}
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/sports/SportsSettingsViewModel.kt	\\p{M}+
