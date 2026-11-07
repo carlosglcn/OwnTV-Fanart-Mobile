@@ -1,12 +1,32 @@
-## What's new — bug-fix update
+## What's new — styles, wallpapers and a better player
 
-### 🔧 Fixes
-- 🎬 **Films and series get their cast, title lettering, genres and trailers back.** The previous version's trailer-language change made the saved TMDB details of every title with a trailer expire, and the clean-up after the next playlist sync deleted them. Incomplete titles are now cleared once and fetched again in full as you browse, and a failed fetch never replaces full details again
-- 💡 **Recommended: your own free TMDB key** (Settings › Metadata › Your TMDB key). With it there is no daily allowance, and everything comes back at once
-- 🧯 **Syncing several playlists no longer runs out of memory:** they sync one after another, with more memory headroom
-- 🐢 **Your own TMDB key is paced** (about five calls a second)
-- 🏷️ **Quality marks:** the picture format before REMUX, Dolby Vision spelled out on title pages
-- ⚡ **Faster matching** of sport and film programmes and provider tags
+### 🎬 Player
+- 🔤 **Styled subtitles (ASS/SSA)** shown as made, chapters from the file and disc folders on network shares (newest core)
+- ⏭️ **Skip intro** with each episode's real intro times from TheIntroDB; with nothing known, no blind jump
+- 🔑 Lists that refuse the usual player identity now play by themselves
+- ⏱️ Channel banner stays 6 seconds by default
+
+### 🎨 Look
+- 🌈 **Gradient styles, as on the TV:** Aurora, Crepúsculo, Océano and Fanart vivo
+- 🏞️ **App wallpapers:** 9 animated and real photos, dark and light (Glass & background › Picture)
+- 🧸 **New 3D profile avatars:** 48 clay pictures
+- 🔒 With a style on, light/dark is set by the style; a light picture under the dark theme is dimmed by itself to read
+
+### 📺 Live TV and Home
+- 📺 Picture cards two to a row on a phone; a "Categories" button in the tools row
+- 🏠 Home: the cover sits lower, Keep watching under it; 🔥 Trending films and series rows
+- 🔄 Sync notice small at the top
+
+### 🗂️ Emby / Jellyfin
+- 🏷️ Series by platform and genres in Spanish; categories in sections; posters without the playlist mark
+- 🧠 **Much lighter sync** — the library is written to a file as it is read
+
+### ⚙️ Settings and fixes
+- ⚙️ Settings in fewer cards (Picture, Sound & subtitles and Watching & recording inside Playback)
+- 📋 Playback report keeps what happened just before a freeze or crash
+
+### 🔄 From the original OwnTV
+- Merged ahXN00's latest work. Thank you, ahXN00!
 
 ### 🙏 Thank you
-Thank you to everyone in the community who reports bugs and shares ideas — many of the fixes in this version come from your messages.
+Thank you to everyone in the community who tests, reports bugs and shares ideas — many changes here come from your messages.

@@ -43,8 +43,12 @@ OwnTV Fanart es gratis y se hace en ratos libres. Si te gusta cómo deja tu TV, 
 - **Sonido** — la mejor pista de audio en tu idioma, diálogos más claros y (en SHIELD) paso de Dolby/DTS también desde mpv.
 - **TV y móvil juntos** — sincronización automática de favoritos e historial y *Ver en la TV* desde el móvil.
 - **Emby** mediante M3U, Android Auto y un widget en el móvil, y un salvapantallas de fanart en la TV.
+- **Un reproductor mejor** — subtítulos con estilo ASS/SSA, capítulos, carpetas de disco y saltar intro con los tiempos reales.
+- **Estilos y fondos** — estilos degradados, fondos animados y de fotos, y avatares de perfil en 3D.
 
 ## 📄 Licencia y créditos
 
 GPLv3, como OwnTV. Todo el mérito de la app en sí es de **ahXN00** y los colaboradores de OwnTV; el
 logotipo **owntv** es de [@m3th0d93](https://github.com/m3th0d93). El icono de OwnTV Fanart es original de esta versión.
+
+Fotos de los fondos de [Unsplash](https://unsplash.com/) (Licencia Unsplash). Los avatares 3D de perfil son originales de esta versión (generados con IA). Tiempos de intro y créditos de [TheIntroDB](https://theintrodb.org/). Subtítulos con estilo dibujados con [libass](https://github.com/libass/libass) (ISC).
