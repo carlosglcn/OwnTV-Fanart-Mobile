@@ -102,7 +102,6 @@ import tv.own.owntv.mobile.ui.screens.morePageTitleRes
 import tv.own.owntv.mobile.ui.screens.settings.settingsPageTitleRes
 import tv.own.owntv.mobile.ui.screens.settings.isSettingsPage
 import tv.own.owntv.mobile.ui.screens.sports.SportsPlayback
-import tv.own.owntv.mobile.ui.screens.sports.SportsTab
 
 /**
  * The frame every screen sits in (Stage): the Stage page background, the page header with the
@@ -871,8 +870,6 @@ private fun NavHostController.onNavClick(
         // tab's saved stack instead restored the very page on screen, so the tap did nothing.
         current == null && popBackStack(destination.route, inclusive = false) -> Unit
         else -> {
-            // Sports opened from another place starts on Scores; Back from its match pages keeps the tab.
-            if (destination == MobileDestination.SPORTS) sportsPlayback.tab.value = SportsTab.SCORES
             navigateToTab(destination)
         }
     }
