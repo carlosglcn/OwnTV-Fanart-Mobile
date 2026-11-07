@@ -320,6 +320,7 @@ private fun appearanceSections(vm: SettingsViewModel): List<SettingSection> {
     val setPopup = { pct: Int -> vm.edit { setFontCustomization(fonts.copy(popupSizePercent = PopupSizeScale.clamp(pct))) } }
 
     val themes = ThemeMode.entries
+    val styleNow = vm.settings.glcnStyle.pref(null)
     // The presets' own (dark) colours in both themes; only the colour in force follows the theme.
     val presets = AccentColor.entries.map { Color(it.roles(true).primary) }
     return listOf(
@@ -328,7 +329,9 @@ private fun appearanceSections(vm: SettingsViewModel): List<SettingSection> {
             listOfNotNull(
                 SettingItem(
                     "theme", MobileIcons.WbSunny, stringResource(R.string.settings_theme), stringResource(R.string.settings_theme_description),
-                    SettingValue.Segmented(themes.map { stringResource(it.themeLabel()) }, themes.indexOf(themeMode)) { i -> vm.edit { setThemeMode(themes[i]) } },
+                    // glcn: a style is made for its own tone — while one is on, light or dark is its call, said plainly.
+                    styleNow?.let { SettingValue.Choice(stringResource(R.string.glcn_theme_fixed, it.label())) }
+                        ?: SettingValue.Segmented(themes.map { stringResource(it.themeLabel()) }, themes.indexOf(themeMode)) { i -> vm.edit { setThemeMode(themes[i]) } },
                 ),
                 SettingItem(
                     "accent", MobileIcons.Palette, stringResource(R.string.settings_accent), stringResource(R.string.settings_line_accent_mobile),

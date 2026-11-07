@@ -46,6 +46,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -126,6 +127,14 @@ fun HomeScreen(
     var featuredArt by remember { mutableStateOf<String?>(null) }
     val reminders by vm.reminderRows.collectAsStateWithLifecycle()
     var trendingMenu by remember { mutableStateOf<TrendingHomeItem?>(null) }
+    var bulkDownload by remember { mutableStateOf<tv.own.owntv.mobile.ui.components.BulkDownloadAsk?>(null) }
+    val downloadsAllowed by org.koin.compose.koinInject<tv.own.owntv.core.settings.SettingsRepository>().activeDownloadsAllowed
+        .collectAsStateWithLifecycle(true)
+    // A show downloads every episode, so it asks first with the count; a film starts at once.
+    fun download(type: MediaType, id: Long) {
+        if (type == MediaType.SERIES) vm.countEpisodes(id) { n -> bulkDownload = tv.own.owntv.mobile.ui.components.BulkDownloadAsk(n) { vm.download(type, id) } }
+        else vm.download(type, id)
+    }
     var infoFor by remember { mutableStateOf<TrendingHomeItem?>(null) }
     var unavailable by remember { mutableStateOf(false) }
 
@@ -192,8 +201,19 @@ fun HomeScreen(
         HomeMessage(stringResource(R.string.home_no_rows), stringResource(R.string.home_enable_rows), modifier)
         return
     }
+    // While a large playlist keeps loading after setup, a short or empty Home says so rather than
+    // reading as broken. Trending is promised only while its row is switched on.
+    val loadingTitles by vm.libraryLoadingTitles.collectAsStateWithLifecycle()
+    val loadingNote: (@Composable () -> Unit)? = if (loadingTitles > 0 && state.trendingItems.size < TrendingDao.MIN_ELIGIBLE_ITEMS) {
+        { LibraryLoadingNote(loadingTitles, trendingOn = HomeRow.TRENDING in state.config.visibleOrder) }
+    } else {
+        null
+    }
     if (rows.isEmpty()) {
-        HomeMessage(stringResource(R.string.home_start_watching), stringResource(R.string.home_continue_empty), modifier)
+        Column(modifier.fillMaxSize()) {
+            loadingNote?.invoke()
+            HomeMessage(stringResource(R.string.home_start_watching), stringResource(R.string.home_continue_empty), Modifier.weight(1f))
+        }
         return
     }
 
@@ -264,6 +284,7 @@ fun HomeScreen(
         contentPadding = PaddingValues(top = if (trendingFirst) 0.dp else 8.dp, bottom = 22.dp),
         verticalArrangement = Arrangement.spacedBy(22.dp),
     ) {
+        loadingNote?.let { note -> item("library-loading") { note() } }
         rows.forEach { row ->
             item(row.name) {
                 when (row) {
@@ -391,9 +412,13 @@ fun HomeScreen(
                             )
                         }
                     }
+                    // glcn: not the channels already in the cover above (the same match shown twice in a row).
                     HomeRow.SPORTS_NOW -> LiveRow(
                         title = stringResource(R.string.glcn_sports_now),
-                        channels = state.sportsGuide.channels,
+                        channels = state.sportsGuide.channels.let { all ->
+                            val inCover = if (HomeRow.FEATURED in rows) state.featured.mapNotNull { (it as? tv.own.owntv.core.home.FeaturedItem.Live)?.channel?.id }.toSet() else emptySet()
+                            all.filterNot { it.id in inCover }.ifEmpty { all }
+                        },
                         guide = state.sportsGuide,
                         mode = HomeLiveRowMode.ON_NOW,
                         onToggleMode = null,
@@ -414,6 +439,18 @@ fun HomeScreen(
                     )
                     // Sports: followed matches live or within the hour, in the user's
                     // order; a tap opens the match, where its channels are found.
+                    // glcn: films / series trending, each in a row of its own (set with Trending, shown under it).
+                    HomeRow.TRENDING_MOVIES, HomeRow.TRENDING_SERIES -> PosterRow(
+                        title = stringResource(if (row == HomeRow.TRENDING_MOVIES) R.string.glcn_home_row_trending_movies else R.string.glcn_home_row_trending_series),
+                        posters = (if (row == HomeRow.TRENDING_MOVIES) state.trendingMovies else state.trendingSeries).map { t ->
+                            when (t) {
+                                is TrendingHomeItem.Movie -> HomePoster(ContentTarget(MediaType.MOVIE, t.movie.id, t.movie.name, t.movie.posterUrl), t.movie.posterUrl, t.movie.rating, progress = movieProgress[t.movie.id])
+                                is TrendingHomeItem.Series -> HomePoster(ContentTarget(MediaType.SERIES, t.series.id, t.series.name, t.series.posterUrl), t.series.posterUrl, t.series.rating, progress = seriesProgress[t.series.id])
+                            }
+                        },
+                        onOpen = { if (it.type == MediaType.MOVIE) onOpenMovie(it.id) else onOpenSeries(it.id) },
+                        onMenu = { menuFor = it },
+                    )
                     HomeRow.LIVE_SPORTS -> Column {
                         Text(
                             stringResource(R.string.sports_title), style = stageText(17f, 800), color = LocalStagePalette.current.text,
@@ -442,7 +479,7 @@ fun HomeScreen(
             onPlay = { activate(item) },
             onVersions = { onOpenSearch(item.snapshot.canonicalTitle) },
             onFavourite = { vm.toggleFavorite(type, id) },
-            onDownload = { vm.download(type, id) },
+            onDownload = if (downloadsAllowed) ({ download(type, id) }) else null,
             onInfo = { infoFor = item },
             onDismiss = { trendingMenu = null },
         )
@@ -467,12 +504,13 @@ fun HomeScreen(
                 else -> favoriteSeries
             },
             onToggleFavorite = { vm.toggleFavorite(target.type, target.id) },
-            onDownload = { vm.download(target.type, target.id) },
+            onDownload = { download(target.type, target.id) },
             onHide = { vm.hide(target.type, target.id) },
             onDismiss = { menuFor = null },
             onRemoveFromContinue = { vm.removeFromContinue(target.type, target.id) },
         )
     }
+    bulkDownload?.let { tv.own.owntv.mobile.ui.components.BulkDownloadConfirm(it) { bulkDownload = null } }
 }
 
 /** A row with nothing in it is not drawn at all — an empty heading is worse than one row fewer. */
@@ -502,6 +540,8 @@ private fun HomeFeed.hasContent(row: HomeRow): Boolean = when (row) {
     HomeRow.STARTING_SOON -> startingSoon.isNotEmpty()
     // Decided by the Sports row's own matches, in HomeScreen.
     HomeRow.LIVE_SPORTS -> false
+    HomeRow.TRENDING_MOVIES -> trendingMovies.isNotEmpty()
+    HomeRow.TRENDING_SERIES -> trendingSeries.isNotEmpty()
 }
 
 /** A half-watched episode's menu is its show's: the show is what can be favourited or hidden. */
@@ -516,7 +556,7 @@ private fun HeroItem.menuTarget(): ContentTarget = when (this) {
  * rows' mode ("On now", 12 / 700), which switches the mode when tapped.
  */
 @Composable
-private fun RowHeading(title: String, count: Int? = null, mode: String? = null, onMode: (() -> Unit)? = null) {
+internal fun RowHeading(title: String, count: Int? = null, mode: String? = null, onMode: (() -> Unit)? = null) {
     val palette = LocalStagePalette.current
     val interaction = remember { MutableInteractionSource() }
     Row(Modifier.padding(start = 18.dp, end = 18.dp, bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -735,6 +775,21 @@ private fun HomeMessage(title: String, body: String, modifier: Modifier = Modifi
         Text(title, style = stageText(20f, 800), color = palette.text, textAlign = TextAlign.Center)
         Spacer(Modifier.height(8.dp))
         Text(body, style = stageText(13.5f, 500), color = palette.muted, textAlign = TextAlign.Center)
+    }
+}
+
+/** "Loading your library · N titles so far", and — [trendingOn] — when Now Trending will show. */
+@Composable
+private fun LibraryLoadingNote(titles: Int, trendingOn: Boolean) {
+    val palette = LocalStagePalette.current
+    Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp)) {
+        Text(
+            pluralStringResource(R.plurals.home_library_loading, titles, formatCount(titles)),
+            style = stageText(13.5f, 700), color = palette.text,
+        )
+        if (trendingOn) {
+            Text(stringResource(R.string.home_library_loading_trending), style = stageText(12f, 500), color = palette.muted)
+        }
     }
 }
 

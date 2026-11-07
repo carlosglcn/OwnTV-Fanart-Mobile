@@ -58,8 +58,14 @@ fun ProfileAvatar(avatarId: Int, modifier: Modifier = Modifier, imagePath: Strin
         // The drawn tile stays underneath the picture rather than being replaced by it: it costs a
         // few Canvas paths, it fills the moment while the file is read, and it is what shows if the
         // picture has gone — no file-existence check on every composition, and never a blank hole.
+        // glcn: the TV's 3D clay pictures — objects 0–23 (the old drawings' subjects), characters 24–47.
         if (avatarId >= 0) {
-            Canvas(modifier = Modifier.matchParentSize()) { drawAvatar(i) }
+            androidx.compose.foundation.Image(
+                painter = androidx.compose.ui.res.painterResource(AVATAR_ART[i]),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.matchParentSize().clip(CircleShape),
+            )
         }
         if (imagePath.isNotBlank()) {
             AsyncImage(
@@ -72,6 +78,57 @@ fun ProfileAvatar(avatarId: Int, modifier: Modifier = Modifier, imagePath: Strin
         }
     }
 }
+
+private val AVATAR_ART = listOf(
+    tv.own.owntv.mobile.R.drawable.glcn_av_00,
+    tv.own.owntv.mobile.R.drawable.glcn_av_01,
+    tv.own.owntv.mobile.R.drawable.glcn_av_02,
+    tv.own.owntv.mobile.R.drawable.glcn_av_03,
+    tv.own.owntv.mobile.R.drawable.glcn_av_04,
+    tv.own.owntv.mobile.R.drawable.glcn_av_05,
+    tv.own.owntv.mobile.R.drawable.glcn_av_06,
+    tv.own.owntv.mobile.R.drawable.glcn_av_07,
+    tv.own.owntv.mobile.R.drawable.glcn_av_08,
+    tv.own.owntv.mobile.R.drawable.glcn_av_09,
+    tv.own.owntv.mobile.R.drawable.glcn_av_10,
+    tv.own.owntv.mobile.R.drawable.glcn_av_11,
+    tv.own.owntv.mobile.R.drawable.glcn_av_12,
+    tv.own.owntv.mobile.R.drawable.glcn_av_13,
+    tv.own.owntv.mobile.R.drawable.glcn_av_14,
+    tv.own.owntv.mobile.R.drawable.glcn_av_15,
+    tv.own.owntv.mobile.R.drawable.glcn_av_16,
+    tv.own.owntv.mobile.R.drawable.glcn_av_17,
+    tv.own.owntv.mobile.R.drawable.glcn_av_18,
+    tv.own.owntv.mobile.R.drawable.glcn_av_19,
+    tv.own.owntv.mobile.R.drawable.glcn_av_20,
+    tv.own.owntv.mobile.R.drawable.glcn_av_21,
+    tv.own.owntv.mobile.R.drawable.glcn_av_22,
+    tv.own.owntv.mobile.R.drawable.glcn_av_23,
+    tv.own.owntv.mobile.R.drawable.glcn_av_24,
+    tv.own.owntv.mobile.R.drawable.glcn_av_25,
+    tv.own.owntv.mobile.R.drawable.glcn_av_26,
+    tv.own.owntv.mobile.R.drawable.glcn_av_27,
+    tv.own.owntv.mobile.R.drawable.glcn_av_28,
+    tv.own.owntv.mobile.R.drawable.glcn_av_29,
+    tv.own.owntv.mobile.R.drawable.glcn_av_30,
+    tv.own.owntv.mobile.R.drawable.glcn_av_31,
+    tv.own.owntv.mobile.R.drawable.glcn_av_32,
+    tv.own.owntv.mobile.R.drawable.glcn_av_33,
+    tv.own.owntv.mobile.R.drawable.glcn_av_34,
+    tv.own.owntv.mobile.R.drawable.glcn_av_35,
+    tv.own.owntv.mobile.R.drawable.glcn_av_36,
+    tv.own.owntv.mobile.R.drawable.glcn_av_37,
+    tv.own.owntv.mobile.R.drawable.glcn_av_38,
+    tv.own.owntv.mobile.R.drawable.glcn_av_39,
+    tv.own.owntv.mobile.R.drawable.glcn_av_40,
+    tv.own.owntv.mobile.R.drawable.glcn_av_41,
+    tv.own.owntv.mobile.R.drawable.glcn_av_42,
+    tv.own.owntv.mobile.R.drawable.glcn_av_43,
+    tv.own.owntv.mobile.R.drawable.glcn_av_44,
+    tv.own.owntv.mobile.R.drawable.glcn_av_45,
+    tv.own.owntv.mobile.R.drawable.glcn_av_46,
+    tv.own.owntv.mobile.R.drawable.glcn_av_47,
+)
 
 /** The silhouette reads as a person rather than as a filled circle at this share of the tile. */
 private const val SILHOUETTE_FRACTION = 0.62f

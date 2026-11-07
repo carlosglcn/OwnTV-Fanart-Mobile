@@ -70,6 +70,8 @@ fun SyncStatusPill(
      */
     recordingsOnly: Boolean = false,
     onOpenDownloads: () -> Unit = {},
+    /** glcn: one small line at the top of the screen (the rest folded into "+N more"). */
+    compact: Boolean = false,
 ) {
     val catalogTracker: SyncActivityTracker = koinInject()
     val epgTracker: EpgActivityTracker = koinInject()
@@ -148,7 +150,7 @@ fun SyncStatusPill(
         if (sportsRebuild is RebuildState.Running) add(SyncLine.Sports)
         }
     }
-    val shown = rows.take(MAX_ROWS)
+    val shown = rows.take(if (compact) 1 else MAX_ROWS)
     val hidden = rows.size - shown.size
 
     AnimatedVisibility(
@@ -160,10 +162,10 @@ fun SyncStatusPill(
         val res = LocalContext.current.resources
         Column(
             Modifier
-                .padding(MobileDimens.GapSmall)
+                .padding(if (compact) 2.dp else MobileDimens.GapSmall)
                 .stageGlass(PillShape)
                 .clip(PillShape)
-                .padding(horizontal = 14.dp, vertical = 8.dp),
+                .padding(horizontal = if (compact) 10.dp else 14.dp, vertical = if (compact) 4.dp else 8.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             shown.forEach { line ->

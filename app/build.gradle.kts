@@ -175,6 +175,8 @@ android {
             // Every .so here is an already-stripped prebuilt from a dependency, so AGP's strip step
             // has nothing to remove and merely fails loudly on a machine with no NDK.
             keepDebugSymbols += "**/*.so"
+            // glcn: libmpv and libass (ass-kt) both bring the same libc++_shared, as on the TV.
+            pickFirsts += "**/libc++_shared.so"
         }
     }
 

@@ -57,7 +57,6 @@ import tv.own.owntv.mobile.R
 import tv.own.owntv.mobile.ui.theme.MobileDimens
 import tv.own.owntv.mobile.ui.components.MobileIcons
 import tv.own.owntv.mobile.ui.components.ProgrammeArt
-import tv.own.owntv.mobile.ui.stage.StageGroupLabel
 
 /** glcn: Home's renewed pieces on the phone — greeting, featured carousel, picture cards, Tonight. */
 
@@ -199,7 +198,8 @@ internal fun TonightRowMobile(
     val context = LocalContext.current
     val fmt = remember { android.text.format.DateFormat.getTimeFormat(context) }
     Column {
-        StageGroupLabel(title ?: stringResource(R.string.glcn_tonight))
+        // glcn: the same heading as every other row (it was a small grey label, unlike the rest).
+        RowHeading(title ?: stringResource(R.string.glcn_tonight))
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(MobileDimens.GapSmall),
             contentPadding = PaddingValues(horizontal = MobileDimens.ScreenPaddingH),
@@ -343,4 +343,6 @@ internal fun FeaturedCarousel(
 }
 
 /** glcn: the cover's shape — a phone's width, a little taller than wide. */
-private const val COVER_RATIO = 0.8f
+// glcn: wider than tall — at 0.8 (taller than wide) the cover took over half a phone's screen and pushed
+// Keep watching out of sight; now the first row shows under it.
+private const val COVER_RATIO = 1.3f

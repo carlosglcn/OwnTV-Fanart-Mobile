@@ -120,6 +120,7 @@ fun PlayerScreen(
     vodTuner: VodTuner = koinInject(),
     pip: PipController = koinInject(),
     settings: SettingsRepository = koinInject(),
+    channelVersions: tv.own.owntv.core.live.ChannelVersions = koinInject(),
     actions: ContentActions = koinInject(),
     subtitles: SubtitleController = koinInject(),
     cast: CastController = koinInject(),
@@ -147,7 +148,8 @@ fun PlayerScreen(
     LaunchedEffect(channel?.id) {
         copies = channel?.let { runCatching { tuner.copiesOf(it) }.getOrDefault(emptyList()) } ?: emptyList()
     }
-    val autoFrameRate by settings.autoFrameRate.collectAsStateWithLifecycle(initialValue = false)
+    val autoFrameRateFilms by settings.autoFrameRateFilms.collectAsStateWithLifecycle(initialValue = false)
+    val autoFrameRateLive by settings.autoFrameRateLive.collectAsStateWithLifecycle(initialValue = false)
     val previousChannel by tuner.previousChannel.collectAsStateWithLifecycle()
     val film by vodTuner.playing.collectAsStateWithLifecycle()
     // glcn: "Watch on TV" from the player — the channel or film on screen opens on the paired TV, found there by name.
@@ -330,7 +332,7 @@ fun PlayerScreen(
     val hasLocalCopy by tuner.hasLocalCopy.collectAsStateWithLifecycle()
     val catchup = remember(channel?.id, hasLocalCopy) {
         tuner.jumpOptions().takeIf { it.isNotEmpty() }?.let { offsets ->
-            CatchupOptions(offsets, tuner.archiveWindowSec(), tuner::jumpBackTo)
+            CatchupOptions(offsets, tuner.archiveWindowSec(), tuner::jumpBackTo, tuner::currentProgrammeStart)
         }
     }
 
@@ -412,6 +414,7 @@ fun PlayerScreen(
         .collectAsStateWithLifecycle(tv.own.owntv.core.sports.SportsConfig())
     val matchSession = sportsSession?.takeIf { s -> isLive && s.options.any { it.channel.id == channel?.id } }
     var otherChannels by remember { mutableStateOf(false) }
+    var showSources by remember { mutableStateOf(false) }
     // Closing the sheet forgets which category was open, so the next press starts at the categories.
     LaunchedEffect(sheet) { if (sheet != PlayerSheet.CHANNELS) playerCategory = null }
     val recordWatchingEnabled by settings.recordWhatImWatching.collectAsStateWithLifecycle(initialValue = false)
@@ -665,7 +668,8 @@ fun PlayerScreen(
     ) {
         VideoStage(
             player = player,
-            autoFrameRate = autoFrameRate,
+            // Settings › Picture › Frame rate has one switch for Live TV and one for films and series.
+            autoFrameRate = if (isLive) autoFrameRateLive else autoFrameRateFilms,
             // Where the picture actually is, so entering the little window is the picture shrinking
             // into the corner rather than the whole screen fading into it. Cleared on the way out,
             // or the system would be handed a rectangle from a screen that is no longer there.
@@ -878,6 +882,7 @@ fun PlayerScreen(
                 { tv.own.owntv.mobile.ui.screens.sports.MatchScoreLine(sportsPlayback, session.match, sportsConfig.spoilerFree) }
             },
             onOtherChannels = matchSession?.takeIf { it.options.size > 1 }?.let { { otherChannels = true } },
+            onSources = channel?.takeIf { isLive }?.let { { showSources = true } },
         )
         // glcn: the quick zap panel — the list being watched, with what is on and what follows, and a search.
         QuickZapPanel(
@@ -891,6 +896,14 @@ fun PlayerScreen(
             onPick = { tuner.switchTo(it); quickZap = false },
             onDismiss = { quickZap = false },
         )
+        channel?.takeIf { showSources }?.let { playing ->
+            SourcesSheet(
+                load = { channelVersions.of(playing) },
+                playingId = playing.id,
+                onPick = { tuner.switchTo(it) },
+                onDismiss = { showSources = false },
+            )
+        }
         if (otherChannels) {
             val session = matchSession
             if (session == null) otherChannels = false
@@ -902,8 +915,24 @@ fun PlayerScreen(
             )
         }
 
-        // glcn: "Skip intro" on a series episode.
+        // glcn: "Skip intro" on a series episode — with the show's TMDB id, season and episode for TheIntroDB.
+        val introSeriesDao: tv.own.owntv.core.database.dao.SeriesDao = org.koin.compose.koinInject()
+        val introMeta: tv.own.owntv.core.metadata.MetadataRepository = org.koin.compose.koinInject()
+        val introLookup by androidx.compose.runtime.produceState<Triple<Int, Int, Int>?>(null, film?.seriesId, film?.itemId) {
+            value = null
+            val f = film ?: return@produceState
+            val showId = f.seriesId ?: return@produceState
+            value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                runCatching {
+                    val ep = introSeriesDao.getEpisodeById(f.itemId) ?: return@runCatching null
+                    val show = introSeriesDao.getSeriesById(showId) ?: return@runCatching null
+                    val tmdb = introMeta.resolveSeries(show)?.tmdbId ?: return@runCatching null
+                    Triple(tmdb, ep.seasonNumber, ep.episodeNumber)
+                }.getOrNull()
+            }
+        }
         GlcnIntroSkip.Chip(
+            lookup = introLookup,
             engine = activeEngine,
             enabled = channel == null && !inPip && failure == null,
             controlsVisible = controlsVisible,

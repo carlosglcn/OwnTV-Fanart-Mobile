@@ -21,8 +21,8 @@ https://github.com/user-attachments/assets/faacb82b-6903-47c0-ae53-6854024aa5b6
 
 On a TV, open **Downloader** (by AFTVnews), type the code and install — it always fetches the newest version.
 
-[![TV downloads](https://img.shields.io/github/downloads/carlosglcn/OwnTV-Fanart/total?label=TV%20downloads&color=00c2a8)](https://github.com/carlosglcn/OwnTV-Fanart/releases)
-[![Phone downloads](https://img.shields.io/github/downloads/carlosglcn/OwnTV-Fanart-Mobile/total?label=Phone%20downloads&color=00c2a8)](https://github.com/carlosglcn/OwnTV-Fanart-Mobile/releases)
+[![TV downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fcarlosglcn%2FOwnTV-Fanart%2Fstats%2Fdownloads.json&query=%24.total&label=TV%20downloads&color=00c2a8)](https://github.com/carlosglcn/OwnTV-Fanart/releases)
+[![Phone downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fcarlosglcn%2FOwnTV-Fanart-Mobile%2Fstats%2Fdownloads.json&query=%24.total&label=Phone%20downloads&color=00c2a8)](https://github.com/carlosglcn/OwnTV-Fanart-Mobile/releases)
 
 It installs **beside** the official app (its own package, `tv.own.owntv.glcn`), and tells you in-app when a new version is out.
 
@@ -46,11 +46,15 @@ OwnTV Fanart is free and made in spare time. If it makes your TV nicer, you can 
 - **Sound** — the best audio track in your language, clearer dialogue, and (on SHIELD) Dolby/DTS passthrough from mpv too.
 - **TV and phone together** — automatic sync of favourites and history, and *Watch on TV* from the phone.
 - **Emby** libraries via M3U, Android Auto and a home-screen widget on the phone, a fanart screensaver on the TV.
+- **A better player** — styled ASS/SSA subtitles, chapters, disc folders and skip intro with real intro times.
+- **Styles and wallpapers** — gradient styles, animated and photo wallpapers, and 3D profile avatars.
 
 ## 📄 Licence and credits
 
 GPLv3, like OwnTV. All credit for the app itself goes to **ahXN00** and the OwnTV contributors; the
 **owntv** wordmark is by [@m3th0d93](https://github.com/m3th0d93). The OwnTV Fanart icon is original to this fork.
+
+Wallpaper photos from [Unsplash](https://unsplash.com/) (Unsplash License). The 3D profile avatars are original to this fork (AI-generated). Intro and credits times from [TheIntroDB](https://theintrodb.org/). Styled subtitles drawn with [libass](https://github.com/libass/libass) (ISC).
 
 ---
 

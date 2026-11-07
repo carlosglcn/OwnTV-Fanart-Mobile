@@ -110,12 +110,14 @@ internal fun LiveCardsGrid(
     }
 
     val times = rememberCardTimeFormat()
+    // glcn: two to a row on a phone, smaller — one card used to fill half the screen, so 200 channels were a long way.
+    val compact = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < COMPACT_BELOW_DP
     LazyVerticalGrid(
         state = gridState,
-        columns = GridCells.Adaptive(minSize = 300.dp),
+        columns = if (compact) GridCells.Fixed(2) else GridCells.Adaptive(minSize = 300.dp),
         contentPadding = PaddingValues(MobileDimens.ScreenPaddingH),
         horizontalArrangement = Arrangement.spacedBy(MobileDimens.GapMedium),
-        verticalArrangement = Arrangement.spacedBy(MobileDimens.GapLarge),
+        verticalArrangement = Arrangement.spacedBy(if (compact) MobileDimens.GapMedium else MobileDimens.GapLarge),
         modifier = modifier.fillMaxSize(),
     ) {
         items(count = channels.itemCount, key = channels.itemKey { it.id }) { index ->
@@ -133,6 +135,7 @@ internal fun LiveCardsGrid(
                     times = times,
                     onClick = { onClick(channel) },
                     onLongClick = { onLongClick(channel) },
+                    compact = compact,
                 )
             }
         }
@@ -150,6 +153,7 @@ private fun LiveCard(
     times: DateFormat,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
+    compact: Boolean = false,
 ) {
     val separator = stringResource(R.string.content_epg_bits_separator)
     Column(Modifier.fillMaxWidth()) {
@@ -167,7 +171,7 @@ private fun LiveCard(
             } else {
                 ChannelLogoImage(
                     url = channel.displayLogoUrl,
-                    modifier = Modifier.align(Alignment.Center).size(96.dp),
+                    modifier = Modifier.align(Alignment.Center).size(if (compact) 56.dp else 96.dp),
                     fallback = {
                         Icon(MobileIcons.LiveTv, null, tint = Color(0xFF8A9590), modifier = Modifier.size(48.dp))
                     },
@@ -189,7 +193,7 @@ private fun LiveCard(
             ) {
                 ChannelLogoImage(
                     url = channel.displayLogoUrl,
-                    modifier = Modifier.size(width = 44.dp, height = 30.dp),
+                    modifier = if (compact) Modifier.size(width = 30.dp, height = 20.dp) else Modifier.size(width = 44.dp, height = 30.dp),
                     fallback = { Icon(MobileIcons.LiveTv, null, tint = Color.White, modifier = Modifier.size(22.dp)) },
                 )
             }
@@ -201,11 +205,11 @@ private fun LiveCard(
                 Modifier
                     .align(Alignment.BottomStart)
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                    .padding(horizontal = if (compact) 8.dp else 12.dp, vertical = if (compact) 6.dp else 10.dp),
             ) {
                 Text(
                     programme?.title ?: channel.name,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    style = (if (compact) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium).copy(fontWeight = FontWeight.Bold),
                     color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis,
                 )
                 Text(
@@ -232,7 +236,8 @@ private fun LiveCard(
         // What follows, then the details the feed carries for what is on now.
         val details = programme?.details
         val bits = listOfNotNull(details?.year?.toString(), details?.rating) + details?.categoryList.orEmpty().take(2)
-        if (next != null) {
+        // glcn: two to a row, the card says enough — what follows is in the channel's page.
+        if (next != null && !compact) {
             Text(
                 stringResource(R.string.content_live_next_label, times.format(Date(next.startMs))) + separator + next.title,
                 style = MaterialTheme.typography.bodyMedium,
@@ -242,7 +247,7 @@ private fun LiveCard(
             )
         }
         val sub = (bits + listOfNotNull(providerName)).joinToString(separator)
-        if (sub.isNotBlank()) {
+        if (sub.isNotBlank() && !compact) {
             Text(
                 sub,
                 style = MaterialTheme.typography.bodySmall,
@@ -358,3 +363,6 @@ internal fun SportsNowSheet(
         }
     }
 }
+
+/** glcn: narrower than this (a phone held upright), the cards go two to a row, smaller. */
+private const val COMPACT_BELOW_DP = 600

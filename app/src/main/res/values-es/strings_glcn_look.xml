@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="glcn_wall_title">Fondos de pantalla</string>
+    <string name="glcn_wall_animated">Animados</string>
+    <string name="glcn_wall_ondas">Ondas</string>
+    <string name="glcn_wall_brillos">Destellos</string>
+    <string name="glcn_wall_desc">Muévete por ellos para verlos de fondo · OK lo pone · Atrás deja el tuyo</string>
+    <string name="glcn_wall_dark">Oscuros</string>
+    <string name="glcn_wall_light">Claros</string>
+    <string name="glcn_wall_photos">Fotos</string>
+    <string name="glcn_wall_downloading">Descargando… %1$d%%</string>
+    <string name="glcn_wall_failed">No se pudo descargar. Revisa la conexión y prueba otra vez.</string>
+    <string name="glcn_wall_credit">Fondos: fotos de Unsplash (licencia Unsplash)</string>
+    <string name="glcn_wall_via_lactea">Vía Láctea</string>
+    <string name="glcn_wall_aurora_nieve">Aurora sobre la nieve</string>
+    <string name="glcn_wall_aurora_pinos">Aurora entre pinos</string>
+    <string name="glcn_wall_puerto">Puerto con tormenta</string>
+    <string name="glcn_wall_bosque">Bosque en la niebla</string>
+    <string name="glcn_wall_nieve_violeta">Nieve violeta</string>
+    <string name="glcn_wall_siluetas">Siluetas al atardecer</string>
+    <string name="glcn_wall_pico_lila">Pico lila</string>
+    <string name="glcn_wall_nubes_rosa">Mar de nubes rosa</string>
+    <string name="glcn_wall_duna">Duna blanca</string>
+    <string name="glcn_wall_mar_beige">Mar beige</string>
+    <string name="glcn_wall_muelle">Muelle</string>
+    <string name="glcn_wall_valle">Valle con niebla</string>
+    <string name="glcn_wall_cordillera">Cordillera rosa</string>
+    <string name="glcn_theme_fixed">Lo fija el estilo %1$s</string>
+    <string name="glcn_theme_fixed_help">Cada estilo está hecho para su tono, claro u oscuro. Para elegir el tono tú, quita antes el estilo en Estilo.</string>
+    <string name="glcn_avatar_characters">Personajes</string>
+    <string name="glcn_avatar_objects">Objetos</string>
+    <string name="glcn_wall_nieve">Nevada</string>
+    <string name="glcn_wall_fugaces">Estrellas fugaces</string>
+    <string name="glcn_wall_bokeh">Luces de ciudad</string>
+    <string name="glcn_wall_nacar">Nácar</string>
+    <string name="glcn_wall_amanecer">Amanecer</string>
+    <string name="glcn_wall_petalos">Pétalos</string>
+    <string name="glcn_wall_option">Fondos de la app</string>
+    <string name="glcn_wall_use">Ponerlo</string>
+    <string name="glcn_wall_desc_phone">Toca uno para verlo de fondo · Ponerlo lo deja puesto</string>
+</resources>

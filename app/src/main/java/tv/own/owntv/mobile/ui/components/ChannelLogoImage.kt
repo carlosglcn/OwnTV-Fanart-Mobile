@@ -49,7 +49,7 @@ fun ChannelLogoImage(
 ) {
     // Keyed on the URL so zapping to a channel whose logo is fine tries again rather than inheriting
     // the previous channel's failure.
-    var failed by remember(url) { mutableStateOf(url != null && (isDead(deadLogos, url, LOGO_RETRY_MS) || hostOf(url)?.let { isDead(deadHosts, it, HOST_RETRY_MS) } == true)) }
+    var failed by remember(url) { mutableStateOf(url != null && (url in deadLogos || hostOf(url)?.let(::hostIsDead) == true)) }
     if (url.isNullOrBlank() || failed) {
         fallback()
         return
@@ -83,19 +83,11 @@ fun ChannelLogoImage(
         onState = { state ->
             when (state) {
                 is AsyncImagePainter.State.Error -> {
-                    url?.let { deadLogos[it] = System.currentTimeMillis() }
-                    // glcn: one failure no longer writes off the whole host — a busy moment (a timeout while
-                    // a sync or a long scroll asks for hundreds of logos at once) blanked every logo in the
-                    // list. Only several failures in a row, with no success between, do.
-                    hostOf(url)?.let { host ->
-                        if ((hostFailures.merge(host, 1, Int::plus) ?: 0) >= HOST_DEAD_AFTER) { deadHosts[host] = System.currentTimeMillis(); hostFailures.remove(host) }
-                    }
+                    noteFailure(url, state.result.throwable)
                     failed = true
                 }
-                is AsyncImagePainter.State.Success -> {
-                    hostOf(url)?.let { hostFailures.remove(it) }
+                is AsyncImagePainter.State.Success ->
                     if (plateOn != null && !logoInk.containsKey(url)) pending = (state.result.image as? BitmapImage)?.bitmap
-                }
                 else -> Unit
             }
         },
@@ -104,7 +96,7 @@ fun ChannelLogoImage(
 
 /** glcn: plate mode, set from the shell: 0 classic (a plate behind logos that would vanish), 1 none. */
 object LogoPlateMode {
-    var mode by mutableIntStateOf(0)
+    var mode by androidx.compose.runtime.mutableIntStateOf(0)
 }
 
 /** Mean ink colour per logo URL, measured once per run. [LOGO_INK_NONE] = leave it alone. */
@@ -168,49 +160,63 @@ private fun contrastRatio(a: Float, b: Float): Float {
 }
 
 /**
- * Logo URLs that have already failed once this run.
- *
- * Without this the fallback is correct but arrives *late*: a dead host is a connect timeout, so the
- * plate sits empty for the best part of half a minute — and because nothing remembers the outcome,
- * it does it again every time the list is scrolled back or the screen is reopened. A playlist whose
- * logo host has gone away therefore looks broken on every visit rather than the first.
- *
- * Deliberately in memory only, and never removed from: a URL that timed out on this launch is not
- * worth another twenty seconds on this launch. Restarting the app retries everything, which is the
- * right granularity for "the host came back".
+ * Logo URLs whose own link is broken: the host answered, and said no (a 4xx other than 408/429), or
+ * sent something that is not an image this app can draw. Asking again this run would get the same
+ * answer, so the fallback is drawn at once. In memory only; a restart retries everything.
  */
-private val deadLogos = java.util.concurrent.ConcurrentHashMap<String, Long>()
+private val deadLogos = java.util.Collections.newSetFromMap(java.util.concurrent.ConcurrentHashMap<String, Boolean>())
 
 /**
- * Hosts that have already failed once this run — the same memory as [deadLogos], one level up.
+ * Hosts that cannot be reached, and since when ([android.os.SystemClock.elapsedRealtime]).
  *
- * Per-URL is not enough, because a playlist's logos overwhelmingly come from one host, and when that
- * host is *gone* (measured: no ICMP, no TCP/80, a ten-second connect timeout per request) remembering
- * URLs one at a time means every channel scrolled to pays the ten seconds itself, for ever. One
- * failure is enough to know the rest are coming: the first channel waits, the whole list after it
- * falls back at once.
- *
- * Same lifetime and same reasoning as [deadLogos]: in memory, never removed from, cleared by a restart.
+ * Per-URL is not enough when a playlist's logo host is *gone* (measured: no ICMP, no TCP/80, a
+ * ten-second connect timeout per request): every channel scrolled to would pay the ten seconds
+ * itself. So once two different logos from a host fail to connect, the rest of that host's logos fall
+ * back at once. Only a failure to connect counts — a 404, a 429 from a CDN rate-limiting a fast scroll,
+ * a read timeout on mobile data or one undecodable logo says nothing about the other logos, and one
+ * such failure used to blank every logo from the host until the app restarted. The mark expires after
+ * [HOST_RETRY_MS], so a host that comes back (or a phone back on Wi-Fi) is tried again.
  */
 private val deadHosts = java.util.concurrent.ConcurrentHashMap<String, Long>()
 
-/**
- * glcn: a failure is remembered for a while, not for the whole run. A busy moment (a sync, a long
- * scroll asking for hundreds of logos) made the guide's logos fail together, and the session then kept
- * them blank until the app was restarted. Now a logo is tried again a minute later, a host after 30 s.
- */
-private const val LOGO_RETRY_MS = 60_000L
-private const val HOST_RETRY_MS = 30_000L
+/** Distinct logos per host that failed to connect since the host was last marked. */
+private val hostStrikes = java.util.concurrent.ConcurrentHashMap<String, MutableSet<String>>()
 
-private fun isDead(map: java.util.concurrent.ConcurrentHashMap<String, Long>, key: String, retryMs: Long): Boolean {
-    val at = map[key] ?: return false
-    if (System.currentTimeMillis() - at < retryMs) return true
-    map.remove(key)
+private const val HOST_STRIKES = 2
+private const val HOST_RETRY_MS = 5 * 60_000L
+
+private fun hostIsDead(host: String): Boolean {
+    val since = deadHosts[host] ?: return false
+    if (android.os.SystemClock.elapsedRealtime() - since < HOST_RETRY_MS) return true
+    deadHosts.remove(host)
+    hostStrikes.remove(host)
     return false
 }
 
-/** glcn: failures in a row per host; a success clears it. */
-private val hostFailures = java.util.concurrent.ConcurrentHashMap<String, Int>()
-private const val HOST_DEAD_AFTER = 6
+/** What [url]'s failure says about it, and about its host. */
+private fun noteFailure(url: String, failure: Throwable) {
+    when {
+        failure.isConnectFailure() -> {
+            val host = hostOf(url) ?: return
+            val strikes = hostStrikes.getOrPut(host) { java.util.Collections.newSetFromMap(java.util.concurrent.ConcurrentHashMap()) }
+            strikes += url
+            if (strikes.size >= HOST_STRIKES) deadHosts[host] = android.os.SystemClock.elapsedRealtime()
+        }
+        failure is coil3.network.HttpException -> {
+            val code = failure.response.code
+            if (code in 400..499 && code != 408 && code != 429) deadLogos += url
+        }
+        // A read timeout or a dropped connection: worth another try next time the row is drawn.
+        failure is java.io.IOException -> Unit
+        // Not an image this app can decode (an SVG, say).
+        else -> deadLogos += url
+    }
+}
+
+/** The host could not be reached at all: no address, refused, or no answer to the connect itself. */
+private fun Throwable.isConnectFailure(): Boolean =
+    this is java.net.UnknownHostException || this is java.net.ConnectException || this is java.net.NoRouteToHostException ||
+        // OkHttp's connect timeout says "failed to connect to …"; a read timeout says "timeout".
+        (this is java.net.SocketTimeoutException && message?.contains("connect", ignoreCase = true) == true)
 
 private fun hostOf(url: String?): String? = runCatching { java.net.URI(url).host }.getOrNull()

@@ -101,6 +101,7 @@ import tv.own.owntv.mobile.ui.screens.live.LiveTuner
 import tv.own.owntv.mobile.ui.screens.morePageTitleRes
 import tv.own.owntv.mobile.ui.screens.settings.settingsPageTitleRes
 import tv.own.owntv.mobile.ui.screens.settings.isSettingsPage
+import tv.own.owntv.mobile.ui.screens.sports.SportsPlayback
 
 /**
  * The frame every screen sits in (Stage): the Stage page background, the page header with the
@@ -119,6 +120,7 @@ fun MobileShell(
     navController: NavHostController = rememberNavController(),
 ) {
     val shellViewModel: ShellViewModel = koinViewModel()
+    val sportsPlayback: SportsPlayback = koinInject()
     val sections by shellViewModel.visibleSections.collectAsStateWithLifecycle()
 
     val profilesViewModel: ProfilesViewModel = koinViewModel()
@@ -276,12 +278,15 @@ fun MobileShell(
     val startupLive: StartupLiveSelection = koinInject()
     val startupUnavailable = stringResource(tv.own.owntv.mobile.R.string.settings_startup_channel_unavailable)
     var startupHandled by remember { mutableStateOf(false) }
+    // glcn: the occasional GitHub-star prompt — only on a plain start at Home, a moment after it settles.
+    var starPrompt by remember { mutableStateOf(false) }
     // Reaching this point already means the setup flow and the profile chooser are both behind us —
     // that is what the branches above guarantee — so there is nothing left to wait for.
     LaunchedEffect(Unit) {
         if (startupHandled) return@LaunchedEffect
         startupHandled = true
-        when (val target = shellViewModel.resolveStartup()) {
+        val target = shellViewModel.resolveStartup()
+        when (target) {
             StartupTarget.Home -> Unit
             StartupTarget.Favorites -> {
                 startupLive.requestFavorites()
@@ -299,7 +304,13 @@ fun MobileShell(
             StartupTarget.ChannelUnavailable ->
                 Toast.makeText(context, startupUnavailable, Toast.LENGTH_LONG).show()
         }
+        val starDue = tv.own.owntv.mobile.glcn.GitHubStar.launchAndCheck(context)
+        if (starDue && target == StartupTarget.Home) {
+            kotlinx.coroutines.delay(2_500)
+            starPrompt = true
+        }
     }
+    if (starPrompt) tv.own.owntv.mobile.glcn.GitHubStarSheet(onClose = { starPrompt = false })
     // The wizard's "Add a TV guide": setup is over, so EPG sources opens — and its Add opens itself.
     val addEpg = tv.own.owntv.mobile.ui.setup.SetupHandoff.addEpg
     LaunchedEffect(addEpg) {
@@ -484,7 +495,7 @@ fun MobileShell(
                 current = current,
                 compact = compactRail,
                 profile = loadedProfiles.firstOrNull { it.id == activeId },
-                onClick = { navController.onNavClick(it, current, shellViewModel) },
+                onClick = { navController.onNavClick(it, current, shellViewModel, sportsPlayback) },
                 onSearch = { navController.navigate(SEARCH_ROUTE) { launchSingleTop = true } },
                 onAvatar = { navController.navigate(MobileDestination.MORE.route) { launchSingleTop = true } },
                 modifier = Modifier.align(Alignment.CenterStart),
@@ -569,7 +580,7 @@ fun MobileShell(
                             destinations = destinations,
                             current = current,
                             labels = navLabels,
-                            onClick = { navController.onNavClick(it, current, shellViewModel) },
+                            onClick = { navController.onNavClick(it, current, shellViewModel, sportsPlayback) },
                             onLongClick = { shellViewModel.requestScrollToTop(it.route) },
                         )
                     }
@@ -603,10 +614,12 @@ fun MobileShell(
                             recordingsOnly = true,
                         )
                     } else {
+                        // glcn: at the top, small, just under the status bar — low over the page it sat on the cards.
                         SyncStatusPill(
                             Modifier
-                                .align(Alignment.BottomCenter)
-                                .padding(bottom = 8.dp),
+                                .align(Alignment.TopCenter)
+                                .statusBarsPadding(),
+                            compact = true,
                             onOpenDownloads = { navController.navigate(MobileDestination.DOWNLOADS.route) },
                         )
                     }
@@ -844,6 +857,7 @@ private fun NavHostController.onNavClick(
     destination: MobileDestination,
     current: MobileDestination?,
     shell: ShellViewModel,
+    sportsPlayback: SportsPlayback,
 ) {
     when {
         // A film or a channel opened under this tab: back to the tab's own list first (only the list
@@ -855,7 +869,9 @@ private fun NavHostController.onNavClick(
         // A More or Settings page pushed on top of this tab: back down to the tab itself. Restoring the
         // tab's saved stack instead restored the very page on screen, so the tap did nothing.
         current == null && popBackStack(destination.route, inclusive = false) -> Unit
-        else -> navigateToTab(destination)
+        else -> {
+            navigateToTab(destination)
+        }
     }
 }
 

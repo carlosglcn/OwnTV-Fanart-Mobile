@@ -84,7 +84,7 @@ private fun StyleTile(st: GlcnStyle, selected: Boolean, modifier: Modifier, onCl
     ) {
         // A small picture of the style: its page, a billboard with the accent and three cards.
         Column(
-            Modifier.fillMaxWidth().height(78.dp).clip(RoundedCornerShape(10.dp)).background(Color(st.page)).padding(7.dp),
+            Modifier.fillMaxWidth().height(78.dp).clip(RoundedCornerShape(10.dp)).background(st.gradient?.let { g -> androidx.compose.ui.graphics.Brush.linearGradient(g.map { Color(it) }) } ?: androidx.compose.ui.graphics.SolidColor(Color(st.page))).padding(7.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Box(Modifier.fillMaxWidth().height(34.dp).background(Color(0xFF1C4A2C), RoundedCornerShape(6.dp))) {

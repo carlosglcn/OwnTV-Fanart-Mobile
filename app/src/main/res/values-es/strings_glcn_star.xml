@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="glcn_star_action">Estrella en GitHub</string>
+    <string name="glcn_star_title">¿Te gusta OwnTV Fanart?</string>
+    <string name="glcn_star_body">Apoya el proyecto con una ⭐ en GitHub. ¡Gracias!</string>
+    <string name="glcn_star_open">Abrir GitHub</string>
+    <string name="glcn_star_done">Ya lo hice</string>
+    <string name="glcn_star_later">Ahora no</string>
+    <string name="glcn_star_google">Puedes entrar con tu cuenta de Google.</string>
+</resources>

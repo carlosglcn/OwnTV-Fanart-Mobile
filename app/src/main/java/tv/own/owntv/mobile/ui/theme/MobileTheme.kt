@@ -102,6 +102,7 @@ fun MobileTheme(
         LocalStagePalette provides glcnPalette(if (isDark) StagePalette.Dark else StagePalette.Light, glcnStyle),
         LocalFocusHighlight provides remember(focusHighlight) { parseAccentHex(focusHighlight)?.let { Color(it) } },
         LocalStageBackground provides background,
+        LocalGlcnStyle provides glcnStyle,
     ) {
         val colors = mobileColorScheme(isDark, accent, customAccent)
         MaterialTheme(
@@ -122,6 +123,9 @@ fun MobileTheme(
  * Off means off in this app, not softened: [AnimationLevel.scale] collapses a duration to zero.
  */
 val LocalAnimations = staticCompositionLocalOf { AnimationLevel.FULL }
+
+/** glcn: the ready-made style in force (null for none) — the gradient styles draw their own backdrop. */
+val LocalGlcnStyle = androidx.compose.runtime.compositionLocalOf<tv.own.owntv.core.theme.GlcnStyle?> { null }
 
 /**
  * The accent to use on top of the picture — see [accentOnVideo].

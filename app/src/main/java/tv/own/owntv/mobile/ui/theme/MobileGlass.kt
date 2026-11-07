@@ -118,7 +118,9 @@ fun GlassBackdropRoot(content: @Composable () -> Unit) {
     // Stage or Plain hide it while the file stays for a return to Picture.
     val bg = tv.own.owntv.mobile.ui.stage.LocalStageBackground.current
     val bgImagePath = bg.imagePath
-    val hasImage = bg.showsPicture
+    // glcn: an animated wallpaper of the app's own is stored as `anim:<kind>` and drawn live, not loaded as a file.
+    val wallAnim = if (bg.showsPicture) tv.own.owntv.mobile.glcn.Wallpapers.animKind(bgImagePath) else null
+    val hasImage = bg.showsPicture && wallAnim == null
     // The ladder serves the picture's own Blur as well as the glass that samples it.
     val frosted = hasImage && supportsBackdropBlur
 
@@ -165,6 +167,11 @@ fun GlassBackdropRoot(content: @Composable () -> Unit) {
             .background(palette.page)
             .onGloballyPositioned { rootOffset = it.positionInRoot() },
     ) {
+        if (wallAnim != null) tv.own.owntv.mobile.glcn.AnimatedWallpaper(wallAnim, Modifier.fillMaxSize())
+        // glcn: a gradient style's backdrop (Aurora, Crepúsculo, Océano, Fanart vivo) when no picture is set.
+        else if (!hasImage) LocalGlcnStyle.current?.takeIf { it.isGradient && !palette.isLight }?.let {
+            tv.own.owntv.mobile.glcn.GradientBackdrop(it, LocalAnimations.current != tv.own.owntv.core.theme.AnimationLevel.OFF, Modifier.fillMaxSize())
+        }
         if (hasImage) {
             AsyncImage(
                 model = bgImagePath,
@@ -195,7 +202,7 @@ fun GlassBackdropRoot(content: @Composable () -> Unit) {
             )
             // Darken. Light: the picture fades into the paper instead, always far enough for dark ink to read.
             val dim = bg.dimPct / 100f
-            Box(Modifier.fillMaxSize().background(if (palette.isLight) Color(0xFFF4F7F5).copy(alpha = 0.55f + 0.45f * dim) else Color(0xFF05080A).copy(alpha = dim)))
+            Box(Modifier.fillMaxSize().background(if (palette.isLight) Color(0xFFF4F7F5).copy(alpha = 0.55f + 0.45f * dim) else Color(0xFF05080A).copy(alpha = maxOf(dim, tv.own.owntv.mobile.glcn.rememberAutoDim(bgImagePath)))))
         }
         CompositionLocalProvider(LocalGlassBackdrop provides backdrop) {
             content()

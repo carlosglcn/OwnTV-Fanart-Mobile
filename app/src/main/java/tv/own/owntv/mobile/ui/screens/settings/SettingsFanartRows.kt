@@ -20,6 +20,10 @@ fun GlcnStyle.label(): String = stringResource(
         GlcnStyle.NIEVE -> R.string.glcn_style_nieve
         GlcnStyle.PAPEL -> R.string.glcn_style_papel
         GlcnStyle.ARENA -> R.string.glcn_style_arena
+        GlcnStyle.AURORA -> R.string.glcn_style_aurora
+        GlcnStyle.CREPUSCULO -> R.string.glcn_style_crepusculo
+        GlcnStyle.OCEANO -> R.string.glcn_style_oceano
+        GlcnStyle.FANART_VIVO -> R.string.glcn_style_fanart_vivo
     },
 )
 
@@ -27,6 +31,9 @@ fun GlcnStyle.label(): String = stringResource(
 @Composable
 fun GlcnStyle.kind(): String = stringResource(
     when {
+        motion == tv.own.owntv.core.theme.GLCN_MOTION_DRIFT -> R.string.glcn_style_kind_drift
+        motion == tv.own.owntv.core.theme.GLCN_MOTION_ART -> R.string.glcn_style_kind_art
+        isGradient -> R.string.glcn_style_kind_gradient
         glass -> R.string.glcn_style_kind_glass
         light -> R.string.glcn_style_kind_light
         else -> R.string.glcn_style_kind_dark

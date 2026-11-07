@@ -48,6 +48,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -68,6 +69,12 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
+import androidx.paging.compose.LazyPagingItems
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.interaction.DragInteraction
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.async
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import tv.own.owntv.mobile.ui.screens.guide.LiveGuideGrid
@@ -221,14 +228,13 @@ fun LiveScreen(
         }
     }
 
-    // "Start on: Last channel · Live TV": its category, the channel in the preview, its row scrolled to
-    // once loaded. With Live preview off it is only shown, not played — opening Live TV is not watching.
+    // A channel from Search, or "Start on: Last channel · Live TV": its category, its row scrolled to.
+    // Search has already started its preview; a startup one is previewed here, and with Live preview off
+    // only shown, not played — opening Live TV is not watching.
     LaunchedEffect(Unit) {
-        val channel = vm.applyStartupSelection() ?: return@LaunchedEffect
-        if (settings.livePreviewEnabled.first()) tuner.preview(channel.id)
-        withTimeoutOrNull(STARTUP_ROW_WAIT_MS) {
-            snapshotFlow { channels.itemSnapshotList.items.indexOfFirst { it.id == channel.id } }.first { it >= 0 }
-        }?.let { listState.scrollToItem(it) }
+        val opening = vm.applyOpeningSelection() ?: return@LaunchedEffect
+        if (opening.preview && settings.livePreviewEnabled.first()) tuner.preview(opening.channel.id)
+        scrollToChannel(listState, channels, opening.channel.id)
     }
 
     // The guide grid of Guide view reads through the TV Guide's own view model (its rows, its order).
@@ -254,41 +260,31 @@ fun LiveScreen(
             )
         } else {
             // `.tools`: the search field takes the room, then the order tool (Provider / A–Z), then Guide view.
-            Row(
-                Modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, top = TOOLS_TOP, bottom = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                StageSearchField(
-                    value = query,
-                    onValueChange = vm::setQuery,
-                    placeholder = stringResource(R.string.content_search_in, categoryLabel),
-                    inline = true,
-                    modifier = Modifier.weight(1f),
-                )
-                StageTool(
-                    onClick = vm::toggleSort,
-                    icon = MobileIcons.Sort,
-                    label = stringResource(
-                        if (sort == SettingsRepository.SortMode.ALPHA) R.string.settings_sort_alpha else R.string.content_epg_sort_provider,
-                    ),
-                )
-                StageTool(
-                    onClick = vm::toggleLiveView,
-                    icon = MobileIcons.Guide,
-                    contentDescription = stringResource(R.string.content_live_guide_view),
-                )
-                // glcn: Sports now, and the channels as picture cards.
-                StageTool(
-                    onClick = { sportsOpen = true },
-                    icon = MobileIcons.Ball,
-                    contentDescription = stringResource(R.string.glcn_sports_now),
-                )
-                StageTool(
-                    onClick = { vm.setCardsView(!cardsView) },
-                    icon = if (cardsView) MobileIcons.FormatListBulleted else MobileIcons.GridView,
-                    contentDescription = stringResource(R.string.settings_live_layout),
-                )
+            // glcn: on a phone the search gets the whole width and the tools go under it, each with its name
+            // (four bare icons in a row said nothing); a tablet keeps them on one line.
+            val phoneTools = !twoPane
+            Column(Modifier.fillMaxWidth().padding(start = 14.dp, end = 14.dp, top = TOOLS_TOP, bottom = 12.dp)) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    StageSearchField(
+                        value = query,
+                        onValueChange = vm::setQuery,
+                        placeholder = stringResource(R.string.content_search_in, categoryLabel),
+                        inline = true,
+                        modifier = Modifier.weight(1f),
+                    )
+                    if (!phoneTools) LiveTools(vm, sort, cardsView, labels = false, onSports = { sportsOpen = true }, onCategories = { categoryPicker = true })
+                }
+                if (phoneTools) {
+                    Row(
+                        Modifier.fillMaxWidth().padding(top = 8.dp).horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) { LiveTools(vm, sort, cardsView, labels = true, onSports = { sportsOpen = true }, onCategories = { categoryPicker = true }) }
+                }
             }
         }
         if (categoryPicker) {
@@ -464,6 +460,7 @@ fun LiveScreen(
                 offsetsSec = tuner.jumpOptions(),
                 windowSec = tuner.archiveWindowSec(),
                 onPick = tuner::jumpBackTo,
+                programmeStart = tuner::currentProgrammeStart,
             ),
             onDismiss = { jumpBackOpen = false },
         )
@@ -601,3 +598,66 @@ private val PREVIEW_TOP = 20.dp
 
 /** How long the start-up channel's row is waited for before the list is left where it is. */
 internal const val STARTUP_ROW_WAIT_MS = 3_000L
+
+/** glcn: Live TV's tools — order, guide view, sports now, list or cards; [labels] names each one (phones). */
+@Composable
+private fun LiveTools(vm: LiveViewModel, sort: SettingsRepository.SortMode, cardsView: Boolean, labels: Boolean, onSports: () -> Unit, onCategories: () -> Unit) {
+    // glcn: the categories as a button too — tapping the green "‹ All channels" above was easy to miss.
+    StageTool(
+        onClick = onCategories,
+        icon = MobileIcons.Folder,
+        label = if (labels) stringResource(R.string.content_category_browser_title) else null,
+        contentDescription = stringResource(R.string.content_category_browser_title),
+    )
+    StageTool(
+        onClick = vm::toggleSort,
+        icon = MobileIcons.Sort,
+        label = stringResource(
+            if (sort == SettingsRepository.SortMode.ALPHA) R.string.settings_sort_alpha else R.string.content_epg_sort_provider,
+        ),
+    )
+    StageTool(
+        onClick = vm::toggleLiveView,
+        icon = MobileIcons.Guide,
+        label = if (labels) stringResource(R.string.common_nav_guide_short) else null,
+        contentDescription = stringResource(R.string.content_live_guide_view),
+    )
+    StageTool(
+        onClick = onSports,
+        icon = MobileIcons.Ball,
+        label = if (labels) stringResource(R.string.glcn_sports_now) else null,
+        contentDescription = stringResource(R.string.glcn_sports_now),
+    )
+    StageTool(
+        onClick = { vm.setCardsView(!cardsView) },
+        icon = if (cardsView) MobileIcons.FormatListBulleted else MobileIcons.GridView,
+        label = if (labels) stringResource(if (cardsView) R.string.glcn_view_list else R.string.glcn_view_cards) else null,
+        contentDescription = stringResource(R.string.settings_live_layout),
+    )
+}
+/** How long Live TV keeps loading pages to bring an opening channel's row into view. */
+private const val OPENING_ROW_WAIT_MS = 5_000L
+
+/**
+ * Scrolls to [channelId] in the paged [channels], asking for page after page until it is loaded — a
+ * channel deep in a large category is not in the first pages. Gives up after [OPENING_ROW_WAIT_MS], and
+ * at once when the user drags the list: their scroll wins.
+ */
+private suspend fun scrollToChannel(listState: LazyListState, channels: LazyPagingItems<ChannelEntity>, channelId: Long) = coroutineScope {
+    val userScrolled = async { listState.interactionSource.interactions.first { it is DragInteraction.Start } }
+    withTimeoutOrNull(OPENING_ROW_WAIT_MS) {
+        while (!userScrolled.isCompleted) {
+            val index = channels.itemSnapshotList.items.indexOfFirst { it.id == channelId }
+            if (index >= 0) {
+                listState.scrollToItem(index)
+                break
+            }
+            val count = channels.itemCount
+            if (count > 0) channels[count - 1] // reading the last row asks Paging for the next page
+            delay(OPENING_ROW_POLL_MS)
+        }
+    }
+    userScrolled.cancel()
+}
+
+private const val OPENING_ROW_POLL_MS = 50L
