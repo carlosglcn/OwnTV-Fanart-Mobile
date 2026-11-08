@@ -130,7 +130,10 @@ class OwnTVMobileApp : Application(), androidx.work.Configuration.Provider {
                 .protocols(listOf(Protocol.HTTP_2, Protocol.HTTP_1_1))
                 .build()
             ImageLoader.Builder(ctx)
-                .components { add(OkHttpNetworkFetcherFactory(callFactory = { imageHttpClient })) }
+                .components {
+                    add(OkHttpNetworkFetcherFactory(callFactory = { imageHttpClient }))
+                    add(tv.own.owntv.mobile.glcn.LogoMatteInterceptor()) // glcn: channel logos lose a plain white backdrop
+                }
                 .memoryCache {
                     // glcn: 15% rather than Coil's default quarter. The disk cache right behind it
                     // refills a tile in a few milliseconds, and the quarter was held for as long as

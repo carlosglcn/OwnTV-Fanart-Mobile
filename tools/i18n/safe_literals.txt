@@ -55,6 +55,7 @@
 1	preference-key	app/src/main/java/tv/own/owntv/mobile/glcn/GitHubStar.kt	shown
 1	technical	app/src/main/java/tv/own/owntv/mobile/glcn/GradientBackdrop.kt	aurora
 1	technical	app/src/main/java/tv/own/owntv/mobile/glcn/GradientBackdrop.kt	auroraT
+1	technical	app/src/main/java/tv/own/owntv/mobile/glcn/LogoMatte.kt	glcn.whitematte.1
 1	technical	app/src/main/java/tv/own/owntv/mobile/glcn/PictureTone.kt	autoDim
 1	technical	app/src/main/java/tv/own/owntv/mobile/glcn/PictureTone.kt	content:
 1	technical	app/src/main/java/tv/own/owntv/mobile/glcn/Wallpapers.kt	$BASE_URL$name.jpg
