@@ -119,8 +119,11 @@ moves per centimetre of finger, without changing how far you must travel to star
   for the table), then **Fixtures · Results** by month, cups included, with W / D / L.
 - **A match** — the league name at the top opens that league in Leagues; score, venue, and the tabs **Watch live · Timeline · Stats · Line-ups · Table · Form ·
   Broadcasts**. In **Watch live**, **Find channels** lists the channels in your guide that show it, from
-  30 minutes before kick-off. **Filter channels** narrows them by language, country, picture and
-  playlist; **Strict filtering** hides the rest, and **Remember for every match** keeps the choice.
+  30 minutes before kick-off, then the channels that usually show the competition — named after it by
+  any name it goes by ("Sky Sport F1", "EPL 3", "DAZN LaLiga"), never a look-alike such as Formula E.
+  **Filter channels** narrows them by language, country, picture and playlist; **Show "likely"
+  channels** turns those usual channels on or off; **Strict filtering** hides the rest, and **Remember
+  for every match** keeps the choice.
   Tap a channel to watch full screen; **Back** returns to the match. **Long-press** a channel for
   **Always use for …**. **Broadcasts** lists the channels found, one per row by country.
 - **Live score card** on a match keeps its score in your notifications until full time.
@@ -318,7 +321,8 @@ going off — goes back to the live edge when you press Play; a shorter pause ca
 ### ⏺️ Record
 **Where:** long-press a programme in the Guide, or a channel in the list, or the **Record** button in
 the player
-**Record every showing** sets a standing rule. **Schedule recording…** in a channel's menu records it
+**Record every showing** sets a standing rule; every rule is listed at the top of **Downloads → Live TV**
+under **Every showing**, and a tap offers **Stop recording every showing** (what was recorded stays). **Schedule recording…** in a channel's menu records it
 between a day and times you pick, guide or not; an overlap with another recording is shown first. While
 a channel records, its menu offers **Stop recording**. Recordings land in **Downloads → Live TV**, and the
 status pill shows one running even over the player.
@@ -436,6 +440,7 @@ Every gesture above also has a button on the control bar:
 
 | Button | What |
 |---|---|
+| **Title** | Top bar — a film's or show's title art when TMDB has it, else its name; a gold **4K** badge on a 4K picture |
 | **Go live** | Back to the live edge |
 | **Volume · Brightness** | Sliders, with a mute row |
 | **Speed** | 0.5× to 2× |
@@ -494,7 +499,8 @@ the phone's lock screen and notification then drive *it*.
 
 **Where:** More → **Local sync**
 Swap playlists, profiles, favourites, history and resume positions with the television over your own
-Wi-Fi. No account, no cloud, no file.
+Wi-Fi. No account, no cloud, no file. **Only the profile in use syncs**, into the profile in use on
+the TV, whatever their names — like one viewer on two screens.
 
 ```
 Both devices open Local sync  →  pair (scan the QR, or pick from the list)
@@ -508,6 +514,21 @@ Both devices open Local sync  →  pair (scan the QR, or pick from the list)
 - **Nothing is applied on arrival** — you see what will change first.
 - **A deletion stays deleted** on both devices, rather than being undone by the merge.
 
+**Auto-sync** — tap a paired device → **Auto-sync** to keep the two in step by themselves. Turn it on
+with Local sync open on both; the other device asks "Allow auto-sync?".
+- It pairs the profile in use here with the one in use on the TV when it is turned on ("Profiles:
+  X ↔ B"); switching profile later does not change the pair.
+- Each device ticks what it lets through — Favorites, Watch history, Resume positions, Customizations
+  and Manual reorder by default; **Sources** (the playlists, with their logins) and **App settings** only
+  where they are ticked.
+- **How often** is the least time between two syncs: each time either app opens or closes, 6 hours,
+  daily or weekly. A sync is tried when OwnTV opens or goes to the background, when the Wi-Fi comes
+  back, and by an hourly check on Wi-Fi with the battery not low.
+- **Keep auto-sync listening** (off by default): on, the TV can sync with this phone whenever OwnTV is
+  open here; off, only while Sync mode is on.
+- The row says the last auto-sync, "Couldn't reach …, will try again", or "Auto-sync turned off on …".
+  Turning it off here tells the other device too.
+
 ---
 
 ## 👥 Profiles
@@ -517,6 +538,18 @@ Each has its own favourites, history, resume points and layout. Add a **PIN**, o
 profile** to hide adult content everywhere. Pick one of ten drawn avatars — or **a photo of your
 own**, already while creating the profile. Editing a profile also has **Allow downloads**: off removes
 every Download button for it. Downloading a whole show or season first asks "Download N episodes?".
+
+**Settings lock:** Settings → App → **Settings lock** — a PIN of its own, per profile, that Settings,
+Backup & Restore and Local sync ask for. It is neither the profile PIN nor the category lock PIN —
+three locks, three PINs, and none opens another; 5 wrong tries on one make only that one wait 30 s.
+**Change PIN** and **Turn off** ask for the current one. **Also lock long-press menu changes** (shown
+while it is on, off by default) makes Hide, Move, Rename, locking a category and Remove from History
+ask for it too, until you leave the app or switch profile; favourites and playing never ask.
+
+**Protected profiles:** a profile with a PIN or a Settings lock is protected, and so are its playlists.
+A new profile gets only the playlists no protected profile uses (none, if every one belongs to one).
+From another profile, ticking it for a backup, merging into or replacing it in a restore, and editing
+or deleting it ask one of its PINs. Local sync never touches it unless it is the profile in use.
 
 **Where a profile opens:** Settings → App → **App startup** — Home, the last channel (full screen),
 **Last channel · TV Guide** or **Last channel · Live TV** (that tab opens on the channel's category with
@@ -550,17 +583,17 @@ Six font families for the interface and for popups, and interface zoom.
 **Where:** Settings → Content & metadata → **Customize categories & items**
 Hide, rename, reorder and regroup categories and items, with **bulk rename** (rules, automatic
 cleanup, a review step and restore-originals — for category names too, from the categories page),
-**custom categories**, span selection, and an optional
-**PIN lock**. With a PIN set, **⋯ → Ask for PIN to open Settings** makes Settings, Backup & Restore and
-Local sync ask for the same PIN, on this profile. Removing the PIN turns it off.
+**custom categories**, span selection, and the **category lock PIN** (**⋯ → Set category lock PIN**;
+**Change** and **Remove** ask for the current one first). It is the PIN locked categories ask for, and
+nothing else: it does not open Settings.
 
 **Lock a category with a PIN** — in the categories sheet of Live TV, the TV Guide, Movies or Series,
-hold a playlist category → **Lock with PIN**. It uses the Customize PIN (the first lock asks you to set
+hold a playlist category → **Lock with PIN**. It uses the category lock PIN (the first lock asks you to set
 one). The category stays in the list with a lock; its channels, films and shows stay out of everything
 else (search, Guide, Home, favourites, history, Downloads, recordings) until you open it with
 **Enter PIN**. It stays open until you leave the app or switch profile — leaving also stops anything
 playing from it, the floating window included. **Remove lock** in the same menu asks the PIN, and
-removing the Customize PIN unlocks every category. 5 wrong PINs → a 30 s wait.
+removing the category lock PIN unlocks every category. 5 wrong PINs → a 30 s wait.
 
 ### 🏠 Home & layout
 **Where:** Settings → Layout → **Home screen**
@@ -608,6 +641,12 @@ finds any setting by its name, and **Quick** holds the rows you pin yourself by 
 **Where:** More → **Backup & Restore**
 One `.own` file with your profiles, sources, settings and downloaded subtitles, **optionally
 encrypted with your own password**. Choose which profiles travel. Restores a television backup too.
+
+**Same name on both sides:** restoring a profile whose name is already here asks, per profile:
+**Merge into it** (keep what it has, add the backup's), **Replace it** (clear its data here for the
+parts being restored, then restore) or **Keep both** (the backup's comes in as "<name> (restored)").
+Merging into or replacing a locked profile other than the one in use asks its PIN; everything else
+needs only the backup password. A locked profile stays locked after a restore.
 
 ---
 

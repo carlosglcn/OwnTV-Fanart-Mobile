@@ -7,14 +7,19 @@
 > Issue numbers that are part of a title are fine; explanatory parentheticals are not. The detail —
 > what, why, files and verification — belongs in the commit message, never here.
 
-## Unreleased
+## v1.1.2 — 2026-11-09
 
 ### New features
 - **✨ Clean channel names: a Names option on each playlist**
 - **📋 EPG sources: Move up / Move down set the guide priority**
 - **🚀 Start on the last channel in the TV Guide or Live TV**
-- **🔒 Lock a category with the Customize PIN**
-- **🔐 Ask for the PIN to open Settings**
+- **🔒 Lock a category with its own category lock PIN**
+- **🔐 Settings › App › Settings lock: a PIN of its own per profile, optionally for long-press changes too**
+- **🛡️ Protected profiles: new profiles, backups, restores and profile edits respect profile and Settings locks**
+- **🔀 Restore: a profile with the same name asks Merge, Replace or Keep both**
+- **👤 Local sync syncs the profile in use with the one in use on the other device**
+- **🔁 Local auto-sync: paired devices keep each other in step by themselves, with what each one allows** (community PR #71 by @igebara)
+- **👂 Keep auto-sync listening, as a switch (off by default)**
 - **🔑 Stalker portals: an optional username and password**
 - **🏆 Sports: Scores | Calendar | Leagues tabs**
 - **📅 Sports Calendar: the month of every followed league, with the day's matches**
@@ -33,8 +38,14 @@
 - **🔀 Sources: switch to another version of the channel playing**
 - **🧭 TV Guide follows Live TV's category, as a switch in Browsing & lists**
 - **👤 Each profile remembers its own last category and channel**
+- **🔎 Sports: Find channels knows every name a competition goes by — F1, EPL, La Liga, Formel 1 and more**
+- **🎚️ Sports: "Show likely channels" in Filter channels**
+- **🎬 Player: a film's or show's title art in place of its name, and a 4K badge**
+- **⏺️ Downloads › Live TV: every "Record every showing" listed, with Stop**
 
 ### Fixes
+- **Fit: wide films stored in a 16:9 frame are no longer stretched**
+- **A series page shows the show's title art instead of its name**
 - **Deleting a download or recording asks first**
 - **Re-test measures the connection limit on Xtream, and the next sync keeps it**
 - **"Live now" shows the programme's start and end**
@@ -67,6 +78,9 @@
 - **A guide download cut off midway no longer deletes the rest of the guide**
 - **Play after a pause of over a minute on a live channel goes to the live edge, after a headphone unplug or a screen-off too**
 - **Panels that serve some channels as HLS behind a .ts address open faster and no longer fail after an offline channel** (community PRs ahXN00/OwnTV_Core#76 and #77 by @SirKitboard)
+- **Sports: Formula 1 no longer lists Formula E channels, nor the Premier League the Indian Premier League's**
+- **Sports: a broadcaster's unrelated channels are no longer "likely"**
+- **Adding an Xtream playlist no longer fails with "Expected a string but was BOOLEAN"**
 
 ## v1.1.1 — 2026-10-21
 
