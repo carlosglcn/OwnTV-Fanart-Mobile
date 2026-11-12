@@ -1,0 +1,4 @@
+status=success
+app=fc15b7a208f7996093a528010fbee1c92be57772
+core=d78982b82c60b1ecb1674fd64c5a6cde6c4e054e
+run=https://github.com/carlosglcn/OwnTV-Fanart-Mobile/actions/runs/43233921950
