@@ -130,7 +130,10 @@ class OwnTVMobileApp : Application(), androidx.work.Configuration.Provider {
                 .protocols(listOf(Protocol.HTTP_2, Protocol.HTTP_1_1))
                 .build()
             ImageLoader.Builder(ctx)
-                .components { add(OkHttpNetworkFetcherFactory(callFactory = { imageHttpClient })) }
+                .components {
+                    add(OkHttpNetworkFetcherFactory(callFactory = { imageHttpClient }))
+                    add(tv.own.owntv.mobile.glcn.LogoMatteInterceptor()) // glcn: channel logos lose a plain white backdrop
+                }
                 .memoryCache {
                     // glcn: 15% rather than Coil's default quarter. The disk cache right behind it
                     // refills a tile in a few milliseconds, and the quarter was held for as long as
@@ -187,6 +190,9 @@ class OwnTVMobileApp : Application(), androidx.work.Configuration.Provider {
             scope = appScope,
             settings = org.koin.core.context.GlobalContext.get().get(),
         )
+        // Local auto-sync: the paired-only listener, the moments a pass is tried (OwnTV to the front or
+        // the back, Wi-Fi back) and the hourly check while on Wi-Fi with the battery not low.
+        runCatching { GlobalContext.get().get<tv.own.owntv.core.sync.work.LocalAutoSyncStarter>().start(periodic = true) }
         // "Use this guide's logos": never started on the phone before, so the toggle did nothing here.
         // Reads no EPG data at all while no guide source has it on.
         // glcn: "Alerts outside the app" off → no match alerts or reminders run with the app closed.

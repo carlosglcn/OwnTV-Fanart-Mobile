@@ -1,32 +1,19 @@
-## What's new — styles, wallpapers and a better player
+## What's new — Settings lock, local auto-sync and the latest core
 
-### 🎬 Player
-- 🔤 **Styled subtitles (ASS/SSA)** shown as made, chapters from the file and disc folders on network shares (newest core)
-- ⏭️ **Skip intro** with each episode's real intro times from TheIntroDB; with nothing known, no blind jump
-- 🔑 Lists that refuse the usual player identity now play by themselves
-- ⏱️ Channel banner stays 6 seconds by default
+### 🔒 Profiles and sync
+- 🔒 **Settings lock** with its own PIN, and **protected profiles**
+- 🔄 **Local auto-sync** between paired devices, each on its own schedule; restore by profile
 
-### 🎨 Look
-- 🌈 **Gradient styles, as on the TV:** Aurora, Crepúsculo, Océano and Fanart vivo
-- 🏞️ **App wallpapers:** 9 animated and real photos, dark and light (Glass & background › Picture)
-- 🧸 **New 3D profile avatars:** 48 clay pictures
-- 🔒 With a style on, light/dark is set by the style; a light picture under the dark theme is dimmed by itself to read
-
-### 📺 Live TV and Home
-- 📺 Picture cards two to a row on a phone; a "Categories" button in the tools row
-- 🏠 Home: the cover sits lower, Keep watching under it; 🔥 Trending films and series rows
-- 🔄 Sync notice small at the top
-
-### 🗂️ Emby / Jellyfin
-- 🏷️ Series by platform and genres in Spanish; categories in sections; posters without the playlist mark
-- 🧠 **Much lighter sync** — the library is written to a file as it is read
-
-### ⚙️ Settings and fixes
-- ⚙️ Settings in fewer cards (Picture, Sound & subtitles and Watching & recording inside Playback)
-- 📋 Playback report keeps what happened just before a freeze or crash
+### 🎬 Films, series and Live TV
+- 🖼️ Title art and a 4K badge in the player; title art on series pages
+- 🎞️ Trailers in the title's own language when there is none in Spanish or English
+- 📡 Channels without a logo take the guide's picon; logos on a plain white square lose the backdrop
+- ✅ Featured skips films you have already watched
+- 🔑 Emby/Jellyfin keeps its sign-in across restarts; 🧹 a title taken out of Keep watching stays out
+- ⚽ Sports: "Show likely channels" in Filter channels
 
 ### 🔄 From the original OwnTV
-- Merged ahXN00's latest work. Thank you, ahXN00!
+- Merged OwnTV Mobile 1.1.2 and its core. Thank you, ahXN00 and contributors (and igebara for local auto-sync)!
 
 ### 🙏 Thank you
-Thank you to everyone in the community who tests, reports bugs and shares ideas — many changes here come from your messages.
+Thank you to everyone on Telegram and Discord who tests, reports and shares ideas.
