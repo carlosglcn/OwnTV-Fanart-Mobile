@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -138,8 +139,9 @@ internal fun ArtLiveCardMobile(
         ) {
             if (art != null) {
                 ProgrammeArt(url = art, modifier = Modifier.fillMaxSize())
-                AsyncImage(
-                    model = channel.displayLogoUrl, contentDescription = null,
+                tv.own.owntv.mobile.ui.components.ChannelLogoImage(
+                    url = channel.displayLogoUrl,
+                    fallback = {},
                     modifier = Modifier
                         .padding(8.dp)
                         .size(34.dp)
@@ -148,9 +150,25 @@ internal fun ArtLiveCardMobile(
                         .padding(3.dp),
                 )
             } else {
-                AsyncImage(
-                    model = channel.displayLogoUrl, contentDescription = null,
-                    modifier = Modifier.align(Alignment.Center).size(80.dp),
+                // glcn: no picture for the programme — the channel's logo, large, on a soft wash of the accent (the
+                // channel's name in big letters when even the logo is missing), never an empty grey card.
+                val accent = MaterialTheme.colorScheme.primary
+                Box(
+                    Modifier.fillMaxSize().background(
+                        androidx.compose.ui.graphics.Brush.linearGradient(listOf(accent.copy(alpha = 0.22f), accent.copy(alpha = 0.06f))),
+                    ),
+                )
+                tv.own.owntv.mobile.ui.components.ChannelLogoImage(
+                    url = channel.displayLogoUrl,
+                    fallback = {
+                        Text(
+                            channel.name, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f), fontSize = 20.sp, fontWeight = FontWeight.ExtraBold,
+                            maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            modifier = Modifier.align(Alignment.Center).padding(horizontal = 16.dp),
+                        )
+                    },
+                    modifier = Modifier.align(Alignment.Center).fillMaxHeight(0.5f).fillMaxWidth(0.55f),
+                    plateOn = MaterialTheme.colorScheme.surfaceContainerHigh,
                 )
             }
             Row(Modifier.align(Alignment.TopEnd).padding(8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -285,18 +303,26 @@ internal fun FeaturedCarousel(
                         model = slides[page].second, contentDescription = null, contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize().graphicsLayer { scaleX = zoom.value; scaleY = zoom.value },
                     )
-                    Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0f to Color.Black.copy(alpha = 0.35f), 0.22f to Color.Transparent, 0.55f to Color.Transparent, 0.8f to page0.copy(alpha = 0.8f), 1f to page0)))
+                    // glcn: the page colour rises a little higher, so the lines over the picture's foot sit on calm ground
+                    // instead of on the title the picture itself carries.
+                    Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0f to Color.Black.copy(alpha = 0.35f), 0.22f to Color.Transparent, 0.45f to Color.Transparent, 0.68f to page0.copy(alpha = 0.82f), 0.82f to page0.copy(alpha = 0.95f), 1f to page0)))
                 } else {
                     AsyncImage(model = slides[page].second, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
                     Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.25f to Color.Transparent, 0.6f to Color.Black.copy(alpha = 0.75f), 1f to Color.Black.copy(alpha = 0.97f))))
                 }
                 Column(Modifier.align(Alignment.BottomStart).padding(horizontal = if (cover) 20.dp else 16.dp, vertical = if (cover) 22.dp else 16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    // glcn: on the cover the channel sits in a small pill of the page's colour — over the picture its name
+                    // used to run into the title painted on the poster.
+                    val pal = tv.own.owntv.mobile.ui.stage.LocalStagePalette.current
+                    Row(
+                        if (cover && item is FeaturedItem.Live) Modifier.clip(RoundedCornerShape(50)).background(page0.copy(alpha = 0.85f)).padding(start = 6.dp, end = 10.dp, top = 3.dp, bottom = 3.dp) else Modifier,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically,
+                    ) {
                         when (item) {
                             is FeaturedItem.Live -> {
                                 if (item.isLiveEvent) LiveBadgeSmall()
-                                AsyncImage(model = item.channel.displayLogoUrl, contentDescription = null, modifier = Modifier.size(22.dp))
-                                Text(item.channel.name, color = Color.White.copy(alpha = 0.85f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                                tv.own.owntv.mobile.ui.components.ChannelLogoImage(url = item.channel.displayLogoUrl, fallback = {}, modifier = Modifier.size(22.dp), plateOn = if (cover) page0 else null)
+                                Text(item.channel.name, color = if (cover) pal.text else Color.White.copy(alpha = 0.85f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
                             }
                             is FeaturedItem.Movie -> Text(stringResource(R.string.glcn_recent_movies).uppercase(), color = MaterialTheme.colorScheme.primary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             is FeaturedItem.Series -> Text(stringResource(R.string.glcn_recent_series).uppercase(), color = MaterialTheme.colorScheme.primary, fontSize = 11.sp, fontWeight = FontWeight.Bold)

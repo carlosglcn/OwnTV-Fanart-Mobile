@@ -108,7 +108,7 @@ internal fun LivePreview(
             // `.shade`: black 72% at the bottom, clear by 45% up.
             Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.55f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.72f))))
             if (dark) Box(Modifier.fillMaxSize().drawBehind { drawInnerRing(Color.White.copy(alpha = 0.08f), 1.dp.toPx(), StageRadii.Video.toPx()) })
-            StageLiveBadge(stringResource(R.string.player_live), Modifier.align(Alignment.TopStart).padding(10.dp))
+            StageLiveBadge(tv.own.owntv.mobile.ui.components.onAirLabel(nowNext?.now?.title), Modifier.align(Alignment.TopStart).padding(10.dp))
             // Three facts; the aspect ratio and the declared bitrate are left out, as on the TV.
             val facts = chips.filterNot { it.contains(':') || it.endsWith("Mbps") }
             if (facts.isNotEmpty()) StageSpecChips(facts, Modifier.align(Alignment.TopEnd).padding(10.dp))

@@ -559,7 +559,28 @@ class VodTuner(
                 )
             }
         }
+        // glcn: watched to the end (90 %) — once per title per run — goes to the profile's Trakt history, as on the TV.
+        if (position >= duration * TRAKT_WATCHED && traktReported.add(current.mediaType to current.itemId)) {
+            runCatching {
+                withContext(Dispatchers.IO) {
+                    val k = org.koin.core.context.GlobalContext.get()
+                    when (current.mediaType) {
+                        MediaType.MOVIE -> k.get<tv.own.owntv.core.database.dao.MovieDao>().getById(current.itemId)
+                            ?.let { tv.own.owntv.core.trakt.TraktSync.watchedMovie(playingProfileId, it) }
+                        MediaType.EPISODE -> {
+                            val dao = k.get<tv.own.owntv.core.database.dao.SeriesDao>()
+                            val ep = dao.getEpisodeById(current.itemId)
+                            val series = ep?.let { dao.getSeriesById(it.seriesId) }
+                            if (ep != null && series != null) tv.own.owntv.core.trakt.TraktSync.watchedEpisode(playingProfileId, series, ep)
+                        }
+                        else -> Unit
+                    }
+                }
+            }
+        }
     }
+
+    private val traktReported = java.util.Collections.synchronizedSet(HashSet<Pair<MediaType, Long>>())
 
     /** [onCast] = the receiver took it, so none of the local engine's housekeeping applies and the
      *  session is already pointed at the remote one. */
@@ -661,3 +682,6 @@ class VodTuner(
         const val PROGRESS_INTERVAL_MS = 5_000L
     }
 }
+
+/** glcn: how far in a film or an episode counts as watched, for Trakt. */
+private const val TRAKT_WATCHED = 0.9

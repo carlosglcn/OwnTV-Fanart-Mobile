@@ -96,8 +96,7 @@ fun SettingsHomePage(
         settingsSection(R.string.settings_sections)
         settingsNote(R.string.settings_hidden_sections)
         settingsGroup(key = "rows") {
-            // glcn: the Trakt watchlist row is the television's (Trakt is signed in there); not offered here.
-            val mobileRows = home.settingsRows.filter { it != HomeRow.TRAKT_WATCHLIST }
+            val mobileRows = home.settingsRows
             mobileRows.forEachIndexed { index, row ->
                 val order = mobileRows
                 ReorderableSwitchRow(
@@ -112,7 +111,7 @@ fun SettingsHomePage(
                     canMoveDown = index < order.lastIndex,
                     onMove = { delta ->
                         val moved = order.toMutableList().apply { add(index + delta, removeAt(index)) }
-                        editHome { it.copy(order = listOf(HomeRow.TRENDING) + moved + it.order.filter { r -> r == HomeRow.TRAKT_WATCHLIST }) }
+                        editHome { it.copy(order = listOf(HomeRow.TRENDING) + moved) }
                     },
                 )
                 // Only the two channel rows have a second shape to draw in, so only they carry the

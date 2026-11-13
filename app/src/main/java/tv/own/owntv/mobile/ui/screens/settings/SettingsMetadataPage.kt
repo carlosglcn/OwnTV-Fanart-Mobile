@@ -69,7 +69,26 @@ fun SettingsMetadataPage(
     var key by remember(storedKey) { mutableStateOf(storedKey) }
     var url by remember(storedUrl) { mutableStateOf(storedUrl) }
 
+    // glcn: Trakt for the active profile (sign in, sync, sign out).
+    val profileId by vm.settings.activeProfileId.collectAsStateWithLifecycle(-1L)
+    var traktSheet by remember { mutableStateOf(false) }
+    val traktVersion by tv.own.owntv.core.trakt.Trakt.version.collectAsStateWithLifecycle()
+    if (traktSheet && profileId >= 0) tv.own.owntv.mobile.ui.components.TraktSheet(profileId) { traktSheet = false }
+
     SettingsPage(modifier) {
+        if (tv.own.owntv.core.trakt.Trakt.available) settingsGroup(key = "trakt-$traktVersion") {
+            StageSettingRow(
+                title = stringResource(R.string.glcn_trakt_title),
+                subtitle = stringResource(R.string.glcn_trakt_row_desc),
+                onClick = { traktSheet = true },
+            ) {
+                StageRowValue(
+                    if (profileId >= 0 && tv.own.owntv.core.trakt.Trakt.connected(profileId)) tv.own.owntv.core.trakt.Trakt.userName(profileId) ?: "Trakt"
+                    else stringResource(R.string.glcn_trakt_not_connected),
+                    StageChevron.FORWARD,
+                )
+            }
+        }
         settingsGroup(key = "metadata-mode") {
             StageSettingRow(
                 title = stringResource(R.string.settings_metadata_source),

@@ -693,7 +693,7 @@ private fun GuideTopBlock(
             if (playing && sheetOpen()) Box(Modifier.fillMaxSize().background(Color.Black))
             Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.55f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.72f))))
             if (!palette.isLight) Box(Modifier.fillMaxSize().drawBehind { drawInnerRing(Color.White.copy(alpha = 0.08f), 1.dp.toPx(), 14.dp.toPx()) })
-            StageLiveBadge(stringResource(R.string.player_live), Modifier.align(Alignment.TopStart).padding(6.dp))
+            StageLiveBadge(tv.own.owntv.mobile.ui.components.onAirLabel(programme.title), Modifier.align(Alignment.TopStart).padding(6.dp))
             val name = remember(channel.name) { ProviderTags.displayName(channel.name) }
             Text(
                 listOfNotNull(channel.number?.takeIf { it > 0 }?.let(::formatYear), name).joinToString(stringResource(R.string.content_epg_bits_separator)),

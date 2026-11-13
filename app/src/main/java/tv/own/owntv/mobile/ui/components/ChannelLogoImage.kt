@@ -19,6 +19,7 @@ import coil3.compose.AsyncImagePainter
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.allowHardware
+import coil3.request.transformations
 import kotlin.math.max
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -49,31 +50,43 @@ fun ChannelLogoImage(
 ) {
     // Keyed on the URL so zapping to a channel whose logo is fine tries again rather than inheriting
     // the previous channel's failure.
-    var failed by remember(url) { mutableStateOf(url != null && (url in deadLogos || hostOf(url)?.let(::hostIsDead) == true)) }
-    if (url.isNullOrBlank() || failed) {
+    // glcn: when the playlist's logo will not load, a guide's icon for the same channel is tried before the fallback.
+    val spare = remember(url) { url?.let { tv.own.owntv.core.epg.EpgLogoStore.spareForLogo(it) } }
+    fun broken(u: String?) = u != null && (u in deadLogos || hostOf(u)?.let(::hostIsDead) == true)
+    var src by remember(url) { mutableStateOf(if (spare != null && broken(url)) spare else url) }
+    var failed by remember(url) { mutableStateOf(broken(src)) }
+    val logo = src
+    if (logo.isNullOrBlank() || failed) {
         fallback()
         return
     }
-    var ink by remember(url) { mutableIntStateOf(logoInk[url] ?: LOGO_INK_NONE) }
-    var pending by remember(url) { mutableStateOf<Bitmap?>(null) }
+    var ink by remember(logo) { mutableIntStateOf(logoInk[logo] ?: LOGO_INK_NONE) }
+    var pending by remember(logo) { mutableStateOf<Bitmap?>(null) }
     // Measuring reads every sampled pixel, so it runs off the main thread, once per logo per run.
-    LaunchedEffect(url, pending) {
+    LaunchedEffect(logo, pending) {
         val bitmap = pending ?: return@LaunchedEffect
         val measured = withContext(Dispatchers.Default) { if (bitmap.isRecycled) LOGO_INK_NONE else bitmap.measureInk() }
         if (logoInk.size > MAX_MEASURED_LOGOS) logoInk.clear()
-        logoInk[url] = measured
+        logoInk[logo] = measured
         ink = measured
         pending = null
     }
-    val plate = plateOn?.takeIf { LogoPlateMode.mode == 0 && ink != LOGO_INK_NONE }?.let { surface ->
+    // glcn: on a light surface a logo is not put on a dark plate: its white parts on transparency turn grey
+    // (LogoOnLight) and its colours stay, as on the television.
+    val onLight = plateOn != null && plateOn.luminance() >= 0.5f
+    val plate = plateOn?.takeIf { !onLight && LogoPlateMode.mode == 0 && ink != LOGO_INK_NONE }?.let { surface ->
         val s = surface.luminance()
         if (contrastRatio(Color(ink).luminance(), s) >= MIN_CONTRAST) null
         else if (s < 0.5f) LightPlate else DarkPlate
     }
     // Hardware bitmaps cannot be read back pixel by pixel; logos are tiny, so measuring ones give it up.
     val context = LocalPlatformContext.current
-    val model = remember(url, plateOn != null, context) {
-        if (plateOn == null) url else ImageRequest.Builder(context).data(url).allowHardware(false).build()
+    val model = remember(logo, plateOn != null, onLight, context) {
+        when {
+            plateOn == null -> logo
+            onLight -> ImageRequest.Builder(context).data(logo).allowHardware(false).transformations(LogoOnLight).build()
+            else -> ImageRequest.Builder(context).data(logo).allowHardware(false).build()
+        }
     }
     AsyncImage(
         model = model,
@@ -83,11 +96,11 @@ fun ChannelLogoImage(
         onState = { state ->
             when (state) {
                 is AsyncImagePainter.State.Error -> {
-                    noteFailure(url, state.result.throwable)
-                    failed = true
+                    noteFailure(logo, state.result.throwable)
+                    if (spare != null && logo != spare && !broken(spare)) src = spare else failed = true
                 }
                 is AsyncImagePainter.State.Success ->
-                    if (plateOn != null && !logoInk.containsKey(url)) pending = (state.result.image as? BitmapImage)?.bitmap
+                    if (plateOn != null && !logoInk.containsKey(logo)) pending = (state.result.image as? BitmapImage)?.bitmap
                 else -> Unit
             }
         },

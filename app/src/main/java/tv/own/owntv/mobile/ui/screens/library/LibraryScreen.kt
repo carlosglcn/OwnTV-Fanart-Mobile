@@ -251,7 +251,8 @@ fun LibraryScreen(
             StageTool(
                 onClick = { sortOpen = true },
                 icon = MobileIcons.Sort,
-                value = stringResource(sort.labelRes()),
+                // glcn: the short name, so the order reads whole ("Fecha de incorpo…" before).
+                value = stringResource(sort.shortRes()),
                 on = sortOpen,
                 modifier = Modifier.widthIn(max = 150.dp),
             )
@@ -551,6 +552,13 @@ private fun SettingsRepository.SortMode.labelRes() = when (this) {
     SettingsRepository.SortMode.ALPHA -> R.string.settings_sort_alpha
     SettingsRepository.SortMode.RATING -> R.string.settings_sort_rating
     SettingsRepository.SortMode.DATE_ADDED -> R.string.settings_sort_date_added
+}
+
+private fun SettingsRepository.SortMode.shortRes() = when (this) {
+    SettingsRepository.SortMode.PLAYLIST -> R.string.glcn_sort_short_playlist
+    SettingsRepository.SortMode.ALPHA -> R.string.glcn_sort_short_alpha
+    SettingsRepository.SortMode.RATING -> R.string.glcn_sort_short_rating
+    SettingsRepository.SortMode.DATE_ADDED -> R.string.glcn_sort_short_date
 }
 
 private fun SettingsRepository.VodViewMode.labelRes() = when (this) {

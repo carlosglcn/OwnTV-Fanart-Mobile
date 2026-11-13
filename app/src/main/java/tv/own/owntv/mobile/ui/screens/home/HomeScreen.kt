@@ -451,7 +451,13 @@ fun HomeScreen(
                         onOpen = { if (it.type == MediaType.MOVIE) onOpenMovie(it.id) else onOpenSeries(it.id) },
                         onMenu = { menuFor = it },
                     )
-                    HomeRow.TRAKT_WATCHLIST -> Unit
+                    // glcn: the films on the profile's Trakt watchlist that are in the playlists.
+                    HomeRow.TRAKT_WATCHLIST -> PosterRow(
+                        title = stringResource(R.string.glcn_home_row_trakt),
+                        posters = state.traktWatchlist.map { m -> HomePoster(ContentTarget(MediaType.MOVIE, m.id, m.name, m.posterUrl), m.posterUrl, m.rating, progress = movieProgress[m.id]) },
+                        onOpen = { onOpenMovie(it.id) },
+                        onMenu = { menuFor = it },
+                    )
                     HomeRow.LIVE_SPORTS -> Column {
                         Text(
                             stringResource(R.string.sports_title), style = stageText(17f, 800), color = LocalStagePalette.current.text,
@@ -543,8 +549,7 @@ private fun HomeFeed.hasContent(row: HomeRow): Boolean = when (row) {
     HomeRow.LIVE_SPORTS -> false
     HomeRow.TRENDING_MOVIES -> trendingMovies.isNotEmpty()
     HomeRow.TRENDING_SERIES -> trendingSeries.isNotEmpty()
-    // glcn: the television's (Trakt is signed in there).
-    HomeRow.TRAKT_WATCHLIST -> false
+    HomeRow.TRAKT_WATCHLIST -> traktWatchlist.isNotEmpty()
 }
 
 /** A half-watched episode's menu is its show's: the show is what can be favourited or hidden. */
