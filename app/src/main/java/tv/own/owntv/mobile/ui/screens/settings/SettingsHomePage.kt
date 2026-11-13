@@ -96,8 +96,10 @@ fun SettingsHomePage(
         settingsSection(R.string.settings_sections)
         settingsNote(R.string.settings_hidden_sections)
         settingsGroup(key = "rows") {
-            home.settingsRows.forEachIndexed { index, row ->
-                val order = home.settingsRows
+            // glcn: the Trakt watchlist row is the television's (Trakt is signed in there); not offered here.
+            val mobileRows = home.settingsRows.filter { it != HomeRow.TRAKT_WATCHLIST }
+            mobileRows.forEachIndexed { index, row ->
+                val order = mobileRows
                 ReorderableSwitchRow(
                     title = stringResource(row.titleRes()),
                     subtitle = if (row in home.hidden) stringResource(R.string.settings_hidden)
@@ -110,7 +112,7 @@ fun SettingsHomePage(
                     canMoveDown = index < order.lastIndex,
                     onMove = { delta ->
                         val moved = order.toMutableList().apply { add(index + delta, removeAt(index)) }
-                        editHome { it.copy(order = listOf(HomeRow.TRENDING) + moved) }
+                        editHome { it.copy(order = listOf(HomeRow.TRENDING) + moved + it.order.filter { r -> r == HomeRow.TRAKT_WATCHLIST }) }
                     },
                 )
                 // Only the two channel rows have a second shape to draw in, so only they carry the
@@ -202,6 +204,7 @@ private fun HomeRow.titleRes() = when (this) {
     HomeRow.TONIGHT -> R.string.glcn_tonight
     HomeRow.GENRES -> R.string.glcn_genres
     HomeRow.STARTING_SOON -> R.string.glcn_starting_soon
+    HomeRow.TRAKT_WATCHLIST -> R.string.glcn_home_row_trakt
 }
 
 private fun HomeRow.descriptionRes() = when (this) {
@@ -221,6 +224,7 @@ private fun HomeRow.descriptionRes() = when (this) {
     HomeRow.TONIGHT -> R.string.glcn_tonight_description
     HomeRow.GENRES -> R.string.glcn_genres_description
     HomeRow.STARTING_SOON -> R.string.glcn_starting_soon_description
+    HomeRow.TRAKT_WATCHLIST -> R.string.glcn_home_row_trakt_description
 }
 
 /** Which of the two channel rows this is, and the shape it is currently drawn in. */

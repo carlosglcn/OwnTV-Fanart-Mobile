@@ -451,6 +451,7 @@ fun HomeScreen(
                         onOpen = { if (it.type == MediaType.MOVIE) onOpenMovie(it.id) else onOpenSeries(it.id) },
                         onMenu = { menuFor = it },
                     )
+                    HomeRow.TRAKT_WATCHLIST -> Unit
                     HomeRow.LIVE_SPORTS -> Column {
                         Text(
                             stringResource(R.string.sports_title), style = stageText(17f, 800), color = LocalStagePalette.current.text,
@@ -542,6 +543,8 @@ private fun HomeFeed.hasContent(row: HomeRow): Boolean = when (row) {
     HomeRow.LIVE_SPORTS -> false
     HomeRow.TRENDING_MOVIES -> trendingMovies.isNotEmpty()
     HomeRow.TRENDING_SERIES -> trendingSeries.isNotEmpty()
+    // glcn: the television's (Trakt is signed in there).
+    HomeRow.TRAKT_WATCHLIST -> false
 }
 
 /** A half-watched episode's menu is its show's: the show is what can be favourited or hidden. */
