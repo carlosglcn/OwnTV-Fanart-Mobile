@@ -173,6 +173,8 @@ fun PlayerControls(
     onOtherChannels: (() -> Unit)? = null,
     /** Live only: the channel's other versions (Sources); null hides the button. */
     onSources: (() -> Unit)? = null,
+    /** Locks the screen against touches until the unlock pill is held. */
+    onLock: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // Derived, so the ticking archive state above moves only its readers: the edge is crossed
@@ -212,6 +214,7 @@ fun PlayerControls(
                         onGuide = onGuide,
                         onCopies = onCopies,
                         onSendToTv = onSendToTv,
+                        onLock = onLock,
                         matchLine = matchLine,
                     )
                     // Under the identity rather than beside it: the guide line is the longest text on
@@ -310,6 +313,7 @@ private fun TopRow(
     onGuide: (() -> Unit)? = null,
     onCopies: (() -> Unit)? = null,
     onSendToTv: (() -> Unit)? = null,
+    onLock: () -> Unit,
     matchLine: (@Composable () -> Unit)? = null,
 ) {
     val engine by player.engineChip.collectAsStateWithLifecycle()
@@ -368,6 +372,9 @@ private fun TopRow(
                 watchingMs = watchingWallMs,
                 modifier = Modifier.padding(horizontal = MobileDimens.GapTiny),
             )
+        }
+        IconButton(onClick = onLock) {
+            Icon(MobileIcons.Lock, stringResource(R.string.player_lock_screen), tint = Color.White)
         }
         // Always light: this one sits over the picture, and the picture is never a light surface.
         // It shows itself only when a receiver is actually within reach — the SDK's own behaviour,

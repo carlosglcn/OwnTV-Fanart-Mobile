@@ -224,6 +224,8 @@ fun StageTool(
     contentDescription: String? = null,
     /** History's clear tool: the danger colour. */
     danger: Boolean = false,
+    /** Off: drawn dim and not pressable (a sort that does not apply to the open list). */
+    enabled: Boolean = true,
 ) {
     val palette = LocalStagePalette.current
     val accent = stageAccent
@@ -235,8 +237,8 @@ fun StageTool(
         on -> accent.accent.copy(alpha = 0.18f)
         else -> palette.controlFill
     }
-    val fg = if (pressed) accent.onAccent else if (on) accent.accent else if (danger) palette.danger else palette.muted
-    val strong = if (pressed) accent.onAccent else if (on) accent.accent else palette.text
+    val fg = if (pressed) accent.onAccent else if (!enabled) palette.dim else if (on) accent.accent else if (danger) palette.danger else palette.muted
+    val strong = if (pressed) accent.onAccent else if (!enabled) palette.dim else if (on) accent.accent else palette.text
     Row(
         modifier
             .height(34.dp)
@@ -247,7 +249,7 @@ fun StageTool(
                     Modifier.drawBehind { drawInnerRing(accent.accent.copy(alpha = 0.55f), 1.2.dp.toPx(), StageRadii.Tool.toPx()) }
                 } else Modifier,
             )
-            .clickable(interaction, indication = null, role = Role.Button, onClick = onClick)
+            .clickable(interaction, indication = null, enabled = enabled, role = Role.Button, onClick = onClick)
             .then(if (contentDescription != null) Modifier.semantics { this.contentDescription = contentDescription } else Modifier)
             .padding(horizontal = 11.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),

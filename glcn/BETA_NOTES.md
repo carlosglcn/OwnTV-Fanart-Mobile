@@ -18,3 +18,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 👥 Film page: tap a cast member for their sheet — photo, Wikipedia line, birth and age, the summary with "Read on Wikipedia", and their other films in your playlists.
 - 🗂️ Playlists sheet: each playlist says what it holds (channels, or films and series), when an Xtream line ends, and a long press switches it off or on.
 - 🎬 Trakt on the phone: sign in from Settings › Metadata (the code is copied and trakt.tv/activate opens), films and episodes watched to the end go to the profile's history, and the "My Trakt watchlist" row can be shown on Home.
+- 🔄 Merged the original app's latest (Nov 18): player screen lock, Live TV preview says why a channel stopped, Favorites and Recent keep their own order. Updated to the newest core (live tuning fixes, provider lessons, Guide category memory). Thanks, ahXN00.

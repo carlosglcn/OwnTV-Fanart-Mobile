@@ -7,6 +7,18 @@
 > Issue numbers that are part of a title are fine; explanatory parentheticals are not. The detail —
 > what, why, files and verification — belongs in the commit message, never here.
 
+## v1.1.3 — unreleased
+
+### ✨ New features
+- **🔒 Player screen lock: touches do nothing until you hold "Hold to unlock"**
+- **📄 GPL-3.0 licence file (#78)**
+
+### 🐛 Fixes
+- **⌨️ Settings: a text box at the bottom of a page no longer closes when the keyboard opens**
+- **🗂️ Favorites and History show their sort as "Newest first", greyed out**
+- **📺 Live TV: a channel that stops playing in the preview says why, instead of freezing on its last picture**
+- **📶 Live TV: after the network drops, a channel comes back by itself once the provider lets go of the old connection**
+
 ## v1.1.2 — 2026-11-09
 
 ### New features

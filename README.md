@@ -378,7 +378,8 @@ sources they add and for complying with the laws and rights that apply to them.
 
 ## 📄 License
 
-Released under the **GNU General Public License v3.0 (GPLv3)**, the same as the rest of OwnTV.
+Released under the **GNU General Public License v3.0 (GPLv3)**, the same as the rest of OwnTV — see
+[LICENSE](LICENSE).
 
 In short: you're free to use, study, modify and redistribute OwnTV, including commercially — but any
 redistributed version (including forks and commercial products built on it) must also be licensed

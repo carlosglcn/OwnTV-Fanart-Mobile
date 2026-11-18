@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.screens.live
 
+import tv.own.owntv.player.describe
 import tv.own.owntv.mobile.ui.screens.home.formatYear
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -83,6 +84,7 @@ internal fun LivePreview(
     val engine by tuner.activeEngine.collectAsStateWithLifecycle()
     val previewing by tuner.previewing.collectAsStateWithLifecycle()
     val chips by (if (previewing) tuner.exoEngine else engine).streamChips.collectAsStateWithLifecycle()
+    val failure by (if (previewing) tuner.exoEngine else engine).error.collectAsStateWithLifecycle()
     val name = remember(channel.name) { ProviderTags.parse(channel.name).name }
     val fullscreen = stringResource(R.string.multiview_tile_fullscreen)
     val shape = RoundedCornerShape(StageRadii.Video)
@@ -105,6 +107,21 @@ internal fun LivePreview(
             // is covered with black rather than taken away: a new surface waits 2–5 s for the next keyframe.
             VideoStage(player = tuner.player, modifier = Modifier.fillMaxSize())
             if (sheetOpen()) Box(Modifier.fillMaxSize().background(Color.Black))
+            // A channel that failed says so. Without this the last frame stayed up under the LIVE badge,
+            // looking like a picture that had merely frozen.
+            failure?.let { f ->
+                val resources = androidx.compose.ui.platform.LocalContext.current.resources
+                LocalConfiguration.current // a language change recomposes the message
+                Box(Modifier.fillMaxSize().background(Color.Black), contentAlignment = Alignment.Center) {
+                    Text(
+                        f.describe { id, args -> resources.getString(id, *args.toTypedArray()) },
+                        style = stageText(14f, 400),
+                        color = Color(0xFFCFD8D4),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 24.dp),
+                    )
+                }
+            }
             // `.shade`: black 72% at the bottom, clear by 45% up.
             Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.55f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.72f))))
             if (dark) Box(Modifier.fillMaxSize().drawBehind { drawInnerRing(Color.White.copy(alpha = 0.08f), 1.dp.toPx(), StageRadii.Video.toPx()) })

@@ -802,7 +802,7 @@ class LibraryViewModel(
         is LiveKey.Custom -> key.id
         LiveKey.Favorites -> ContentOrderEntity.FAV_CONTEXT
         // History and All are computed views: there is no order of their own to change.
-        LiveKey.History, LiveKey.All, LiveKey.Catchup -> null
+        LiveKey.History, LiveKey.All, LiveKey.Catchup, LiveKey.Continue -> null
     }
 
     /** The items of [key] in their current order — what the Move sheet shuffles. */

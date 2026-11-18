@@ -66,6 +66,7 @@ Two rows took a second look before they settled. Both are explained below, under
 | Mobile data vs Wi-Fi | ✅ | Data-saver behaviour and download-on-Wi-Fi-only |
 | Portrait layouts | ✅ | Every screen; tablets and landscape get the two-pane variants |
 | Predictive back gesture | ✅ | `android:enableOnBackInvokedCallback="true"` |
+| Player screen lock | ✅ | Lock button in the top bar; every gesture off, Back only shows the unlock pill, held to unlock. A television has no touch screen to lock |
 | SAF storage picker | ✅ | `MediaTarget` / `MediaRoot` in core; no `MANAGE_EXTERNAL_STORAGE` anywhere |
 
 ## Dropped — and why

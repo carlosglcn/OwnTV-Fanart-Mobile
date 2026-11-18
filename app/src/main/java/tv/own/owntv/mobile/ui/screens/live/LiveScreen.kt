@@ -83,6 +83,7 @@ import tv.own.owntv.core.database.entity.ChannelEntity
 import tv.own.owntv.core.epg.displayLogoUrl
 import tv.own.owntv.core.categorylock.SealedCategoryAction
 import tv.own.owntv.core.live.LiveKey
+import tv.own.owntv.core.live.hasFixedOrder
 import tv.own.owntv.mobile.R
 import tv.own.owntv.mobile.ui.screens.home.groupedCountText
 import tv.own.owntv.mobile.ui.components.ChannelLogoImage
@@ -276,14 +277,14 @@ fun LiveScreen(
                         inline = true,
                         modifier = Modifier.weight(1f),
                     )
-                    if (!phoneTools) LiveTools(vm, sort, cardsView, labels = false, onSports = { sportsOpen = true }, onCategories = { categoryPicker = true })
+                    if (!phoneTools) LiveTools(vm, sort, selected.hasFixedOrder, cardsView, labels = false, onSports = { sportsOpen = true }, onCategories = { categoryPicker = true })
                 }
                 if (phoneTools) {
                     Row(
                         Modifier.fillMaxWidth().padding(top = 8.dp).horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                    ) { LiveTools(vm, sort, cardsView, labels = true, onSports = { sportsOpen = true }, onCategories = { categoryPicker = true }) }
+                    ) { LiveTools(vm, sort, selected.hasFixedOrder, cardsView, labels = true, onSports = { sportsOpen = true }, onCategories = { categoryPicker = true }) }
                 }
             }
         }
@@ -601,7 +602,7 @@ internal const val STARTUP_ROW_WAIT_MS = 3_000L
 
 /** glcn: Live TV's tools — order, guide view, sports now, list or cards; [labels] names each one (phones). */
 @Composable
-private fun LiveTools(vm: LiveViewModel, sort: SettingsRepository.SortMode, cardsView: Boolean, labels: Boolean, onSports: () -> Unit, onCategories: () -> Unit) {
+private fun LiveTools(vm: LiveViewModel, sort: SettingsRepository.SortMode, fixedOrder: Boolean, cardsView: Boolean, labels: Boolean, onSports: () -> Unit, onCategories: () -> Unit) {
     // glcn: the categories as a button too — tapping the green "‹ All channels" above was easy to miss.
     StageTool(
         onClick = onCategories,
@@ -612,9 +613,15 @@ private fun LiveTools(vm: LiveViewModel, sort: SettingsRepository.SortMode, card
     StageTool(
         onClick = vm::toggleSort,
         icon = MobileIcons.Sort,
+        // Favorites and History keep their own order (upstream): the sort reads "Newest first" there and cannot be changed.
         label = stringResource(
-            if (sort == SettingsRepository.SortMode.ALPHA) R.string.settings_sort_alpha else R.string.content_epg_sort_provider,
+            when {
+                fixedOrder -> R.string.content_newest_first
+                sort == SettingsRepository.SortMode.ALPHA -> R.string.settings_sort_alpha
+                else -> R.string.content_epg_sort_provider
+            },
         ),
+        enabled = !fixedOrder,
     )
     StageTool(
         onClick = vm::toggleLiveView,
