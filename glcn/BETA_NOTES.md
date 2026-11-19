@@ -19,3 +19,5 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🗂️ Playlists sheet: each playlist says what it holds (channels, or films and series), when an Xtream line ends, and a long press switches it off or on.
 - 🎬 Trakt on the phone: sign in from Settings › Metadata (the code is copied and trakt.tv/activate opens), films and episodes watched to the end go to the profile's history, and the "My Trakt watchlist" row can be shown on Home.
 - 🔄 Merged the original app's latest (Nov 18): player screen lock, Live TV preview says why a channel stopped, Favorites and Recent keep their own order. Updated to the newest core (live tuning fixes, provider lessons, Guide category memory). Thanks, ahXN00.
+- 🗓️ Big playlists: the guide of groups hidden in every profile is no longer downloaded and stored — far less guide data for lists of thousands of channels, so the Guide, Home and the lists are lighter. A group shown again gets its guide on the next refresh.
+- 💬 Series and films: the kind of subtitle you pick is remembered with its language — "Spanish (full)" comes back on the next episode instead of the forced-only Spanish track listed first.
