@@ -48,6 +48,7 @@ OwnTV Fanart is free and made in spare time. If it makes your TV nicer, you can 
 - **Emby** libraries via M3U, Android Auto and a home-screen widget on the phone, a fanart screensaver on the TV.
 - **A better player** — styled ASS/SSA subtitles, chapters, disc folders and skip intro with real intro times.
 - **Styles and wallpapers** — gradient styles, animated and photo wallpapers, and 3D profile avatars.
+- **Trakt and cast sheets** — sign in to Trakt on the phone so what you finish goes to your history; tap a cast member for their photo, Wikipedia summary and other films in your playlists.
 
 ## 📄 Licence and credits
 
