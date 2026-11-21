@@ -75,9 +75,12 @@ class SetupViewModel(
         )
     }
 
-    fun startM3u(name: String, url: String, userAgent: String, httpReferer: String, autoRefresh: PlaylistRefresh) =
+    fun startM3u(name: String, url: String, userAgent: String, httpReferer: String, autoRefresh: PlaylistRefresh, catchupPreferHls: Boolean) =
         runImport {
-            importer.m3u(name = name, url = url, userAgent = userAgent, httpReferer = httpReferer, autoRefresh = autoRefresh)
+            importer.m3u(
+                name = name, url = url, userAgent = userAgent, httpReferer = httpReferer, autoRefresh = autoRefresh,
+                catchupPreferHls = catchupPreferHls,
+            )
         }
 
     fun startStalker(

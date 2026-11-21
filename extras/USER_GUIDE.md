@@ -160,9 +160,10 @@ A name another playlist already has gets a number, so two unnamed playlists are 
 **My IPTV 2**.
 Under **User-Agent** there is an optional **Referer** — leave it empty unless your provider asks
 for one; it is then sent with every stream of that playlist.
-An Xtream playlist has **Prefer HLS for Live TV** and **Prefer HLS for catch-up**. The catch-up one is off
-by default: many providers serve catch-up only as MPEG-TS, and a programme that will not open as HLS
-is asked for as MPEG-TS by itself.
+An Xtream playlist has **Prefer HLS for Live TV** and **Prefer HLS for catch-up**; an M3U playlist has
+**Prefer HLS for catch-up** too. The catch-up one is off by default: many providers serve catch-up only as
+MPEG-TS, and a programme that will not open as HLS is asked for as MPEG-TS by itself. On an M3U playlist it
+changes only Flussonic catch-up channels: a finished programme then shows its full length and can be sought.
 
 ### 📱 Setting up the television too?
 **Where:** on the **TV** — Settings → Sources & guide → Playlists → Add Source → **Remote**
@@ -335,7 +336,7 @@ the player
 **Record every showing** sets a standing rule; every rule is listed at the top of **Downloads → Live TV**
 under **Every showing**, and a tap offers **Stop recording every showing** (what was recorded stays). **Schedule recording…** in a channel's menu records it
 between a day and times you pick, guide or not; an overlap with another recording is shown first. While
-a channel records, its menu offers **Stop recording**. Recordings land in **Downloads → Live TV**, and the
+a channel records, its menu offers **Stop recording**. Recordings land in **Downloads → Recordings**, and the
 status pill shows one running even over the player.
 
 > A recording costs one of your provider's connections and says so before it starts.
@@ -423,7 +424,7 @@ Long-press a history row to remove it; **Clear** wipes it by type.
 ## 📥 Downloads & recordings
 
 **Where:** More → **Downloads**
-Three tabs — **Live TV** (your recordings), **Movies**, **Series** — with a free-space bar, a
+Three tabs — **Recordings** (opens first), **Movies**, **Series** — with a free-space bar, a
 measured transfer rate, and pause · resume · retry · delete per item. Downloads keep running when you
 leave the app. A download adds connections, up to eight, while each makes it faster, never more than
 your playlist allows. A failed one says why (account busy, connection lost, not enough space, …), and

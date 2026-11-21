@@ -55,7 +55,7 @@ import tv.own.owntv.core.live.LiveKey
 import tv.own.owntv.core.live.livePagingSource
 import tv.own.owntv.core.model.MediaType
 import tv.own.owntv.core.repository.ActiveProfileSources
-import tv.own.owntv.core.repository.EpgRepository
+import tv.own.owntv.core.epg.GuideMatches
 import tv.own.owntv.core.repository.activeProfileSources
 import tv.own.owntv.core.settings.SettingsRepository
 import tv.own.owntv.mobile.ui.screens.live.LiveTuner
@@ -119,7 +119,7 @@ class GuideViewModel(
     private val epgReader: LiveEpgReader,
     private val epgDao: EpgDao,
     private val epgSourceStore: EpgSourceStore,
-    private val epgRepository: EpgRepository,
+    private val guideMatches: GuideMatches,
     private val tuner: LiveTuner,
     private val recordings: tv.own.owntv.core.recording.RecordingManager,
     private val xtream: tv.own.owntv.core.parser.XtreamClient,
@@ -808,8 +808,12 @@ class GuideViewModel(
     fun setEpgMatch(channel: ChannelEntity, epgChannelId: String?) {
         viewModelScope.launch {
             val pid = ctx.value.profileId.takeIf { it >= 0 } ?: return@launch
-            customize.setEpgMatch(pid, MediaType.LIVE, CustomizeKeys.channel(channel), epgChannelId)
-            if (epgChannelId != null) fillMatched(listOf(epgChannelId)) else refreshRows()
+            if (!epgChannelId.isNullOrBlank()) {
+                match(pid, mapOf(CustomizeKeys.channel(channel) to epgChannelId))
+            } else {
+                customize.setEpgMatch(pid, MediaType.LIVE, CustomizeKeys.channel(channel), null)
+                refreshRows()
+            }
         }
     }
 
@@ -888,11 +892,7 @@ class GuideViewModel(
                         EpgMatchSummary.MatchedNoProgrammes
                     else -> EpgMatchSummary.AutoMatched(applied.size, outcome.review.size)
                 }
-                if (applied.isNotEmpty()) {
-                    applyMatches(pid, applied.associate { it.first to it.second.matchKey() })
-                    awaitMatches(applied.map { it.first })
-                    fillMatched(applied.map { it.second })
-                }
+                if (applied.isNotEmpty()) match(pid, applied.toMap())
             } finally {
                 _matching.value = false
             }
@@ -926,12 +926,9 @@ class GuideViewModel(
     fun acceptSuggestion(suggestion: EpgMatchSuggestion) {
         viewModelScope.launch {
             val pid = ctx.value.profileId.takeIf { it >= 0 } ?: return@launch
-            val key = CustomizeKeys.channel(suggestion.channel)
-            customize.setEpgMatch(pid, MediaType.LIVE, key, suggestion.epgChannelId)
             _review.value = _review.value.filterNot { it.channel.id == suggestion.channel.id }
             includeLogosIfTicked(listOf(suggestion.epgChannelId))
-            awaitMatches(listOf(key))
-            fillMatched(listOf(suggestion.epgChannelId))
+            match(pid, mapOf(CustomizeKeys.channel(suggestion.channel) to suggestion.epgChannelId))
         }
     }
 
@@ -944,13 +941,9 @@ class GuideViewModel(
         if (all.isEmpty()) return
         viewModelScope.launch {
             val pid = ctx.value.profileId.takeIf { it >= 0 } ?: return@launch
-            val pairs = all.associate { CustomizeKeys.channel(it.channel) to it.epgChannelId.matchKey() }
-            applyMatches(pid, pairs)
-            val keys = pairs.keys
             _review.value = emptyList()
             includeLogosIfTicked(all.map { it.epgChannelId })
-            awaitMatches(keys)
-            fillMatched(all.map { it.epgChannelId })
+            match(pid, all.associate { CustomizeKeys.channel(it.channel) to it.epgChannelId })
         }
     }
 
@@ -963,19 +956,22 @@ class GuideViewModel(
     }
 
     /**
-     * Fill in the newly matched channels' programmes from the downloaded guide, then redraw.
+     * Save [matches] (channel key → guide id) in one write and fill their programmes, then redraw.
      *
      * A match is only a name pointing at a guide channel — the programmes for it may never have been
-     * stored, because nothing was asking for them until now.
+     * stored, because nothing was asking for them until now. Core's [GuideMatches] reads them from the
+     * downloaded guide and queues a guide re-sync for what that cannot give.
      */
-    private suspend fun fillMatched(epgIds: Collection<String>) {
-        val ids = epgIds.map { it.trim().lowercase() }.filterTo(HashSet()) { it.isNotEmpty() }
+    private suspend fun match(pid: Long, matches: Map<String, String>) {
+        val ids = matches.values.map { it.matchKey() }.filterTo(HashSet()) { it.isNotEmpty() }
         if (ids.isEmpty()) return
-        runCatching { epgRepository.storeProgrammesForIdsFromCache(ids) }
+        val fetching = runCatching { guideMatches.match(pid, matches) }.getOrDefault(false)
+        awaitMatches(matches.keys)
         refreshRows()
         // A single match that produced nothing is worth saying out loud: the match worked, but the
-        // feed simply has no schedule for that channel, and an empty row looks like a failure.
-        if (ids.size == 1) {
+        // feed simply has no schedule for that channel, and an empty row looks like a failure. Not
+        // while a re-sync is on its way to fill it.
+        if (ids.size == 1 && !fetching) {
             val upcoming = runCatching {
                 epgDao.countUpcomingForChannel(ids.first(), System.currentTimeMillis())
             }.getOrDefault(1)
@@ -985,16 +981,6 @@ class GuideViewModel(
 
     /** A guide id, stored the way `setEpgMatch` stores one, so a lookup by key finds it. */
     private fun String.matchKey(): String = trim().lowercase()
-
-    /**
-     * Write a whole batch of matches in ONE edit. Accepting two hundred rows one call at a time is
-     * two hundred separate disk writes, which is slow enough to look like nothing happened.
-     */
-    private suspend fun applyMatches(pid: Long, matches: Map<String, String>) {
-        val clean = matches.filterValues { it.isNotEmpty() }
-        if (clean.isEmpty()) return
-        customize.update(pid, MediaType.LIVE) { it.copy(epgMatches = it.epgMatches + clean) }
-    }
 
     /**
      * The rows read the matches back off [custom]; wait for the writes to land there first, or the

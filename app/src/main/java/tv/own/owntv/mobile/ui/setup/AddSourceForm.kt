@@ -93,7 +93,7 @@ fun AddSourceForm(
         httpReferer: String, autoRefresh: PlaylistRefresh, live: SyncScopeChoice, movies: SyncScopeChoice,
         series: SyncScopeChoice, preferHls: Boolean, catchupPreferHls: Boolean,
     ) -> Unit,
-    onStartM3u: (name: String, url: String, userAgent: String, httpReferer: String, autoRefresh: PlaylistRefresh) -> Unit,
+    onStartM3u: (name: String, url: String, userAgent: String, httpReferer: String, autoRefresh: PlaylistRefresh, catchupPreferHls: Boolean) -> Unit,
     onStartStalker: (
         name: String, portalUrl: String, mac: String, serialNumber: String, deviceId: String,
         deviceId2: String, signature: String, userAgent: String, httpReferer: String, autoRefresh: PlaylistRefresh,
@@ -242,15 +242,6 @@ fun AddSourceForm(
                         onClick = { preferHls = !preferHls },
                     ) { StageSwitch(preferHls) }
                 }
-                item(key = "hls-catchup") {
-                    StageSettingRow(
-                        icon = MobileIcons.LiveTv,
-                        title = stringResource(R.string.setup_prefer_hls_catchup),
-                        subtitle = stringResource(R.string.setup_prefer_hls_catchup_description),
-                        role = Role.Switch,
-                        onClick = { catchupPreferHls = !catchupPreferHls },
-                    ) { StageSwitch(catchupPreferHls) }
-                }
             }
             SourceKind.M3U -> {
                 item(key = "url") {
@@ -329,6 +320,19 @@ fun AddSourceForm(
                 )
             }
         }
+        // Xtream and M3U: on an M3U playlist it changes only Flussonic catch-up, whose finished
+        // programmes it opens as a seekable HLS playlist.
+        if (kind == SourceKind.XTREAM || kind == SourceKind.M3U) {
+            item(key = "hls-catchup") {
+                StageSettingRow(
+                    icon = MobileIcons.LiveTv,
+                    title = stringResource(R.string.setup_prefer_hls_catchup),
+                    subtitle = stringResource(R.string.setup_prefer_hls_catchup_description),
+                    role = Role.Switch,
+                    onClick = { catchupPreferHls = !catchupPreferHls },
+                ) { StageSwitch(catchupPreferHls) }
+            }
+        }
         if (kind != SourceKind.M3U) {
             item(key = "sync-head") { StageSectionHead(stringResource(R.string.setup_what_to_sync)) }
             item(key = "sync-note") { PageNote(stringResource(R.string.setup_sync_choices)) }
@@ -345,7 +349,7 @@ fun AddSourceForm(
                             name, server, username, password, userAgent, httpReferer, autoRefresh,
                             syncLive, syncMovies, syncSeries, preferHls, catchupPreferHls,
                         )
-                        SourceKind.M3U -> onStartM3u(name, m3uUrl, userAgent, httpReferer, autoRefresh)
+                        SourceKind.M3U -> onStartM3u(name, m3uUrl, userAgent, httpReferer, autoRefresh, catchupPreferHls)
                         SourceKind.STALKER -> onStartStalker(
                             name, portalUrl, mac, serialNumber, deviceId, deviceId2, signature,
                             userAgent, httpReferer, autoRefresh, syncLive, syncMovies, syncSeries, username, password,

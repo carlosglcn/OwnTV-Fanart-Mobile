@@ -253,9 +253,9 @@ fun SetupFlow(
                         vm.startXtream(importName!!, server, user, pass, ua, referer, refresh, live, movies, series, hls, catchupHls)
                         step = Step.IMPORTING
                     },
-                    onStartM3u = { name, url, ua, referer, refresh ->
+                    onStartM3u = { name, url, ua, referer, refresh, catchupHls ->
                         importName = name.ifBlank { defaultPlaylistName }
-                        vm.startM3u(importName!!, url, ua, referer, refresh)
+                        vm.startM3u(importName!!, url, ua, referer, refresh, catchupHls)
                         step = Step.IMPORTING
                     },
                     onStartStalker = { name, portal, mac, serial, dev1, dev2, sig, ua, referer, refresh, live, movies, series, login, password ->
