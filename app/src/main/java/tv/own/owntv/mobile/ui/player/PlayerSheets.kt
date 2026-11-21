@@ -101,6 +101,12 @@ fun PlayerSheetHost(
     canAddSubtitles: Boolean,
     /** Opens the phone's document picker for a subtitle file already on the device. */
     onPickLocalSubtitle: () -> Unit,
+    /** "Find in folder": the folder's list, or the system folder picker while no folder is chosen. */
+    onFindSubtitleInFolder: () -> Unit,
+    /** Opens the system folder picker for another subtitle folder. */
+    onChangeSubtitleFolder: () -> Unit,
+    /** A file picked in the folder list could not be read. */
+    onFolderSubtitleFailed: () -> Unit,
     /** Tunes a typed channel number, or null when the user has channel numbers turned off. */
     onTuneToNumber: (suspend (Int) -> DirectTune)?,
     /** "Go back to…" — the offsets on offer, and what to do with the chosen one. */
@@ -120,9 +126,11 @@ fun PlayerSheetHost(
             canAddSubtitles = canAddSubtitles,
             onSearch = { onOpenSheet(PlayerSheet.SUBTITLE_SEARCH) },
             onPickLocalSubtitle = onPickLocalSubtitle,
+            onFindInFolder = onFindSubtitleInFolder,
             onDismiss = onDismiss,
         )
         PlayerSheet.SUBTITLE_SEARCH -> SubtitleSearchSheet(onDismiss)
+        PlayerSheet.SUBTITLE_FOLDER -> FolderSubtitleSheet(onChangeSubtitleFolder, onFolderSubtitleFailed, onDismiss)
         PlayerSheet.AUDIO -> AudioSheet(player, onDismiss)
         PlayerSheet.ASPECT -> AspectSheet(player, onDismiss)
         PlayerSheet.QUALITY -> QualitySheet(player, onDismiss)
@@ -213,6 +221,7 @@ private fun SubtitleSheet(
     canAddSubtitles: Boolean,
     onSearch: () -> Unit,
     onPickLocalSubtitle: () -> Unit,
+    onFindInFolder: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     val tracks = remember { player.textTracks() }
@@ -246,6 +255,7 @@ private fun SubtitleSheet(
                     onClick = { onPickLocalSubtitle(); onDismiss() },
                     icon = MobileIcons.Folder,
                 )
+                StageMenuItem(stringResource(R.string.player_subtitle_find_in_folder), onClick = onFindInFolder, icon = MobileIcons.Folder)
             }
             if (timing) {
                 StageGroupLabel(stringResource(R.string.player_subtitle_timing))

@@ -12,12 +12,25 @@
 ### ✨ New features
 - **🔒 Player screen lock: touches do nothing until you hold "Hold to unlock"**
 - **📄 GPL-3.0 licence file (#78)**
+- **📼 "Prefer HLS for catch-up" on each Xtream playlist**
+- **🎓 Sports: college teams and games**
+- **📊 Sports: standings columns per sport, "Standings" and "Games" tabs outside football**
+- **🌍 Ukrainian and Central Kurdish**
+- **🔤 Search and A–Z ignore letter case in every alphabet**
+- **👤 Zoom, text size and recent searches per profile**
+- **📂 Subtitles: "Find in folder", with automatic loading of the matching file**
+- **⏳ "Performing database migration" screen on the first start after an update**
 
 ### 🐛 Fixes
+- **📼 Catch-up: no more stutter after a programme that failed to open**
+- **🏒 Sports: "Starting soon" shows today's games after midnight**
+- **🏈 Sports: US team pages list their games, college tables show the real record**
+- **🕒 More: the last backup's date in your language**
 - **⌨️ Settings: a text box at the bottom of a page no longer closes when the keyboard opens**
 - **🗂️ Favorites and History show their sort as "Newest first", greyed out**
 - **📺 Live TV: a channel that stops playing in the preview says why, instead of freezing on its last picture**
 - **📶 Live TV: after the network drops, a channel comes back by itself once the provider lets go of the old connection**
+- **🔤 Local subtitles: UTF-8 files no longer show Chinese characters**
 
 ## v1.1.2 — 2026-11-09
 

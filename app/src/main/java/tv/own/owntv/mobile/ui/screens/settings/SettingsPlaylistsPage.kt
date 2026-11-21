@@ -173,6 +173,7 @@ fun SettingsPlaylistsPage(
                     syncMovies = v.movies != SyncScopeChoice.Off,
                     syncSeries = v.series != SyncScopeChoice.Off,
                     preferHls = v.preferHls,
+                    catchupPreferHls = v.catchupPreferHls,
                 )
                 editSource = null
             },
@@ -388,7 +389,7 @@ private fun EditPlaylistDialog(
                 StagePill(onClick = onDismiss, icon = MobileIcons.Close, contentDescription = stringResource(R.string.settings_close))
             }
             AddSourceForm(
-                onStartXtream = { _, _, _, _, _, _, _, _, _, _, _ -> },
+                onStartXtream = { _, _, _, _, _, _, _, _, _, _, _, _ -> },
                 onStartM3u = { _, _, _, _, _ -> },
                 onStartStalker = { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ -> },
                 initial = source.toFormValues(),
@@ -421,6 +422,7 @@ private fun SourceEntity.toFormValues(): SourceFormValues {
         movies = scope(syncMovies),
         series = scope(syncSeries),
         preferHls = preferHls,
+        catchupPreferHls = catchupPreferHls,
     )
 }
 

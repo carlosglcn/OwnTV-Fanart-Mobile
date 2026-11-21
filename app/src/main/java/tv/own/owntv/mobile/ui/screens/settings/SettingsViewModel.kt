@@ -32,6 +32,7 @@ import tv.own.owntv.core.database.entity.ChannelEntity
 import tv.own.owntv.core.database.entity.ProfileEntity
 import tv.own.owntv.core.database.entity.SourceEntity
 import tv.own.owntv.core.database.entity.TrendingSnapshotEntity
+import tv.own.owntv.core.database.entity.nameKeyOf
 import tv.own.owntv.core.metadata.MetadataBudget
 import tv.own.owntv.core.metadata.MetadataBudgetStatus
 import tv.own.owntv.core.metadata.MetadataConfig
@@ -256,6 +257,7 @@ class SettingsViewModel(
         syncMovies: Boolean = true,
         syncSeries: Boolean = true,
         preferHls: Boolean = false,
+        catchupPreferHls: Boolean = false,
     ) {
         viewModelScope.launch {
             val existing = sourceDao.getById(id) ?: return@launch
@@ -278,6 +280,7 @@ class SettingsViewModel(
                 syncMovies = syncMovies,
                 syncSeries = syncSeries,
                 preferHls = preferHls,
+                catchupPreferHls = catchupPreferHls,
             )
             sourceEditor.save(existing, updated)
             settings.setPlaylistAutoRefresh(id, autoRefresh)
@@ -640,6 +643,6 @@ class SettingsViewModel(
     suspend fun searchChannels(query: String): List<ChannelEntity> {
         val ids = sources.value.filter { it.syncLive }.map { it.id }
         if (ids.isEmpty()) return emptyList()
-        return channelDao.searchList(query.trim(), ids, limit = 60)
+        return channelDao.searchList(nameKeyOf(query.trim()), ids, limit = 60)
     }
 }

@@ -16,6 +16,9 @@ import android.os.Bundle
 import android.util.Rational
 import android.view.WindowManager
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -169,6 +172,14 @@ open class MainActivity : FragmentActivity() {
         setContent {
             tv.own.owntv.mobile.ui.LocalizedContent(localeStore) {
             MobileTheme {
+                // A database migration still running after a second gets its own screen, so a quick one
+                // does not flash it; the shell starts once it has finished.
+                val migrating by tv.own.owntv.core.database.DatabaseUpgrade.running.collectAsState()
+                val showMigration by produceState(false, migrating) { value = false; if (migrating) { kotlinx.coroutines.delay(1_000); value = true } }
+                if (migrating && showMigration) {
+                    tv.own.owntv.mobile.ui.DatabaseMigrationScreen()
+                    return@MobileTheme
+                }
                 // The wallpaper and its blurred copy sit outside the shell, so the frost every glass
                 // panel samples is one image for the whole app rather than one per panel.
                 GlassBackdropRoot {

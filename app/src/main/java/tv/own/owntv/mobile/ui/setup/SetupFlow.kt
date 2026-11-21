@@ -248,9 +248,9 @@ fun SetupFlow(
                 AddSourceForm(
                     // Remote's submission fills the form; the user still presses Start import.
                     initial = remoteInitial,
-                    onStartXtream = { name, server, user, pass, ua, referer, refresh, live, movies, series, hls ->
+                    onStartXtream = { name, server, user, pass, ua, referer, refresh, live, movies, series, hls, catchupHls ->
                         importName = name.ifBlank { defaultIptvName }
-                        vm.startXtream(importName!!, server, user, pass, ua, referer, refresh, live, movies, series, hls)
+                        vm.startXtream(importName!!, server, user, pass, ua, referer, refresh, live, movies, series, hls, catchupHls)
                         step = Step.IMPORTING
                     },
                     onStartM3u = { name, url, ua, referer, refresh ->

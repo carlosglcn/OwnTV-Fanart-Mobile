@@ -65,11 +65,13 @@ class SetupViewModel(
         movies: SyncScopeChoice,
         series: SyncScopeChoice,
         preferHls: Boolean,
+        catchupPreferHls: Boolean,
     ) = runImport {
         importer.xtream(
             name = name, server = server, username = username, password = password,
             userAgent = userAgent, httpReferer = httpReferer, autoRefresh = autoRefresh,
             live = live, movies = movies, series = series, preferHls = preferHls,
+            catchupPreferHls = catchupPreferHls,
         )
     }
 

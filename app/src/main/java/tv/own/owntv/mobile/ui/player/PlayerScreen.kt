@@ -416,6 +416,21 @@ fun PlayerScreen(
     // Pure except for the channel (and the cast route) it reads: recompute on those, not on ticks.
     val archiveWindowSec = remember(isLive, channel?.id, castDevice) { tuner.archiveWindowSec() }
     var sheet by remember { mutableStateOf<PlayerSheet?>(null) }
+
+    // "Find in folder": a folder chosen once with the system picker. The read grant is made persistent, or
+    // the folder could no longer be read after the app restarts.
+    val playerSettings = koinInject<tv.own.owntv.core.settings.SettingsRepository>()
+    val subtitleFolder by playerSettings.subtitleFolder.collectAsStateWithLifecycle(null)
+    val chooseSubtitleFolder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        runCatching {
+            context.contentResolver.takePersistableUriPermission(uri, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        scope.launch {
+            playerSettings.setSubtitleFolder(uri.toString())
+            sheet = PlayerSheet.SUBTITLE_FOLDER
+        }
+    }
     // The screen lock, for this viewing only. Locked, a touch does nothing but show the unlock pill
     // (held to unlock), and Back only shows it too; the volume keys and the next-episode card still work.
     var locked by rememberSaveable { mutableStateOf(false) }
@@ -1092,6 +1107,9 @@ fun PlayerScreen(
                     onOpenSheet = {},
                     canAddSubtitles = false,
                     onPickLocalSubtitle = {},
+                    onFindSubtitleInFolder = {},
+                    onChangeSubtitleFolder = {},
+                    onFolderSubtitleFailed = {},
                     onTuneToNumber = null,
                     catchup = null,
                     // Back goes UP to the categories, not out of the picker.
@@ -1148,6 +1166,11 @@ fun PlayerScreen(
             // A live channel has nothing to match a subtitle against, and no file to hash.
             canAddSubtitles = film != null,
             onPickLocalSubtitle = { runCatching { pickSubtitle.launch(arrayOf("*/*")) } },
+            onFindSubtitleInFolder = {
+                if (subtitleFolder == null) { sheet = null; chooseSubtitleFolder.launch(null) } else sheet = PlayerSheet.SUBTITLE_FOLDER
+            },
+            onChangeSubtitleFolder = { sheet = null; chooseSubtitleFolder.launch(null) },
+            onFolderSubtitleFailed = { toast = subtitleFailed },
             // A phone's answer to the remote's number keys — offered on the same setting that shows
             // the numbers at all.
             onTuneToNumber = if (showChannelNumbers) tuner::tuneByNumber else null,
