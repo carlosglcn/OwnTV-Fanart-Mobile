@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -50,6 +51,25 @@ fun PlaylistSheet(
     val counts by produceState(emptyMap<Long, Int>(), playlists) {
         value = playlists.associate { it.id to runCatching { channelDao.countForSourceOnce(it.id) }.getOrDefault(0) }
     }
+    // glcn: what each playlist holds beyond channels (Emby: films and series), and when an Xtream line ends — read once
+    // from the provider and kept, as the television does.
+    val movieDao: tv.own.owntv.core.database.dao.MovieDao = koinInject()
+    val seriesDao: tv.own.owntv.core.database.dao.SeriesDao = koinInject()
+    val xtream: tv.own.owntv.core.parser.XtreamClient = koinInject()
+    val vod by produceState(emptyMap<Long, Pair<Int, Int>>(), playlists) {
+        value = playlists.associate { it.id to (runCatching { movieDao.countForSourceOnce(it.id) }.getOrDefault(0) to runCatching { seriesDao.countForSourceOnce(it.id) }.getOrDefault(0)) }
+    }
+    val expiries by produceState(playlists.associate { it.id to tv.own.owntv.core.repository.SourceGlcnPrefs.expiry(it.id) }, playlists) {
+        val known = value.toMutableMap()
+        playlists.filter { it.type == tv.own.owntv.core.model.SourceType.XTREAM && known[it.id] == null }.forEach { s ->
+            runCatching { xtream.accountExpiryMs(s) }.getOrNull()?.let { ms ->
+                tv.own.owntv.core.repository.SourceGlcnPrefs.setExpiry(s.id, ms)
+                known[s.id] = ms
+                value = known.toMap()
+            }
+        }
+    }
+    val disabled by tv.own.owntv.core.repository.SourceGlcnPrefs.disabled.collectAsStateWithLifecycle()
     val locale = LocalConfiguration.current.locales[0]
     val compact = remember(locale) { CompactDecimalFormat.getInstance(locale, CompactDecimalFormat.CompactStyle.SHORT) }
     val title = stringResource(R.string.content_playlist_picker_title)
@@ -76,22 +96,48 @@ fun PlaylistSheet(
         playlists.forEachIndexed { i, source ->
             val current = source.id in picked
             val count = counts[source.id]
+            val off = source.id in disabled
+            val (films, shows) = vod[source.id] ?: (0 to 0)
+            // glcn: the count says what the playlist holds — its films and series when it has no channels (Emby).
+            val holds = when {
+                count != null && count > 0 -> pluralStringResource(R.plurals.sync_count_channels, count, compact.format(count))
+                films > 0 || shows > 0 -> listOfNotNull(
+                    films.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.glcn_deck_films_count, it, compact.format(it)) },
+                    shows.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.content_vod_series_count, it, it) },
+                ).joinToString(stringResource(R.string.content_epg_bits_separator))
+                else -> null
+            }
+            val ends = expiries[source.id]?.let { ms ->
+                val days = kotlin.math.floor((ms - System.currentTimeMillis()) / 86_400_000.0).toInt()
+                when {
+                    days < 0 -> stringResource(R.string.glcn_pl_expired)
+                    days == 0 -> stringResource(R.string.glcn_pl_expires_today)
+                    days <= EXPIRY_SOON_DAYS -> pluralStringResource(R.plurals.glcn_pl_expires_days, days, days)
+                    else -> stringResource(R.string.settings_sources_expiry, java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, locale).format(java.util.Date(ms)))
+                }
+            }
             StageMenuItem(
                 label = names[i],
                 onClick = { toggle(source.id) },
+                // glcn: a long press switches the playlist off (or back on) without going to Settings.
+                onLongClick = { tv.own.owntv.core.repository.SourceGlcnPrefs.setDisabled(source.id, !off) },
                 leading = { StagePlaylistMark(PlaylistMark.of(names[i], i)) },
                 filled = current,
                 checked = current,
-                count = if (showCounts && !current && count != null) {
-                    pluralStringResource(R.plurals.sync_count_channels, count, compact.format(count))
-                } else null,
+                enabled = true,
+                value = listOfNotNull(if (off) stringResource(R.string.glcn_pl_off) else null, ends).joinToString(stringResource(R.string.content_epg_bits_separator)).ifBlank { null },
+                count = if (showCounts && !current) holds else null,
+                modifier = if (off) Modifier.alpha(0.5f) else Modifier,
             )
         }
         Text(
-            stringResource(R.string.content_playlist_marks_note),
+            stringResource(R.string.content_playlist_marks_note) + " " + stringResource(R.string.glcn_pl_long_press_note),
             style = stageText(11.5f, 500),
             color = LocalStagePalette.current.dim,
             modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 12.dp),
         )
     }
 }
+
+/** glcn: a line ending within this many days says so in days. */
+private const val EXPIRY_SOON_DAYS = 15

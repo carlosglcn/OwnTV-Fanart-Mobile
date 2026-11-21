@@ -45,6 +45,7 @@ OwnTV Fanart es gratis y se hace en ratos libres. Si te gusta cómo deja tu TV, 
 - **Emby** mediante M3U, Android Auto y un widget en el móvil, y un salvapantallas de fanart en la TV.
 - **Un reproductor mejor** — subtítulos con estilo ASS/SSA, capítulos, carpetas de disco y saltar intro con los tiempos reales.
 - **Estilos y fondos** — estilos degradados, fondos animados y de fotos, y avatares de perfil en 3D.
+- **Trakt y fichas del reparto** — inicia sesión en Trakt desde el móvil para que lo que terminas pase a tu historial; toca a alguien del reparto para ver su foto, el resumen de Wikipedia y sus otras películas en tus listas.
 
 ## 📄 Licencia y créditos
 

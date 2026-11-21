@@ -87,6 +87,8 @@ android {
             ?: localSigningProps.getProperty("owntv.edgeKey")
             ?: ""
         buildConfigField("String", "TMDB_EDGE_KEY", "\"${edgeKey.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
+        // glcn: Trakt — the same production app as the television (its Client ID is public; PKCE, no secret).
+        buildConfigField("String", "TRAKT_CLIENT_ID", "\"" + (System.getenv("TRAKT_CLIENT_ID")?.takeIf { it.isNotBlank() } ?: "hTjnCZEzrMm690ySAUCcjSy1VhYF9eaLqR6kF7BPiNE") + "\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

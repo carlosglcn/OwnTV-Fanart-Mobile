@@ -86,6 +86,10 @@ to change category. Top right: the **playlist** button, **search** and **your av
 **Too sensitive?** **Settings → Watching & recording → Gesture sensitivity** changes how far a value
 moves per centimetre of finger, without changing how far you must travel to start a gesture.
 
+**Screen lock:** the **lock** button in the player's top bar turns every gesture off and hides the
+controls — for watching in bed or handing the phone over. A tap shows **Hold to unlock**; press and hold
+it to unlock. Back only shows it too. The volume keys and the next-episode card still work.
+
 ---
 
 ## 🏆 Sports
@@ -210,7 +214,8 @@ in **Search** opens Live TV with it in the preview.
 Favourite · Rename · Hide · Match EPG · EPG offset · Move · Move to category · **Record** ·
 **Add to Multiview** · Catch-up · Play in another app. Inside a custom category: **Remove from this category**.
 What you **Move** keeps its place in **A–Z** and **Provider** alike; everything you never moved follows the
-sort around it. Deleting a download or a recording asks first. **Settings → Layout → Long-press menus**
+sort around it. Favorites and History always keep their own order (newest first), so their sort button reads
+**Newest first** and is greyed out. Deleting a download or a recording asks first. **Settings → Layout → Long-press menus**
 rearranges each menu with ↑ ↓, hides an action with the eye, and **Reset** brings it back as shipped.
 
 ### 🏷️ Categories

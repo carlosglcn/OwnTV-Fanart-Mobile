@@ -150,7 +150,9 @@ fun StagePoster(
             title,
             style = stageText(11.5f, if (selected) 700 else 600),
             color = if (selected) palette.text else palette.muted,
-            maxLines = 1,
+            // glcn: two lines, always two, so a long title reads whole and the posters in a row stay level.
+            maxLines = 2,
+            minLines = 2,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(top = 6.dp),
         )
@@ -182,11 +184,18 @@ fun StageRatingChip(rating: String, modifier: Modifier = Modifier) {
  * 1.5 dp ink rim, the name under it (10.5 / 600 muted, two lines). Home's ⓘ sheet and the movie page.
  */
 @Composable
-fun StageCastRow(cast: List<CastMember>, modifier: Modifier = Modifier, contentPadding: PaddingValues = PaddingValues()) {
+fun StageCastRow(
+    cast: List<CastMember>,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
+    /** glcn: a tap on a person (their sheet: Wikipedia, their films in your playlists); null = not tappable. */
+    onPerson: ((CastMember) -> Unit)? = null,
+) {
     val palette = LocalStagePalette.current
     LazyRow(modifier, horizontalArrangement = Arrangement.spacedBy(12.dp), contentPadding = contentPadding) {
         items(cast) { member ->
-            Column(Modifier.width(56.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            val interaction = remember { MutableInteractionSource() }
+            Column(Modifier.width(56.dp).stageClickable(interaction, onPerson?.let { { it(member) } }, null), horizontalAlignment = Alignment.CenterHorizontally) {
                 AsyncImage(
                     MetadataImages.profile(member.profilePath),
                     contentDescription = null,

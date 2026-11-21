@@ -93,7 +93,14 @@ internal fun MatchCard(
         Spacer(Modifier.weight(1f))
         val followed = m.competitors.any { c -> config.teams.any { it.sport == m.sport && it.id == c.team.id } }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(m.venue.orEmpty(), style = stageText(11f, 500), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+            // glcn: where to watch it, when the feed says (more use than the stadium); the venue otherwise.
+            val tv = m.broadcasts.map { it.name }.filter { it.isNotBlank() }.distinct().take(2)
+            if (tv.isNotEmpty()) {
+                StageIcon(MobileIcons.LiveTv, 13.dp, palette.muted)
+                Text(tv.joinToString(sep), style = stageText(11f, 700), color = palette.body, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+            } else {
+                Text(m.venue.orEmpty(), style = stageText(11f, 500), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+            }
             if (reminded) StageTag(stringResource(R.string.sports_reminder_set))
             else if (followed) StageIcon(MobileIcons.Star, 14.dp, TierPick)
         }
@@ -138,10 +145,14 @@ private fun FeaturedScore(m: Match, spoiler: Boolean) {
             Crest(home.team, 38)
             Text(teamLabel(home.team), style = stageText(12.5f, 700), color = palette.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
+        val hs = scoreText(m.sport, home.score)
+        val aws = scoreText(m.sport, away.score)
         val score = when {
             m.state == MatchState.PRE -> timeText(m.startMs)
             spoiler -> "– : –"
-            else -> "${scoreText(m.sport, home.score)} – ${scoreText(m.sport, away.score)}"
+            // glcn: a live match whose feed has no score yet showed a lone "–": its start time says more.
+            hs.isBlank() && aws.isBlank() -> timeText(m.startMs)
+            else -> "$hs – $aws"
         }
         Text(score, style = stageText(28f, 800), color = palette.text, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(horizontal = 8.dp))
         Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {

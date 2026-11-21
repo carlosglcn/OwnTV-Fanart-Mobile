@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import tv.own.owntv.core.epg.displayLogoUrl
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -272,8 +274,9 @@ private fun OnChannelsRow(item: GuideSportItem, now: Long, onClick: () -> Unit) 
     val ch = item.channels.first()
     val sep = stringResource(R.string.content_epg_bits_separator)
     StageRow(onClick = onClick, height = 64.dp, modifier = Modifier.padding(horizontal = 2.dp)) {
-        Box(Modifier.size(46.dp, 32.dp).clip(RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
-            ChannelLogoImage(url = ch.logoUrl, modifier = Modifier.fillMaxSize(), plateOn = palette.page, fallback = { StageIcon(MobileIcons.LiveTv, 16.dp, palette.dim) })
+        // glcn: a larger logo, on a soft tile, from the logo the rest of the app shows (the guide's when it is set).
+        Box(Modifier.size(58.dp, 40.dp).clip(RoundedCornerShape(10.dp)).background(palette.ink.copy(alpha = 0.05f)).padding(4.dp), contentAlignment = Alignment.Center) {
+            ChannelLogoImage(url = ch.displayLogoUrl, modifier = Modifier.fillMaxSize(), plateOn = palette.page, fallback = { StageIcon(MobileIcons.LiveTv, 18.dp, palette.dim) })
         }
         Column(Modifier.weight(1f)) {
             Text(guideSportLabel(item.sport) + sep + item.title, style = stageText(13.5f, 700), color = palette.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -282,7 +285,7 @@ private fun OnChannelsRow(item: GuideSportItem, now: Long, onClick: () -> Unit) 
                 style = stageText(12f, 500), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis,
             )
             val span = (item.stopMs - item.startMs).coerceAtLeast(1)
-            StageProgress(((now - item.startMs).toFloat() / span).coerceIn(0f, 1f), Modifier.padding(top = 4.dp).fillMaxWidth(0.6f), thin = true)
+            StageProgress(((now - item.startMs).toFloat() / span).coerceIn(0f, 1f), Modifier.padding(top = 5.dp).fillMaxWidth(), thin = true)
         }
     }
 }

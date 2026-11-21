@@ -238,7 +238,15 @@ internal fun MoviePage(
         }
         if (cast.isNotEmpty()) {
             StageLabel(stringResource(R.string.content_media_cast), Modifier.padding(top = 22.dp, bottom = 10.dp))
-            StageCastRow(cast)
+            var person by remember { mutableStateOf<tv.own.owntv.core.metadata.CastMember?>(null) }
+            StageCastRow(cast, onPerson = { person = it })
+            person?.let { p ->
+                tv.own.owntv.mobile.ui.components.CastSheet(
+                    person = p, exceptFilm = film.id,
+                    onOpenFilm = { onOpenItem(LibraryTab.MOVIES, it.id) },
+                    onDismiss = { person = null },
+                )
+            }
         }
         if (page.more.isNotEmpty()) {
             StageLabel(stringResource(R.string.content_vod_more_in, page.categoryName.orEmpty()), Modifier.padding(top = 22.dp, bottom = 10.dp))

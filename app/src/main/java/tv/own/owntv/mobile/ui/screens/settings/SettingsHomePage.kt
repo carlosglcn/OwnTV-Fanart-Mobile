@@ -96,8 +96,9 @@ fun SettingsHomePage(
         settingsSection(R.string.settings_sections)
         settingsNote(R.string.settings_hidden_sections)
         settingsGroup(key = "rows") {
-            home.settingsRows.forEachIndexed { index, row ->
-                val order = home.settingsRows
+            val mobileRows = home.settingsRows
+            mobileRows.forEachIndexed { index, row ->
+                val order = mobileRows
                 ReorderableSwitchRow(
                     title = stringResource(row.titleRes()),
                     subtitle = if (row in home.hidden) stringResource(R.string.settings_hidden)
@@ -202,6 +203,7 @@ private fun HomeRow.titleRes() = when (this) {
     HomeRow.TONIGHT -> R.string.glcn_tonight
     HomeRow.GENRES -> R.string.glcn_genres
     HomeRow.STARTING_SOON -> R.string.glcn_starting_soon
+    HomeRow.TRAKT_WATCHLIST -> R.string.glcn_home_row_trakt
 }
 
 private fun HomeRow.descriptionRes() = when (this) {
@@ -221,6 +223,7 @@ private fun HomeRow.descriptionRes() = when (this) {
     HomeRow.TONIGHT -> R.string.glcn_tonight_description
     HomeRow.GENRES -> R.string.glcn_genres_description
     HomeRow.STARTING_SOON -> R.string.glcn_starting_soon_description
+    HomeRow.TRAKT_WATCHLIST -> R.string.glcn_home_row_trakt_description
 }
 
 /** Which of the two channel rows this is, and the shape it is currently drawn in. */

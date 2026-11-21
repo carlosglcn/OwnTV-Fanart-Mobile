@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -63,8 +65,13 @@ fun <T> Flow<T>.pref(initial: T): T = collectAsStateWithLifecycle(initial).value
 @Composable
 fun SettingsPage(modifier: Modifier = Modifier, content: LazyListScope.() -> Unit) {
     LazyColumn(
-        modifier = modifier.fillMaxSize().imePadding(),
-        contentPadding = PaddingValues(start = 6.dp, end = 6.dp, top = 4.dp, bottom = 100.dp),
+        modifier = modifier.fillMaxSize(),
+        // Room for the keyboard as padding rather than a shorter list: shrinking the list disposes the
+        // rows the keyboard covers, and with a row goes the field sheet it just opened.
+        contentPadding = PaddingValues(
+            start = 6.dp, end = 6.dp, top = 4.dp,
+            bottom = 100.dp + WindowInsets.ime.asPaddingValues().calculateBottomPadding(),
+        ),
         content = content,
     )
 }

@@ -11,6 +11,9 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +21,7 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -31,11 +35,13 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.activity.compose.LocalActivity
@@ -70,6 +76,7 @@ import tv.own.owntv.mobile.ui.screens.ContentActions
 import tv.own.owntv.mobile.ui.setup.copyPickedFile
 import tv.own.owntv.mobile.ui.theme.LocalAccentOnVideo
 import tv.own.owntv.mobile.ui.components.MobileBottomSheet
+import tv.own.owntv.mobile.ui.components.MobileIcons
 import tv.own.owntv.mobile.ui.screens.settings.SheetText
 import tv.own.owntv.mobile.ui.screens.settings.StageConfirmSheet
 import tv.own.owntv.mobile.ui.stage.StageButton
@@ -91,6 +98,8 @@ import tv.own.owntv.player.titleRes
 
 private const val CONTROLS_TIMEOUT_MS = 3_000L
 private const val HUD_TIMEOUT_MS = 900L
+/** How long the unlock pill stays up after a touch on the locked screen. */
+private const val UNLOCK_PILL_MS = 3_000L
 
 /** How long a confirmation line stays over the picture. */
 private const val TOAST_MS = 1_800L
@@ -407,6 +416,19 @@ fun PlayerScreen(
     // Pure except for the channel (and the cast route) it reads: recompute on those, not on ticks.
     val archiveWindowSec = remember(isLive, channel?.id, castDevice) { tuner.archiveWindowSec() }
     var sheet by remember { mutableStateOf<PlayerSheet?>(null) }
+    // The screen lock, for this viewing only. Locked, a touch does nothing but show the unlock pill
+    // (held to unlock), and Back only shows it too; the volume keys and the next-episode card still work.
+    var locked by rememberSaveable { mutableStateOf(false) }
+    var unlockShown by remember { mutableStateOf(false) }
+    // Bumped on every touch while locked, so each one keeps the pill up for its full time.
+    var unlockTouch by remember { mutableIntStateOf(0) }
+    LaunchedEffect(unlockTouch) {
+        if (unlockShown) {
+            delay(UNLOCK_PILL_MS)
+            unlockShown = false
+        }
+    }
+    val showUnlock: () -> Unit = { unlockShown = true; unlockTouch++ }
     // Sports Hub: the extras exist only while the playing channel is one of the match's it was started from.
     val sportsPlayback: tv.own.owntv.mobile.ui.screens.sports.SportsPlayback = koinInject()
     val sportsSession by sportsPlayback.session.collectAsStateWithLifecycle()
@@ -549,6 +571,8 @@ fun PlayerScreen(
         onExit()
     }
     BackHandler(onBack = stopAndExit)
+    // Registered after the one above, so it wins while the screen is locked.
+    BackHandler(enabled = locked) { showUnlock() }
 
     // Casting replaces the screen rather than decorating it. Everything below this point drives the
     // engine on this phone — the surface, the gestures, the track pickers — and while the television
@@ -571,7 +595,7 @@ fun PlayerScreen(
         modifier
             .fillMaxSize()
             .background(Color.Black)
-            .playerGestures(
+            .then(if (locked) Modifier.pointerInput(Unit) { detectTapGestures { showUnlock() } } else Modifier.playerGestures(
                 onTap = { controlsVisible = !controlsVisible },
                 onDoubleTapLeft = {
                     skip(tuner, isLive, forward = false)
@@ -664,7 +688,7 @@ fun PlayerScreen(
                     )
                 },
                 sensitivity = gestureSensitivity / 100f,
-            ),
+            )),
     ) {
         VideoStage(
             player = player,
@@ -766,7 +790,7 @@ fun PlayerScreen(
             // Nothing is drawn over the picture in the little window: it is a thumbnail, and the
             // system draws its own buttons on top of it.
             // Held sideways the channel list is a panel over the picture alone: the controls step aside.
-            visible = controlsVisible && !inPip && !quickZap && !(sheet == PlayerSheet.CHANNELS && landscape),
+            visible = controlsVisible && !inPip && !quickZap && !locked && !(sheet == PlayerSheet.CHANNELS && landscape),
             isLive = isLive,
             offsetSec = offsetSecState,
             archiveWindowSec = archiveWindowSec,
@@ -883,6 +907,15 @@ fun PlayerScreen(
             },
             onOtherChannels = matchSession?.takeIf { it.options.size > 1 }?.let { { otherChannels = true } },
             onSources = channel?.takeIf { isLive }?.let { { showSources = true } },
+            onLock = {
+                locked = true
+                sheet = null
+                showSources = false
+                otherChannels = false
+                controlsVisible = false
+                // Shown once at the start, so the way out is seen before it is needed.
+                showUnlock()
+            },
         )
         // glcn: the quick zap panel — the list being watched, with what is on and what follows, and a search.
         QuickZapPanel(
@@ -965,6 +998,36 @@ fun PlayerScreen(
         }
 
         GestureHud(hud.takeIf { !inPip })
+
+        if (locked && unlockShown && !inPip) {
+            PlayerToast(
+                Modifier
+                    .align(Alignment.TopCenter)
+                    .systemBarsPadding()
+                    .padding(top = 24.dp)
+                    .combinedClickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = showUnlock,
+                        onLongClick = {
+                            tick()
+                            locked = false
+                            unlockShown = false
+                            controlsVisible = true
+                        },
+                    ),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(MobileIcons.Lock, null, tint = Color.White, modifier = Modifier.size(18.dp))
+                    Text(
+                        stringResource(R.string.player_hold_to_unlock),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = Color.White,
+                        modifier = Modifier.padding(start = 8.dp),
+                    )
+                }
+            }
+        }
     }
 
     // Multiview draws over the whole player, including the picture it grew out of, and owns its own

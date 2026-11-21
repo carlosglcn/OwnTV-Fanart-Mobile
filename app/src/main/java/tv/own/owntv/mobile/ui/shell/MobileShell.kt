@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.zIndex
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Constraints
 import kotlin.math.roundToInt
 import tv.own.owntv.core.categorylock.firstUnsealed
@@ -779,6 +780,12 @@ private fun ShellLayout(
                 Box(
                     Modifier
                         .clipToBounds()
+                        // glcn: the header fades as it slides away, so its buttons are never left cut in half over
+                        // the page while the list scrolls.
+                        .graphicsLayer {
+                            val h = chrome.headerHeight
+                            alpha = if (h <= 0f) 1f else (1f + chrome.headerOffset / h * HEADER_FADE).coerceIn(0f, 1f)
+                        }
                         .layout { measurable, constraints ->
                             val p = measurable.measure(constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity))
                             chrome.headerHeight = p.height.toFloat()
@@ -887,3 +894,6 @@ fun NavHostController.navigateToTab(destination: MobileDestination) {
         restoreState = true
     }
 }
+
+/** glcn: how fast the header fades while it slides away: gone by the time 60 % of it has left. */
+private const val HEADER_FADE = 1.6f

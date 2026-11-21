@@ -57,6 +57,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import org.koin.androidx.compose.koinViewModel
 import tv.own.owntv.core.customize.CategoryRestorePlan
 import tv.own.owntv.core.live.LiveKey
+import tv.own.owntv.core.live.hasFixedOrder
 import tv.own.owntv.core.live.ProviderTags
 import tv.own.owntv.core.settings.SettingsRepository
 import tv.own.owntv.core.theme.AnimationLevel
@@ -248,12 +249,16 @@ fun LibraryScreen(
             )
             // The order and Grid | List sit at the right edge and the search takes all the rest; a long order
             // ("Hinzugefügt am" at a large font) shortens at 150 dp rather than squeezing the field to its icon.
+            // Favorites and History keep their own order: "Newest first", and nothing to choose.
+            val fixedOrder = selected.hasFixedOrder
             StageTool(
                 onClick = { sortOpen = true },
                 icon = MobileIcons.Sort,
-                value = stringResource(sort.labelRes()),
+                // glcn: the short name, so the order reads whole ("Fecha de incorpo…" before).
+                value = stringResource(if (fixedOrder) R.string.content_newest_first else sort.shortRes()),
                 on = sortOpen,
                 modifier = Modifier.widthIn(max = 150.dp),
+                enabled = !fixedOrder,
             )
             val views = SettingsRepository.VodViewMode.entries
             StageSegmented(
@@ -551,6 +556,13 @@ private fun SettingsRepository.SortMode.labelRes() = when (this) {
     SettingsRepository.SortMode.ALPHA -> R.string.settings_sort_alpha
     SettingsRepository.SortMode.RATING -> R.string.settings_sort_rating
     SettingsRepository.SortMode.DATE_ADDED -> R.string.settings_sort_date_added
+}
+
+private fun SettingsRepository.SortMode.shortRes() = when (this) {
+    SettingsRepository.SortMode.PLAYLIST -> R.string.glcn_sort_short_playlist
+    SettingsRepository.SortMode.ALPHA -> R.string.glcn_sort_short_alpha
+    SettingsRepository.SortMode.RATING -> R.string.glcn_sort_short_rating
+    SettingsRepository.SortMode.DATE_ADDED -> R.string.glcn_sort_short_date
 }
 
 private fun SettingsRepository.VodViewMode.labelRes() = when (this) {

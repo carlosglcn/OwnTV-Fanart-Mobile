@@ -4,7 +4,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -183,8 +185,13 @@ fun AddSourceForm(
     // The type as a segmented control, the fields as rows (a tap opens the field), OPTIONAL, Start import.
     val palette = LocalStagePalette.current
     LazyColumn(
-        modifier = modifier.fillMaxSize().imePadding(),
-        contentPadding = PaddingValues(start = 6.dp, end = 6.dp, top = 4.dp, bottom = 100.dp),
+        modifier = modifier.fillMaxSize(),
+        // Room for the keyboard as padding rather than a shorter list: shrinking the list disposes the
+        // rows the keyboard covers, and with a row goes the field sheet it just opened.
+        contentPadding = PaddingValues(
+            start = 6.dp, end = 6.dp, top = 4.dp,
+            bottom = 100.dp + WindowInsets.ime.asPaddingValues().calculateBottomPadding(),
+        ),
     ) {
         if (!editing) {
             item(key = "kind") {

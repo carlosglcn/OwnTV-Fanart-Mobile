@@ -81,6 +81,8 @@ class OwnTVMobileApp : Application(), androidx.work.Configuration.Provider {
         // not, taking the PRAGMAs and the schema self-heal with it, so the phone
         // had no way to detect the one failure mode that ships green.
         Perf.begin()
+        // glcn: Trakt (sign-in per profile, watched to history, the watchlist row on Home).
+        tv.own.owntv.core.trakt.Trakt.configure(this, BuildConfig.TRAKT_CLIENT_ID, "")
         // Core has its own BuildConfig and it carries none of this: a library gets no version at all,
         // and the edge key and the maintainer switch are the app's build inputs. Hand them over
         // before the first reader — CrashRecorder, two lines down.
