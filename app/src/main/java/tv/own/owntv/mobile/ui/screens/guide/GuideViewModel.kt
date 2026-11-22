@@ -726,7 +726,7 @@ class GuideViewModel(
                 val playlistIds = c.liveSourceIds
                 if (playlistIds.isEmpty()) return@runCatching
                 SilentEpgMatch.ran = true
-                val outcome = autoMatcher.run(customize.observe(pid, MediaType.LIVE).first(), playlistIds)
+                val outcome = autoMatcher.run(customize.observe(pid, MediaType.LIVE).first(), playlistIds, strict = true)
                 if (outcome.hadCandidates && outcome.applied.isNotEmpty()) {
                     // Through core's one entry point: it saves the matches and fetches what the cache cannot give.
                     guideMatches.match(pid, outcome.applied.toMap())
