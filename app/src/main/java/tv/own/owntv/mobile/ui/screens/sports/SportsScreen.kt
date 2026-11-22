@@ -101,8 +101,7 @@ fun SportsScreen(
     var menuChannels by remember { mutableStateOf<List<WatchOption>>(emptyList()) }
     LaunchedEffect(menuFor) { menuChannels = menuFor?.let { vm.channelsFound(it) }.orEmpty() }
 
-    val myTeamKeys = remember(config.teams) { config.teams.map { it.key }.toSet() }
-    fun Match.isMine() = competitors.any { FollowedTeam(sport, it.team.id, it.team.name).key in myTeamKeys }
+    fun Match.isMine() = config.follows(this)
     val chosenSports = chips.filterIsInstance<HubChip.One>().map { it.sport }.toSet()
     val sportLeagues = config.followedLeagues().mapNotNull(SportsCatalog::league).filter { it.sport in chosenSports }
         .sortedWith(compareBy({ config.rankOf(it.sport, it.key).first }, { config.rankOf(it.sport, it.key).second }))
