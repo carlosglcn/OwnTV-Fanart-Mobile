@@ -305,7 +305,7 @@ internal fun FeaturedCarousel(
                     )
                     // glcn: the page colour rises a little higher, so the lines over the picture's foot sit on calm ground
                     // instead of on the title the picture itself carries.
-                    Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0f to Color.Black.copy(alpha = 0.35f), 0.22f to Color.Transparent, 0.45f to Color.Transparent, 0.68f to page0.copy(alpha = 0.82f), 0.82f to page0.copy(alpha = 0.95f), 1f to page0)))
+                    Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0f to Color.Black.copy(alpha = 0.35f), 0.22f to Color.Transparent, 0.4f to Color.Transparent, 0.58f to page0.copy(alpha = 0.8f), 0.74f to page0.copy(alpha = 0.95f), 1f to page0)))
                 } else {
                     AsyncImage(model = slides[page].second, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
                     Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.25f to Color.Transparent, 0.6f to Color.Black.copy(alpha = 0.75f), 1f to Color.Black.copy(alpha = 0.97f))))
@@ -328,14 +328,19 @@ internal fun FeaturedCarousel(
                             is FeaturedItem.Series -> Text(stringResource(R.string.glcn_recent_series).uppercase(), color = MaterialTheme.colorScheme.primary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                     }
+                    val heroTitle = when (item) {
+                        is FeaturedItem.Live -> SportsNow.displayTitle(item.programme.title)
+                        is FeaturedItem.Movie -> item.movie.name
+                        is FeaturedItem.Series -> item.series.name
+                    }
+                    // glcn: a long title (a match with its round and season) a size down, and its lines spaced for their
+                    // size — the two lines ran into each other, and the second climbed onto the picture.
+                    val long = heroTitle.length > HERO_LONG_TITLE
+                    val titleSize = if (cover) (if (long) 24 else 30) else (if (long) 19 else 22)
                     Text(
-                        when (item) {
-                            is FeaturedItem.Live -> SportsNow.displayTitle(item.programme.title)
-                            is FeaturedItem.Movie -> item.movie.name
-                            is FeaturedItem.Series -> item.series.name
-                        },
+                        heroTitle,
                         color = if (cover) tv.own.owntv.mobile.ui.stage.LocalStagePalette.current.text else Color.White,
-                        fontSize = if (cover) 30.sp else 22.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis,
+                        fontSize = titleSize.sp, lineHeight = (titleSize * HERO_LINE).sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis,
                     )
                     val line = when (item) {
                         is FeaturedItem.Live -> listOfNotNull(
@@ -372,3 +377,7 @@ internal fun FeaturedCarousel(
 // glcn: wider than tall — at 0.8 (taller than wide) the cover took over half a phone's screen and pushed
 // Keep watching out of sight; now the first row shows under it.
 private const val COVER_RATIO = 1.3f
+
+/** glcn: past this many characters the hero's title goes a size down; its lines at 1.15 times its size. */
+private const val HERO_LONG_TITLE = 34
+private const val HERO_LINE = 1.15f
