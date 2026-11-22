@@ -10,6 +10,10 @@ import tv.own.owntv.mobile.ui.components.MobileIcons
 @Composable
 fun GlcnStyle.label(): String = stringResource(
     when (this) {
+        GlcnStyle.RIA_NOCHE -> R.string.glcn_style_ria_noche
+        GlcnStyle.RIA_DIA -> R.string.glcn_style_ria_dia
+        GlcnStyle.ESTUDIO_DIA -> R.string.glcn_style_estudio_dia
+        GlcnStyle.NEON_DIA -> R.string.glcn_style_neon_dia
         GlcnStyle.BRASA -> R.string.glcn_style_brasa
         GlcnStyle.ALBA -> R.string.glcn_style_alba
         GlcnStyle.LUMEN_NOCHE -> R.string.glcn_style_lumen_noche
