@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.screens.sports
 
+import tv.own.owntv.core.sports.Venues
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -99,7 +100,7 @@ internal fun MatchCard(
                 StageIcon(MobileIcons.LiveTv, 13.dp, palette.muted)
                 Text(tv.joinToString(sep), style = stageText(11f, 700), color = palette.body, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
             } else {
-                Text(tv.own.owntv.core.sports.Venues.of(m).orEmpty(), style = stageText(11f, 500), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                Text(Venues.of(m).orEmpty(), style = stageText(11f, 500), color = palette.muted, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
             }
             if (reminded) StageTag(stringResource(R.string.sports_reminder_set))
             else if (followed) StageIcon(MobileIcons.Star, 14.dp, TierPick)
