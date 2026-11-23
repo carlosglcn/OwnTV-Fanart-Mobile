@@ -11,3 +11,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🔄 A switched-off playlist's own guide no longer downloads on opening the app.
 - 🤾 Handball Bundesliga and the Hungarian league get their logos.
 - ✅ Episodes are marked watched in the end credits (the last 7 %, never under 1:30), as on the TV.
+- 📺 **Emby/Jellyfin → Trakt:** an episode or film OwnTV counts as watched (now in the end credits) is marked watched on the Emby server itself, so Emby's Trakt plugin adds it to your history — before, Emby only marked it past 90 % of a stopped report, which leaving in the credits or going on to the next episode never reached.
