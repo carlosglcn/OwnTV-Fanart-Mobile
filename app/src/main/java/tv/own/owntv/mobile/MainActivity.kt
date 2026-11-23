@@ -147,6 +147,13 @@ open class MainActivity : FragmentActivity() {
                 .collectLatest { if (pip.inPip.value) applyPipParams() }
         }
         tv.own.owntv.mobile.glcn.PiconPrefetch.start(this, lifecycleScope)
+        // glcn: Appearance's automatic mode — the theme turns to its day or night side as the hours pass.
+        lifecycleScope.launch {
+            while (true) {
+                runCatching { settings.syncGlcnStyle() }
+                kotlinx.coroutines.delay(GLCN_MODE_CHECK_MS)
+            }
+        }
         // glcn: the Fanart icon once, on a phone that had chosen another colour of the old icon.
         lifecycleScope.launch {
             runCatching {
@@ -520,3 +527,6 @@ open class MainActivity : FragmentActivity() {
         private const val MAX_PIP_ASPECT = 2.35f
     }
 }
+
+/** glcn: how often automatic mode checks whether day or night has come. */
+private const val GLCN_MODE_CHECK_MS = 5 * 60_000L
