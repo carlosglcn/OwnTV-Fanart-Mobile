@@ -199,13 +199,12 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            remember { CompanionLink.renderQr("https://$KOFI_LINK") }?.let { qr ->
-                Image(
-                    bitmap = qr.asImageBitmap(),
-                    contentDescription = stringResource(R.string.glcn_kofi_title),
-                    modifier = Modifier.size(84.dp).clip(RoundedCornerShape(10.dp)).background(Color.White).padding(6.dp),
-                )
-            }
+            // glcn: drawn like the Telegram code above (rounded dots in a gradient, a cup in the middle, the address below).
+            Image(
+                painter = androidx.compose.ui.res.painterResource(R.drawable.glcn_kofi_qr),
+                contentDescription = stringResource(R.string.glcn_kofi_title),
+                modifier = Modifier.size(84.dp).clip(RoundedCornerShape(10.dp)).background(Color.White).padding(4.dp),
+            )
             Column {
                 Text(stringResource(R.string.glcn_kofi_title), style = stageText(14f, 800), color = palette.text)
                 Text(KOFI_LINK, style = stageText(11f, 500), color = stageAccent.accent)
