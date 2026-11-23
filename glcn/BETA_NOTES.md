@@ -10,3 +10,4 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🎨 **Appearance, as on the TV:** Settings › Fanart starts with the Theme (Ría, Brasa, Lumen, Aurora, Crepúsculo, Estudio, Neón, Vitrina, each with a night and a day side) and the Mode (Automatic: light by day, dark at nightfall; Dark; Light). The earlier styles stay under "Other styles".
 - 🔄 A switched-off playlist's own guide no longer downloads on opening the app.
 - 🤾 Handball Bundesliga and the Hungarian league get their logos.
+- ✅ Episodes are marked watched in the end credits (the last 7 %, never under 1:30), as on the TV.

@@ -542,9 +542,11 @@ class VodTuner(
         // Whichever engine actually has the film. Casting for an hour and coming back to a resume
         // position of zero would be the same bug as never writing one at all.
         val remote = cast.engine.value
-        val position = remote?.position?.value ?: player.position.value
+        val raw = remote?.position?.value ?: player.position.value
         val duration = remote?.duration?.value ?: player.duration.value
-        if (position <= 0 || duration <= 0) return
+        if (raw <= 0 || duration <= 0) return
+        // glcn: an episode left in its end credits (the last 7 %, never under 1:30) is saved as watched, as on the TV.
+        val position = if (current.mediaType == MediaType.EPISODE && duration - raw <= maxOf(CREDITS_MIN_MS, (duration * CREDITS_SHARE).toLong())) duration else raw
         if (currentProfileId() != playingProfileId) return
         runCatching {
             withContext(Dispatchers.IO) {
@@ -685,3 +687,7 @@ class VodTuner(
 
 /** glcn: how far in a film or an episode counts as watched, for Trakt. */
 private const val TRAKT_WATCHED = 0.9
+
+/** glcn: an episode's end credits — at least this long, or this share of it. */
+private const val CREDITS_MIN_MS = 90_000L
+private const val CREDITS_SHARE = 0.07
