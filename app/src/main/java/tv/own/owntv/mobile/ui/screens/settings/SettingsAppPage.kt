@@ -186,6 +186,32 @@ fun AboutPage(onOpenLanguage: () -> Unit, modifier: Modifier = Modifier) {
                 Text(stringResource(R.string.more_about_scan_mobile), style = stageText(11f, 500), color = palette.muted)
             }
         }
+        // glcn: Ko-fi, for whoever wants to support the project — always here, never asked for in a prompt of its own.
+        val interactionKofi = remember { MutableInteractionSource() }
+        Row(
+            Modifier
+                .padding(top = 10.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(18.dp))
+                .background(palette.ink.copy(alpha = 0.045f))
+                .stageClickable(interactionKofi, { openLink(context, "https://$KOFI_LINK") }, null)
+                .padding(14.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            remember { CompanionLink.renderQr("https://$KOFI_LINK") }?.let { qr ->
+                Image(
+                    bitmap = qr.asImageBitmap(),
+                    contentDescription = stringResource(R.string.glcn_kofi_title),
+                    modifier = Modifier.size(84.dp).clip(RoundedCornerShape(10.dp)).background(Color.White).padding(6.dp),
+                )
+            }
+            Column {
+                Text(stringResource(R.string.glcn_kofi_title), style = stageText(14f, 800), color = palette.text)
+                Text(KOFI_LINK, style = stageText(11f, 500), color = stageAccent.accent)
+                Text(stringResource(R.string.glcn_kofi_body), style = stageText(11f, 500), color = palette.muted)
+            }
+        }
         @OptIn(ExperimentalLayoutApi::class)
         FlowRow(Modifier.padding(top = 14.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             // glcn: this version first (where its problems go), then the project it is built on.
@@ -378,6 +404,7 @@ private const val GITHUB_REPO = "github.com/ahXN00/OwnTV_Mobile"
 private const val GLCN_REPO = "github.com/carlosglcn/OwnTV-Fanart-Mobile"
 private const val TELEGRAM_LINK = "t.me/owntvplayer"
 private const val GLCN_TELEGRAM_LINK = "t.me/owntvfanart"
+private const val KOFI_LINK = "ko-fi.com/galcn10"
 
 
 private fun openLink(context: Context, url: String) {

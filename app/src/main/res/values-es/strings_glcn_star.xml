@@ -7,4 +7,7 @@
     <string name="glcn_star_done">Ya lo hice</string>
     <string name="glcn_star_later">Ahora no</string>
     <string name="glcn_star_google">Puedes entrar con tu cuenta de Google.</string>
+    <string name="glcn_kofi_title">Invítame a un café</string>
+    <string name="glcn_kofi_body">Apoya el proyecto en Ko-fi, si te apetece. ¡Gracias!</string>
+    <string name="glcn_kofi_short">¿Un café? Ko-fi</string>
 </resources>
