@@ -91,8 +91,8 @@ class SportsSettingsViewModel(
 
     private suspend fun indexOf(keys: Collection<String>): List<Pair<FollowedTeam, String>> {
         val sports = tv.own.owntv.core.sports.model.Sport.values().filter {
-            it != tv.own.owntv.core.sports.model.Sport.TENNIS && it != tv.own.owntv.core.sports.model.Sport.RACING &&
-                it != tv.own.owntv.core.sports.model.Sport.MMA && it != tv.own.owntv.core.sports.model.Sport.CRICKET
+            // glcn: tennis and motor racing count too — their "teams" are the ranking's players, drivers and riders.
+            it != tv.own.owntv.core.sports.model.Sport.MMA && it != tv.own.owntv.core.sports.model.Sport.CRICKET
         }.toSet()
         val leagues = keys.mapNotNull { SportsCatalog.league(it) }.filter { it.sport in sports }
         coroutineScope {
@@ -120,8 +120,7 @@ class SportsSettingsViewModel(
         val q = fold(query.trim())
         fun hits(index: List<Pair<FollowedTeam, String>>) = index.filter { (_, text) -> fold(text).contains(q) }.map { it.first }.take(30)
         val own = hits(indexOf(config.value.followedLeagues()))
-        if (own.isNotEmpty()) return own
-        // Nothing among the followed leagues: look in the whole catalogue.
-        return hits(indexOf(SportsCatalog.leagues.map { it.key }))
+        // glcn: then the whole catalogue as well — "alca" finding Alcorcón must not hide Alcaraz.
+        return (own + hits(indexOf(SportsCatalog.leagues.map { it.key }))).distinctBy { it.key }.take(30)
     }
 }
