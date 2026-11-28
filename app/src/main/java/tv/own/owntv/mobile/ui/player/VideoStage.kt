@@ -286,11 +286,7 @@ private fun Modifier.videoZoom(
             requiredWidth((fitW * ZOOM_CROP_FACTOR).dp).requiredHeight((fitH * ZOOM_CROP_FACTOR).dp)
         }
         else -> {
-            val targetAspect = when (zoom) {
-                ZoomMode.FORCE_16_9 -> 16f / 9f
-                ZoomMode.FORCE_4_3 -> 4f / 3f
-                else -> aspect // FIT keeps the video's own shape
-            }
+            val targetAspect = zoom.forcedAspect ?: aspect // FIT keeps the video's own shape
             if (targetAspect >= containerAspect) {
                 width(maxWidth).height((maxWidth.value / targetAspect).dp)
             } else {

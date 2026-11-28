@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile
 
+import tv.own.owntv.mobile.ui.nav.windowWidthDp
 import android.Manifest
 import android.app.PendingIntent
 import android.app.PictureInPictureParams
@@ -22,7 +23,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
@@ -196,9 +196,11 @@ open class MainActivity : FragmentActivity() {
                         // Width, not device type: a phone in landscape and a tablet in split-screen
                         // are the same problem, and the configuration re-reads itself on every
                         // rotation and resize.
-                        MobileShell(windowWidthDp = LocalConfiguration.current.screenWidthDp)
+                        MobileShell(windowWidthDp = windowWidthDp())
                         // The Settings PIN before a long-press change, when the Settings lock asks for it.
                         tv.own.owntv.mobile.ui.categorylock.MenuChangeGateHost()
+                        // "Check TheIntroDB" from any long-press menu.
+                        tv.own.owntv.mobile.ui.components.TheIntroDbCheckHost()
                     }
                 }
             }

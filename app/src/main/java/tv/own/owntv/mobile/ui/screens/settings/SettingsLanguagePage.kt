@@ -1,10 +1,10 @@
 package tv.own.owntv.mobile.ui.screens.settings
 
+import androidx.core.net.toUri
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -272,7 +272,7 @@ private fun TranslationContributionSheet(onDismiss: () -> Unit) {
 
 private fun openContributionLink(context: Context, url: String): Boolean = runCatching {
     context.startActivity(
-        Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+        Intent(Intent.ACTION_VIEW, url.toUri()).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
     )
     true
 }.getOrDefault(false)

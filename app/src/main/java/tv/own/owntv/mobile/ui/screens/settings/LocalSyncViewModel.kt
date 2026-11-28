@@ -285,7 +285,6 @@ class LocalSyncViewModel(
     override fun onCleared() {
         discovery?.cancel()
         sync.stopHosting()
-        super.onCleared()
     }
 
     /**

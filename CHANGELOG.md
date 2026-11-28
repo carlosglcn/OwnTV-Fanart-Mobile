@@ -10,10 +10,15 @@
 ## v1.1.3 — unreleased
 
 ### ✨ New features
+- **⏭️ Skip intro, recap, end credits and preview, from TheIntroDB**
+- **🎬 Next-episode countdown starts with the end credits**
+- **🔑 Settings › Content & metadata › TheIntroDB, with an optional API key**
+- **🔍 "Check TheIntroDB" in the long-press menu of films, series and episodes**
 - **🔒 Player screen lock: touches do nothing until you hold "Hold to unlock"**
 - **📄 GPL-3.0 licence file (#78)**
 - **📼 "Prefer HLS for catch-up" on each Xtream playlist**
 - **⏺️ Downloads opens on Recordings (ahXN00/OwnTV#384)**
+- **🖼️ Episode tiles show the provider's own picture of each episode (ahXN00/OwnTV#367)**
 - **📼 "Prefer HLS for catch-up" on M3U playlists too: Flussonic catch-up shows its full length and can be sought** (community PR #93 by @Sekator778)
 - **🎓 Sports: college teams and games**
 - **📊 Sports: standings columns per sport, "Standings" and "Games" tabs outside football**
@@ -22,13 +27,22 @@
 - **👤 Zoom, text size and recent searches per profile**
 - **📂 Subtitles: "Find in folder", with automatic loading of the matching file**
 - **⏳ "Performing database migration" screen on the first start after an update**
+- **🖥️ Player zoom: Force 20:9 (ahXN00/OwnTV#378)**
+
+- **🔐 DRM: the newer Kodi `drm` and `drm_legacy` playlist lines (ahXN00/OwnTV#393)**
 
 ### 🐛 Fixes
+- **📺 Player channel list: a programme that ends is replaced by the next one**
+- **🎬 Stalker films play on portals that need the film's file first, and say so when a film cannot open (ahXN00/OwnTV#390)**
+- **🔄 Local sync: synced episodes and films show in Keep watching straight away (ahXN00/OwnTV#394)**
+- **🌐 Update check asks again when GitHub briefly fails**
+- **🔒 A Merge restore or a sync with the TV no longer removes a category lock**
 - **📅 Guide: a channel matched by hand gets its programmes and past days even when the downloaded guide is old** (reported in PR #380 by @Sekator778)
 - **📼 Catch-up: a channel's past days fill in from the provider's archive when the downloaded guide stopped early**
 - **📼 Catch-up: a programme ExoPlayer could not start no longer puts later catch-up on mpv into software decoding**
 - **📼 Catch-up: switching a programme from mpv to ExoPlayer starts it at once, in hardware, instead of after 12 seconds in software**
 - **📼 Catch-up: no more stutter after a programme that failed to open**
+- **📅 Guide: the "ids don't match" notice says to use Auto-match EPG, then Match EPG**
 - **🏒 Sports: "Starting soon" shows today's games after midnight**
 - **🏈 Sports: US team pages list their games, college tables show the real record**
 - **🕒 More: the last backup's date in your language**

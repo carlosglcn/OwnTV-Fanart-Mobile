@@ -1,6 +1,5 @@
 package tv.own.owntv.mobile.ui.setup
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +34,7 @@ class SetupViewModel(
     private val profileDao: ProfileDao,
     private val settings: SettingsRepository,
     private val appScope: CoroutineScope,
-    private val context: Context,
+    private val context: android.app.Application,
     private val companion: tv.own.owntv.core.companion.CompanionController,
     private val profiles: tv.own.owntv.core.profile.ProfileManager,
 ) : ViewModel() {

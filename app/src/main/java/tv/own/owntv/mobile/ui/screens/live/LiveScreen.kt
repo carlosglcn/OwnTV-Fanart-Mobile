@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.screens.live
 
+import tv.own.owntv.mobile.ui.nav.windowHeightDp
 import androidx.compose.foundation.layout.widthIn
 import tv.own.owntv.mobile.ui.screens.home.formatYear
 import tv.own.owntv.mobile.ui.player.CatchupOptions
@@ -392,7 +393,7 @@ fun LiveScreen(
                         nowMs = nowMs,
                         onFullscreen = openFullscreen,
                         wide = true,
-                        tablet = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp >= 600,
+                        tablet = windowHeightDp() >= 600,
                         modifier = Modifier.verticalScroll(rememberScrollState()).padding(top = TOOLS_TOP),
                     )
                 }

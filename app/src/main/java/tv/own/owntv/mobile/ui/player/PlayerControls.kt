@@ -107,6 +107,7 @@ fun PlayerControls(
     timelineProgrammes: List<LiveProgramme>,
     /** The provider's own number for the channel, or null when the user has numbers turned off. */
     channelNumber: Int?,
+    modifier: Modifier = Modifier,
     /**
      * Whether live is playing on ExoPlayer right now. Ignored off live.
      *
@@ -175,7 +176,6 @@ fun PlayerControls(
     onSources: (() -> Unit)? = null,
     /** Locks the screen against touches until the unlock pill is held. */
     onLock: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     // Derived, so the ticking archive state above moves only its readers: the edge is crossed
     // rarely, and the clock's null-ness only on entering/leaving the archive.
@@ -418,10 +418,10 @@ private fun TransportRow(
     isLive: Boolean,
     onSkipLive: ((forward: Boolean) -> Unit)?,
     behindLive: Boolean,
+    modifier: Modifier = Modifier,
     /** Step within the channel list; null hides the button (live only). */
     onChannelPrevious: (() -> Unit)? = null,
     onChannelNext: (() -> Unit)? = null,
-    modifier: Modifier = Modifier,
 ) {
     val playing by player.isPlaying.collectAsStateWithLifecycle()
     val step by player.seekStepMs.collectAsStateWithLifecycle()

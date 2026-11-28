@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.screens.downloads
 
+import androidx.compose.ui.platform.LocalResources
 import android.content.Context
 import android.net.Uri
 import android.os.storage.StorageManager
@@ -431,7 +432,7 @@ private fun downloadLine(d: DownloadEntity, info: DownloadDetails?): String = bu
 private fun DownloadStatusText(d: DownloadEntity, live: DownloadActivityTracker.ActiveDownload?, queue: List<DownloadEntity>) {
     val palette = LocalStagePalette.current
     val sep = stringResource(R.string.content_epg_bits_separator)
-    val reason = DownloadReasons.displayTextOf(d, LocalContext.current.resources)
+    val reason = DownloadReasons.displayTextOf(d, LocalResources.current)
     val style = stageText(12f, 500)
     when (d.status) {
         DownloadStatus.FAILED -> Text(

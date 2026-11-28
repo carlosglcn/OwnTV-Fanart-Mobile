@@ -1,6 +1,5 @@
 package tv.own.owntv.mobile.ui.screens.settings
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.NonCancellable
@@ -72,7 +71,7 @@ import tv.own.owntv.core.trending.trendingAvailability
  * source, a cleared history — is a function below, because those need a scope that outlives the row.
  */
 class SettingsViewModel(
-    private val context: Context,
+    private val context: android.app.Application,
     val settings: SettingsRepository,
     private val sourceDao: SourceDao,
     private val sourceRepository: SourceRepository,

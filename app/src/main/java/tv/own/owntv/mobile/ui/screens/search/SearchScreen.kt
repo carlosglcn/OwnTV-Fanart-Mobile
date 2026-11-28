@@ -90,11 +90,11 @@ private const val MIN_QUERY = 2
  */
 @Composable
 fun SearchScreen(
-    initialQuery: String = "",
     onOpenChannel: (Long) -> Unit,
     onOpenMovie: (Long) -> Unit,
     onOpenSeries: (Long) -> Unit,
     modifier: Modifier = Modifier,
+    initialQuery: String = "",
     vm: SearchViewModel = koinViewModel(),
 ) {
     // Arriving with a title already chosen — "All versions" on Home's trending hero. Keyed on the

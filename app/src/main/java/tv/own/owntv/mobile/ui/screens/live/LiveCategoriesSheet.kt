@@ -1,5 +1,7 @@
 package tv.own.owntv.mobile.ui.screens.live
 
+import tv.own.owntv.mobile.ui.nav.windowHeightDp
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -19,8 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import tv.own.owntv.core.customize.CategoryRestorePlan
@@ -91,7 +91,7 @@ internal fun LiveCategoriesSheet(
             modifier = Modifier.padding(start = 6.dp, end = 6.dp, bottom = 8.dp),
         )
         // `max-height: 700px` of an 887 dp frame, less the header and the search above.
-        val listMax = (LocalConfiguration.current.screenHeightDp * 0.79f).dp - 141.dp
+        val listMax = (windowHeightDp() * 0.79f).dp - 141.dp
         LazyColumn(Modifier.fillMaxWidth().heightIn(max = listMax)) {
             items(shownFixed, key = { it.key.toString() }) { c ->
                 StageMenuItem(
@@ -187,7 +187,7 @@ internal fun CategoryRestoreConfirm(
     onDismiss: () -> Unit,
 ) {
     val palette = LocalStagePalette.current
-    val lines = plan?.let { categoryRestoreSummary(it, LocalContext.current.resources) }
+    val lines = plan?.let { categoryRestoreSummary(it, LocalResources.current) }
     MobileBottomSheet(onDismissRequest = onDismiss, title = title) {
         StageSheetHeader(title = title)
         if (lines != null && lines.isEmpty()) {

@@ -17,7 +17,7 @@ class ProfilesViewModel(
     private val profileDao: ProfileDao,
     private val settings: SettingsRepository,
     private val manager: ProfileManager,
-    private val context: android.content.Context,
+    private val context: android.app.Application,
     private val protection: tv.own.owntv.core.profile.ProfileProtection,
 ) : ViewModel() {
 

@@ -3,7 +3,7 @@ package tv.own.owntv.mobile.di
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -35,13 +35,13 @@ val shellModule = module {
     single { tv.own.owntv.mobile.ui.categorylock.MenuChangeGate(get()) }
     single { CategoryRelock(CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate), get(), get(), get()) }
     single { tv.own.owntv.mobile.ui.categorylock.SealedPlaybackHost() }
-    viewModel { ProfilesViewModel(get(), get(), get(), androidContext(), get()) }
+    viewModel { ProfilesViewModel(get(), get(), get(), androidApplication(), get()) }
     viewModelOf(::ProfileGateSession)
     // The counts the More rows and the Favourites / History chips carry.
     viewModel {
         tv.own.owntv.mobile.ui.screens.MoreCountsViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get())
     }
-    viewModel { BackupViewModel(get(), androidContext(), get(), get(), get(), get()) }
+    viewModel { BackupViewModel(get(), androidApplication(), get(), get(), get(), get()) }
     viewModel { tv.own.owntv.mobile.ui.screens.settings.LocalSyncViewModel(get(), get(), get(), get()) }
     // The agreements, the sync manager, the runner's results, the listener and the profiles it may
     // share. The device is not a dependency: the sheet is handed the one it edits.
@@ -49,5 +49,5 @@ val shellModule = module {
     // An import has to outlive the wizard screen that started it — "Run in background" is exactly
     // that promise — so it runs here rather than in a ViewModel that dies with its navigation entry.
     single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
-    viewModel { SetupViewModel(get(), get(), get(), get(), androidContext(), get(), get()) }
+    viewModel { SetupViewModel(get(), get(), get(), get(), androidApplication(), get(), get()) }
 }

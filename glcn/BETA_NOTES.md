@@ -17,3 +17,7 @@ Versión de pruebas de OwnTV Fanart. Se instala al lado de la normal.
 - 🩺 Playback report: an **Emby / Jellyfin** section with each report sent to the server (playing, stopped, watched) and its answer.
 - 📺 **Emby now sees what you play:** before reporting, the app asks Emby for the item's play session (as Emby's own apps do) — Emby refused the "playing" reports without one (error 400), so nothing showed in its activity, nothing was marked watched and nothing reached Trakt. The playback report now notes Emby's reason when it refuses.
 - 🇪🇸 Local sync: the "Sync automatically" row in Spanish.
+- 🔀 **Merged the original app's latest work (22–28 Nov)** and the TV's current core: skip intro, recap, end credits and preview from TheIntroDB (Settings → TheIntroDB), episode tiles with the provider's own picture, the player's channel sheet refreshing each minute, Stalker film links, Force 20:9.
+- 🎾 **Sports:** a match under way no longer vanishes after reopening the app; followed competitions are read again every 20 minutes while on screen. Davis Cup with the rubber on court.
+- 📺 **Live TV on ExoPlayer:** channels whose subtitles run ahead of the picture (Antena 3 UHD) open every time, not now and then.
+- 🎨 **Guide with colour:** Kodi-style colour guides are read; season, episode and labels tinted.

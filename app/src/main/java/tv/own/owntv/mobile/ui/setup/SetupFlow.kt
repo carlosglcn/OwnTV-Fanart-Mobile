@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.setup
 
+import androidx.compose.ui.platform.LocalResources
 import android.icu.text.ListFormatter
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
@@ -321,7 +322,7 @@ private fun ImportProgress(
     onRetry: () -> Unit,
     onCancel: () -> Unit,
 ) {
-    val resources = LocalContext.current.resources
+    val resources = LocalResources.current
     when (state) {
         is SourceImporter.ImportState.Success -> WizardFrame(
             step = WizardStep.READY,
@@ -370,7 +371,7 @@ private fun ImportProgress(
 /** One row per part being fetched: its count so far, and Done once it has finished; or what is happening first. */
 @Composable
 private fun ImportRows(progress: ImportStage?) {
-    val resources = LocalContext.current.resources
+    val resources = LocalResources.current
     val counts = progress?.progressCounts()
     if (counts == null || !counts.hasItems) {
         val display = progress?.importProgressDisplay()
@@ -477,7 +478,7 @@ private fun RestoreBackup(
     onPickAgain: () -> Unit,
     onBack: () -> Unit,
 ) {
-    val resources = LocalContext.current.resources
+    val resources = LocalResources.current
     when (state) {
         is SourceImporter.ImportState.NeedPassword -> {
             var password by remember(state.file, state.retry) { mutableStateOf("") }

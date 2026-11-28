@@ -39,7 +39,7 @@ import tv.own.owntv.mobile.ui.screens.library.VodTuner
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class RecordingsViewModel(
-    private val context: android.content.Context,
+    private val context: android.app.Application,
     private val settings: SettingsRepository,
     private val recordings: RecordingManager,
     private val vodTuner: VodTuner,

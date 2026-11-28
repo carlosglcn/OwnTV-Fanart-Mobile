@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.screens.home
 
+import tv.own.owntv.mobile.ui.nav.windowHeightDp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -42,7 +43,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -512,7 +512,7 @@ fun TrendingInfoSheet(
     val tags = listOfNotNull(signals.quality.label) + signals.capabilities
 
     MobileBottomSheet(onDismissRequest = onDismiss, title = snapshot.localizedTitle) {
-        Column(Modifier.heightIn(max = (LocalConfiguration.current.screenHeightDp * 3 / 4).dp).verticalScroll(rememberScrollState())) {
+        Column(Modifier.heightIn(max = (windowHeightDp() * 3 / 4).dp).verticalScroll(rememberScrollState())) {
             Row(Modifier.padding(start = 8.dp, end = 8.dp, bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 AsyncImage(
                     trendingPoster(item),

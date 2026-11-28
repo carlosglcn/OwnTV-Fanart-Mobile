@@ -1,6 +1,8 @@
 package tv.own.owntv.mobile.ui.player
 
 import androidx.compose.material3.MaterialTheme
+import tv.own.owntv.mobile.ui.nav.windowWidthDp
+import tv.own.owntv.mobile.ui.nav.windowHeightDp
 import tv.own.owntv.mobile.ui.stage.stageGlass
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
@@ -505,15 +507,26 @@ private fun ChannelSheet(
     // own rows with what is on now; the playing channel carries the accent bar.
     val tuner: LiveTuner = koinInject()
     val playing by tuner.channel.collectAsStateWithLifecycle()
-    val now by produceState(emptyMap<Long, XtEpgEntry>(), channels) { value = tuner.nowProgrammes(channels) }
+    // On each minute, the channels whose programme has ended are read again — a sheet left open
+    // would otherwise keep showing what ended.
+    val now by produceState(emptyMap<Long, XtEpgEntry>(), channels) {
+        value = tuner.nowProgrammes(channels)
+        while (true) {
+            kotlinx.coroutines.delay(60_000 - (System.currentTimeMillis() % 60_000))
+            val clock = System.currentTimeMillis()
+            val ended = channels.filter { ch -> value[ch.id]?.let { it.stopMs <= clock } == true }
+            if (ended.isEmpty()) continue
+            val fresh = tuner.nowProgrammes(ended)
+            value = value - ended.map { it.id }.toSet() + fresh
+        }
+    }
     val nowMs by rememberClockTick()
     val sep = stringResource(R.string.content_epg_bits_separator)
     val heading = title?.let { ProviderTags.parse(it).name } ?: stringResource(R.string.content_channel_overlay_title)
-    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
     val body: @Composable (Boolean) -> Unit = { side -> ChannelSheetBody(heading, channels, playing, now, nowMs, sep, side, onTuneToNumber, onPick, onDismiss) }
     // Held sideways: a glass panel down the left of the picture, over a wash from that side, instead of
     // a sheet that would cover the whole short screen.
-    if (configuration.screenWidthDp > configuration.screenHeightDp) {
+    if (windowWidthDp() > windowHeightDp()) {
         androidx.activity.compose.BackHandler(onBack = onDismiss)
         // The panel sits at the start edge, so in right-to-left the wash comes from the right.
         val rtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl

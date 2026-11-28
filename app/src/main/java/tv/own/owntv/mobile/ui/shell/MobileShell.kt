@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.shell
 
+import tv.own.owntv.mobile.ui.nav.windowHeightDp
 import tv.own.owntv.mobile.ui.screens.MoreLeaf
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Dialog
@@ -66,7 +67,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -190,7 +190,7 @@ fun MobileShell(
     // 600dp is Material's compact/medium boundary: below it a rail would eat the content.
     val useRail = windowWidthDp >= 600
     // A phone held sideways (409 dp tall) gets the compact rail and the one-line header.
-    val compactRail = LocalConfiguration.current.screenHeightDp < 600
+    val compactRail = windowHeightDp() < 600
     val destinations =
         (if (useRail) MobileDestination.rail else MobileDestination.bottomBar).visible(sections)
     // A detail route ("live/42/false") keeps its tab selected and its tab's title: on a phone the

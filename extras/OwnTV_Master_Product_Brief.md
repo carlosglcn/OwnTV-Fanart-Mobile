@@ -154,6 +154,11 @@ remember-this-delay, surround handling and 150% volume boost, Night mode and Vol
 engines), a Dolby/DTS passthrough switch, Maximum video quality with a mobile-data limit and a per-item
 Quality button, and experimental tunneled playback — all core's, all shared.
 
+**Skip intro, recap, end credits and preview** from **TheIntroDB** — per part Off, a button or
+automatic; known end credits start the next-episode card and count the title as watched; an optional
+personal key; "Check TheIntroDB" in the film, series and episode menus. Core's logic, the same as the
+television's.
+
 ---
 
 ## 3. Browse
@@ -190,7 +195,8 @@ top. Predictive back is on.
   work with the app closed (core's `MatchAlertHost.backgroundAllowed`).
 - **Movies & Series** — two tabs with search, sort, Grid | List and **pinch to resize** the
   grid, progress bars on part-watched films and shows, and a detail page with backdrop, chips, resume,
-  favourite, download, season chips and episode progress. The page's title drops a leading provider
+  favourite, download, season chips and episode progress; episode pictures fall back from TMDB's still to the
+  provider's own picture of the episode, then the show's backdrop. The page's title drops a leading provider
   tag such as "|MULTI|".
 - **Guide** — **three shapes the user picks between and the app remembers**: *On now* (the portrait
   default), *Grid* (the landscape and tablet default) and *Timeline*. A phone loads one day, one row
@@ -396,5 +402,6 @@ Released under the **GNU General Public License v3.0**.
 
 Metadata and trailers from [TMDB](https://www.themoviedb.org/) (not endorsed or certified by TMDB).
 Subtitles from [OpenSubtitles](https://www.opensubtitles.com/) (not endorsed or certified by
-OpenSubtitles). Translations hosted free of charge by
+OpenSubtitles). Skip times from [TheIntroDB](https://theintrodb.org/) (not endorsed by TheIntroDB).
+Translations hosted free of charge by
 [Hosted Weblate](https://hosted.weblate.org/projects/owntv/).

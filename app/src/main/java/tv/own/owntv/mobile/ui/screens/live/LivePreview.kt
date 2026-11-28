@@ -110,7 +110,7 @@ internal fun LivePreview(
             // A channel that failed says so. Without this the last frame stayed up under the LIVE badge,
             // looking like a picture that had merely frozen.
             failure?.let { f ->
-                val resources = androidx.compose.ui.platform.LocalContext.current.resources
+                val resources = androidx.compose.ui.platform.LocalResources.current
                 LocalConfiguration.current // a language change recomposes the message
                 Box(Modifier.fillMaxSize().background(Color.Black), contentAlignment = Alignment.Center) {
                     Text(
