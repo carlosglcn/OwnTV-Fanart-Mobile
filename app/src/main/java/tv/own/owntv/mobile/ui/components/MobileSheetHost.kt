@@ -53,6 +53,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.TransformOrigin
@@ -281,20 +282,22 @@ private fun BoxScope.SheetLayer(entry: SheetEntry) {
         }
     }
 
+    // Read only from the draw and placement lambdas below: the offset changes every frame of a drag
+    // or animation, and reading it here would recompose the whole host each frame.
     // glcn: the anchors can exist a frame before the offset does; reading it then crashed.
-    val offset = state.offset.takeIf { !it.isNaN() } ?: sheetHeight.toFloat()
+    val offset = { state.offset.takeIf { !it.isNaN() } ?: sheetHeight.toFloat() }
     val stagePalette = LocalStagePalette.current
     // A Stage sheet (`.ph .sheet`) runs edge to edge at the bottom with only its top corners curved, and
     // keeps 30 dp under its last row — never less than the gesture bar.
     val stageShape = RoundedCornerShape(topStart = StageRadii.Sheet, topEnd = StageRadii.Sheet)
     val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    val shown = if (sheetHeight > 0) (1f - offset / sheetHeight).coerceIn(0f, 1f) else 0f
+    val shown = { if (sheetHeight > 0) (1f - offset() / sheetHeight).coerceIn(0f, 1f) else 0f }
 
     Box(
         Modifier
             .fillMaxSize()
             .onSizeChanged { containerHeight = it.height }
-            .background(stagePalette.scrim.let { it.copy(alpha = it.alpha * shown * (1f - backProgress.value)) })
+            .drawBehind { drawRect(stagePalette.scrim.let { it.copy(alpha = it.alpha * shown() * (1f - backProgress.value)) }) }
             // Tapping away is a dismissal, and it is the sheet that animates out rather than the
             // whole layer blinking off. The scrim also swallows the touches the page behind must not
             // receive while a modal sheet is open. It must never take focus: it is a full-screen
@@ -327,7 +330,7 @@ private fun BoxScope.SheetLayer(entry: SheetEntry) {
             // A tall sheet with the keyboard up is the one case that reaches the top of the screen,
             // and its title must not end up printed across the clock.
             .statusBarsPadding()
-            .offset { IntOffset(0, offset.roundToInt()) }
+            .offset { IntOffset(0, offset().roundToInt()) }
             .graphicsLayer {
                 val shrink = lerp(1f, BACK_SCALE, backProgress.value)
                 scaleX = shrink

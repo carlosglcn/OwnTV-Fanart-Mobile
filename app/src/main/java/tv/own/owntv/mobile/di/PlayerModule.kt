@@ -7,6 +7,7 @@ import tv.own.owntv.core.subtitles.SubtitleController
 import tv.own.owntv.mobile.cast.CastController
 import tv.own.owntv.mobile.playback.DataSaverGate
 import tv.own.owntv.mobile.playback.PipController
+import tv.own.owntv.mobile.ui.player.FolderSubtitleViewModel
 import tv.own.owntv.mobile.ui.player.SubtitleSearchViewModel
 import tv.own.owntv.mobile.ui.screens.library.VodTuner
 import tv.own.owntv.mobile.ui.screens.live.LiveTuner
@@ -76,8 +77,12 @@ val playerModule = module {
     // the settings page deletes from. Bound here rather than with the rest of the subtitle stack
     // because it takes the player, which is this module's.
     single { SubtitleController(get(), get(), get(), get()) }
+    // Skip intro & credits: reads the playing title from the subtitle context above (player, subtitles,
+    // TheIntroDB repository, settings).
+    single { tv.own.owntv.player.SkipSegmentController(get(), get(), get(), get()) }
     // Backs the player's "Add subtitles" sheet.
     viewModelOf(::SubtitleSearchViewModel)
+    viewModelOf(::FolderSubtitleViewModel)
     // The sleep timer stops whichever tuner is playing. Both are resolved when it fires rather than
     // when it is built, so a timer nobody set never creates them. It ends itself once the session
     // detaches (nothing playing), so a stop by hand no longer leaves it counting.

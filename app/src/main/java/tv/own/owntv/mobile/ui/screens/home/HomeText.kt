@@ -1,9 +1,9 @@
 package tv.own.owntv.mobile.ui.screens.home
 
+import androidx.compose.ui.platform.LocalResources
 import androidx.annotation.PluralsRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import java.text.NumberFormat
@@ -63,7 +63,7 @@ fun keepWatchingLine(item: HeroItem, nowMs: Long): String? {
 @Composable
 fun groupedCountText(@PluralsRes id: Int, count: Int): String {
     LocalConfiguration.current // a language change re-reads the text
-    return LocalContext.current.resources.getQuantityString(id, count).replace(COUNT_PLACEHOLDER, formatCount(count))
+    return LocalResources.current.getQuantityString(id, count).replace(COUNT_PLACEHOLDER, formatCount(count))
 }
 
 /** The one argument of a count plural, as core writes it. */

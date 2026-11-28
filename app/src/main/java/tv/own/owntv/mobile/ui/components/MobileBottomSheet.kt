@@ -1,5 +1,7 @@
 package tv.own.owntv.mobile.ui.components
 
+import tv.own.owntv.mobile.ui.nav.windowWidthDp
+import tv.own.owntv.mobile.ui.nav.windowHeightDp
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -11,7 +13,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import tv.own.owntv.mobile.ui.theme.MobileDimens
@@ -19,13 +20,14 @@ import tv.own.owntv.mobile.ui.theme.MobileDimens
 /** A sheet's list may take at most half the screen: the buttons under it have to stay reachable. */
 @Composable
 fun sheetListHeight(): Dp {
-    val config = LocalConfiguration.current
+    val width = windowWidthDp()
+    val height = windowHeightDp()
     // Half the screen is right in portrait, where the sheet shares the screen with what is behind it.
     // In landscape a phone is only ~400dp tall, so half of it was barely one row — a picker that
     // showed its search field and nothing else. Landscape gets most of the height, because in
     // landscape there is nothing useful to see behind the sheet anyway.
-    val fraction = if (config.screenHeightDp < config.screenWidthDp) 0.78f else 0.5f
-    return (config.screenHeightDp * fraction).dp
+    val fraction = if (height < width) 0.78f else 0.5f
+    return (height * fraction).dp
 }
 
 /**

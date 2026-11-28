@@ -1,6 +1,6 @@
 package tv.own.owntv.mobile.di
 
-import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import tv.own.owntv.mobile.ui.screens.settings.DeleteSubtitlesViewModel
@@ -21,7 +21,7 @@ import tv.own.owntv.mobile.ui.screens.settings.customize.CustomizeViewModel
 val settingsModule = module {
     viewModel {
         SettingsViewModel(
-            context = androidContext(),
+            context = androidApplication(),
             settings = get(),
             sourceDao = get(),
             sourceRepository = get(),

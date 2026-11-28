@@ -342,7 +342,7 @@ private fun ScoreBox(m: Match, summary: MatchSummary?, hidden: Boolean, onReveal
             }
             Side(away?.team, Modifier.weight(1f))
         }
-        val info = listOfNotNull(kickOffText(m.startMs).takeIf { m.state != MatchState.PRE }, m.subtitle, m.venue).joinToString(sep)
+        val info = listOfNotNull(kickOffText(m.startMs).takeIf { m.state != MatchState.PRE }, m.subtitle, tv.own.owntv.core.sports.Venues.of(m)).joinToString(sep)
         if (info.isNotEmpty()) Text(info, style = stageText(11.5f, 500), color = palette.muted, textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.fillMaxWidth().padding(top = 10.dp))
         if (!hidden && m.competitors.size == 2) {
             val goals = (summary?.timeline ?: m.events).filter { it.kind == MatchEvent.Kind.GOAL || it.kind == MatchEvent.Kind.PENALTY_GOAL || it.kind == MatchEvent.Kind.OWN_GOAL }

@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.shell
 
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -21,7 +22,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -159,7 +159,7 @@ fun SyncStatusPill(
         exit = fadeOut(),
         modifier = modifier,
     ) {
-        val res = LocalContext.current.resources
+        val res = LocalResources.current
         Column(
             Modifier
                 .padding(if (compact) 2.dp else MobileDimens.GapSmall)

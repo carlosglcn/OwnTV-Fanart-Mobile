@@ -28,6 +28,7 @@ import tv.own.owntv.mobile.ui.stage.StageSheetHeader
  */
 object GitHubStar {
     const val URL = "https://github.com/carlosglcn/OwnTV-Fanart-Mobile"
+    const val KOFI_URL = "https://ko-fi.com/galcn10"
 
     private const val FILE = "glcn_star"
     private const val KEY_DONE = "done"
@@ -97,6 +98,13 @@ fun GitHubStarSheet(onClose: () -> Unit) {
                 StageButton(onClick = { GitHubStar.later(context); onClose() }, text = stringResource(R.string.glcn_star_later), modifier = Modifier.weight(1f))
                 StageButton(onClick = { GitHubStar.done(context); onClose() }, text = stringResource(R.string.glcn_star_done), icon = MobileIcons.Check, modifier = Modifier.weight(1f))
             }
+            // glcn: Ko-fi as a second, smaller way to help — in the same sheet, never a prompt of its own.
+            StageButton(
+                onClick = { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(GitHubStar.KOFI_URL)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } },
+                text = stringResource(R.string.glcn_kofi_short),
+                icon = MobileIcons.FavoriteBorder,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 }

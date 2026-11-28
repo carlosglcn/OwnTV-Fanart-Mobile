@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.components
 
+import tv.own.owntv.mobile.ui.nav.windowHeightDp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -159,7 +159,7 @@ fun episodeDetails(episode: EpisodeEntity, meta: MetadataCacheEntity?, tmdbWins:
     return MediaDetails(
         title = if (tmdbWins) meta?.title?.takeIf { it.isNotBlank() } ?: fallback else fallback,
         subtitle = stringResource(R.string.content_season_episode, episode.seasonNumber, episode.episodeNumber),
-        backdropUrl = MetadataImages.backdrop(meta?.backdropPath ?: meta?.posterPath),
+        backdropUrl = MetadataImages.backdrop(meta?.backdropPath ?: meta?.posterPath) ?: episode.imageUrl?.takeIf { it.isNotBlank() },
         // The whole day where either side knows it, falling back to the bare year — on a long-running
         // show the year is shared by hundreds of episodes and identifies none of them.
         metaLine = listOfNotNull(
@@ -197,4 +197,4 @@ internal fun jsonList(json: String?): List<String> {
 
 /** Taller than the pickers: this one is for reading, so it takes three quarters of the screen. */
 @Composable
-private fun detailsHeight() = (LocalConfiguration.current.screenHeightDp * 3 / 4).dp
+private fun detailsHeight() = (windowHeightDp() * 3 / 4).dp

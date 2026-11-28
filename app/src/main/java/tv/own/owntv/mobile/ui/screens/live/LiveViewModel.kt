@@ -65,7 +65,7 @@ import tv.own.owntv.core.model.MediaType
 import tv.own.owntv.core.parser.XtEpgEntry
 import tv.own.owntv.core.player.ExternalPlayerLauncher
 import tv.own.owntv.core.repository.ActiveProfileSources
-import tv.own.owntv.core.repository.EpgRepository
+import tv.own.owntv.core.epg.GuideMatches
 import tv.own.owntv.core.repository.activeProfileSources
 import tv.own.owntv.core.settings.SettingsRepository
 import tv.own.owntv.core.settings.SourceOverrides
@@ -115,7 +115,7 @@ class LiveViewModel(
     private val sourceDao: SourceDao,
     private val settings: SettingsRepository,
     private val customize: CustomizationStore,
-    private val epgRepository: EpgRepository,
+    private val guideMatches: GuideMatches,
     private val externalPlayerLauncher: ExternalPlayerLauncher,
     private val streamUrlResolver: StreamUrlResolver,
     private val syncScheduler: CatalogSyncScheduler,
@@ -694,11 +694,14 @@ class LiveViewModel(
     fun setEpgMatch(channel: ChannelEntity, epgChannelId: String?) {
         viewModelScope.launch {
             val pid = ctx.value.profileId.takeIf { it >= 0 } ?: return@launch
-            customize.setEpgMatch(pid, MediaType.LIVE, CustomizeKeys.channel(channel), epgChannelId)
-            // The matched id may have no stored programmes yet — top it up from the cached XMLTV, then
-            // drop the channel's stale now/next so the row updates immediately, not after a restart.
-            val id = epgChannelId?.trim()?.lowercase()?.takeIf { it.isNotEmpty() }
-            if (id != null) runCatching { epgRepository.storeProgrammesForIdsFromCache(setOf(id)) }
+            // The matched id may have no stored programmes yet — core tops it up from the cached XMLTV, or
+            // queues a guide re-sync when that cannot. Then drop the channel's stale now/next so the row
+            // updates immediately, not after a restart.
+            if (!epgChannelId.isNullOrBlank()) {
+                runCatching { guideMatches.match(pid, mapOf(CustomizeKeys.channel(channel) to epgChannelId)) }
+            } else {
+                customize.setEpgMatch(pid, MediaType.LIVE, CustomizeKeys.channel(channel), null)
+            }
             epgReader.invalidate(channel.id)
             _nowPlaying.value = _nowPlaying.value - channel.id
         }

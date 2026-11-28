@@ -1,6 +1,5 @@
 package tv.own.owntv.mobile.ui.setup
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +34,7 @@ class SetupViewModel(
     private val profileDao: ProfileDao,
     private val settings: SettingsRepository,
     private val appScope: CoroutineScope,
-    private val context: Context,
+    private val context: android.app.Application,
     private val companion: tv.own.owntv.core.companion.CompanionController,
     private val profiles: tv.own.owntv.core.profile.ProfileManager,
 ) : ViewModel() {
@@ -65,17 +64,22 @@ class SetupViewModel(
         movies: SyncScopeChoice,
         series: SyncScopeChoice,
         preferHls: Boolean,
+        catchupPreferHls: Boolean,
     ) = runImport {
         importer.xtream(
             name = name, server = server, username = username, password = password,
             userAgent = userAgent, httpReferer = httpReferer, autoRefresh = autoRefresh,
             live = live, movies = movies, series = series, preferHls = preferHls,
+            catchupPreferHls = catchupPreferHls,
         )
     }
 
-    fun startM3u(name: String, url: String, userAgent: String, httpReferer: String, autoRefresh: PlaylistRefresh) =
+    fun startM3u(name: String, url: String, userAgent: String, httpReferer: String, autoRefresh: PlaylistRefresh, catchupPreferHls: Boolean) =
         runImport {
-            importer.m3u(name = name, url = url, userAgent = userAgent, httpReferer = httpReferer, autoRefresh = autoRefresh)
+            importer.m3u(
+                name = name, url = url, userAgent = userAgent, httpReferer = httpReferer, autoRefresh = autoRefresh,
+                catchupPreferHls = catchupPreferHls,
+            )
         }
 
     fun startStalker(

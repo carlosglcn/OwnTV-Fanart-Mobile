@@ -3,7 +3,6 @@ package tv.own.owntv.mobile.ui.screens.downloads
 import tv.own.owntv.core.storage.missingFiles
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -57,7 +56,7 @@ import tv.own.owntv.mobile.ui.screens.library.VodTuner
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class DownloadsViewModel(
-    private val context: Context,
+    private val context: android.app.Application,
     private val downloadDao: DownloadDao,
     private val movieDao: MovieDao,
     private val seriesDao: SeriesDao,

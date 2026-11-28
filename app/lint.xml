@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Lint findings that are deliberate, each scoped to the file it was checked against, so a new
+     occurrence anywhere else still warns. Dependency-version warnings are not here on purpose: they
+     are reminders to update, not mistakes. -->
+<lint>
+    <!-- Raising targetSdk changes platform behaviour (background work, permissions, edge-to-edge,
+         intents), so it is a tested change of its own rather than a lint fix. -->
+    <issue id="OldTargetApi">
+        <ignore path="build.gradle.kts" />
+    </issue>
+
+    <!-- The ABI is split by product flavour: `standard` carries the ARM engine for phones and tablets,
+         and x86_64 has its own APK (the `x86_64` flavour), because the player's prebuilt native
+         libraries are large and a universal APK would roughly double the download. -->
+    <issue id="ChromeOsAbiSupport">
+        <ignore path="build.gradle.kts" />
+    </issue>
+
+    <!-- Both surfaces are created only from code, with their engine passed in, and never inflated
+         from XML, so the tooling constructors lint asks for would have no caller. -->
+    <issue id="ViewConstructor">
+        <ignore path="src/main/java/tv/own/owntv/mobile/ui/player/VideoStage.kt" />
+    </issue>
+
+    <!-- The app is distributed as APKs (assembleRelease / assembleDebug), never as an app bundle, so
+         there are no language splits and every locale is already inside the APK. -->
+    <issue id="AppBundleLocaleChanges">
+        <ignore path="src/main/java/tv/own/owntv/mobile/MainActivity.kt" />
+    </issue>
+</lint>

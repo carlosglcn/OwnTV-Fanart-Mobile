@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.screens.settings
 
+import tv.own.owntv.mobile.ui.nav.windowHeightDp
 import android.text.format.Formatter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,7 +21,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -118,7 +118,7 @@ fun UpdateSheet(onDismiss: () -> Unit, checkOnOpen: Boolean = false) {
                             // way to act on it.
                             modifier = Modifier
                                 .heightIn(
-                                    max = (LocalConfiguration.current.screenHeightDp.dp - 300.dp)
+                                    max = (windowHeightDp().dp - 300.dp)
                                         .coerceIn(96.dp, 280.dp),
                                 )
                                 .verticalScroll(rememberScrollState()),

@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
@@ -110,8 +111,9 @@ private val SheetOrder = listOf(
 private fun LauncherIcon(icon: AppIcon, modifier: Modifier) {
     val context = LocalContext.current
     val px = with(androidx.compose.ui.platform.LocalDensity.current) { 64.dp.roundToPx() }
+    val resources = LocalResources.current
     val bitmap = remember(icon, px) {
-        androidx.core.content.res.ResourcesCompat.getDrawable(context.resources, icon.launcherRes(), context.theme)
+        androidx.core.content.res.ResourcesCompat.getDrawable(resources, icon.launcherRes(), context.theme)
             ?.toBitmap(px, px)?.asImageBitmap()
     }
     if (bitmap != null) androidx.compose.foundation.Image(bitmap, contentDescription = null, modifier = modifier)

@@ -137,7 +137,8 @@ fun MoreScreen(
                 MoreItem(R.string.content_category_history, MobileIcons.History, history.total.toString()) { onOpenLeaf(MoreLeaf.HISTORY) }
                 StageGroupLabel(stringResource(R.string.more_group_keep_safe))
                 // Never backed up is the one row that warns (`.tag.warn`); a backup says how long ago.
-                val backupValue = lastBackup?.let { relativeShort(it.at) }
+                val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
+                val backupValue = lastBackup?.let { relativeShort(it.at, locale) }
                 StageMenuItem(
                     label = stringResource(R.string.settings_backup_restore),
                     onClick = { onOpenLeaf(MoreLeaf.BACKUP) },
@@ -199,9 +200,30 @@ private fun ProfileCard(name: String, line: String, avatar: @Composable () -> Un
     }
 }
 
-/** "2 days ago": Android's own relative time, so it is localised without a string of ours. */
-private fun relativeShort(at: Long): String =
-    DateUtils.getRelativeTimeSpanString(at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString()
+/**
+ * "2 days ago", from ICU in the app's own language. Android's `DateUtils` reads the system's resources, which
+ * have no strings for a language the device itself does not offer, and fell back to English. ICU has no
+ * relative words for every language either (Central Kurdish): there it answers in its English root, so the
+ * date itself is shown instead, which ICU does have.
+ */
+private fun relativeShort(at: Long, locale: java.util.Locale): String {
+    fun relative(l: android.icu.util.ULocale): String {
+        val f = android.icu.text.RelativeDateTimeFormatter.getInstance(l)
+        val ago = (System.currentTimeMillis() - at).coerceAtLeast(0L)
+        val last = android.icu.text.RelativeDateTimeFormatter.Direction.LAST
+        val unit = android.icu.text.RelativeDateTimeFormatter.RelativeUnit.MINUTES
+        return when {
+            ago < DateUtils.HOUR_IN_MILLIS -> f.format((ago / DateUtils.MINUTE_IN_MILLIS).toDouble(), last, unit)
+            ago < DateUtils.DAY_IN_MILLIS -> f.format((ago / DateUtils.HOUR_IN_MILLIS).toDouble(), last, android.icu.text.RelativeDateTimeFormatter.RelativeUnit.HOURS)
+            ago < 2 * DateUtils.DAY_IN_MILLIS -> f.format(last, android.icu.text.RelativeDateTimeFormatter.AbsoluteUnit.DAY)
+            else -> f.format((ago / DateUtils.DAY_IN_MILLIS).toDouble(), last, android.icu.text.RelativeDateTimeFormatter.RelativeUnit.DAYS)
+        }
+    }
+    val own = relative(android.icu.util.ULocale.forLocale(locale))
+    if (locale.language == "en" || own != relative(android.icu.util.ULocale.ROOT)) return own
+    val pattern = android.text.format.DateFormat.getBestDateTimePattern(locale, "dMMM")
+    return java.text.SimpleDateFormat(pattern, locale).format(java.util.Date(at))
+}
 
 /**
  * The television's "Rebuild Now Trending", on the phone.

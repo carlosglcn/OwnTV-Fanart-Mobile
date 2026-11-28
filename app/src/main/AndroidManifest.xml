@@ -60,7 +60,7 @@ android:largeHeap="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.OwnTVMobile"
         android:usesCleartextTraffic="true"
-        tools:targetApi="26">
+        tools:targetApi="33">
 
         <!-- Disable WorkManager default auto-init; OwnTVMobileApp provides the Configuration, which
              is what installs core's Koin-aware WorkerFactory. -->

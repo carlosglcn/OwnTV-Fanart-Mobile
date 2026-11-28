@@ -115,6 +115,8 @@ class VodTuner(
     private val watchSession: tv.own.owntv.core.live.WatchSession,
     /** Category locks: nothing in a category the PIN has not opened plays. */
     private val customize: CustomizationStore,
+    /** Leaving during the end credits saves the film or episode as finished. */
+    private val skip: tv.own.owntv.player.SkipSegmentController,
 ) : CastHandoff {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -219,11 +221,11 @@ class VodTuner(
         // A protected item cannot go to an external player: no intent extra carries a licence
         // URL, so the other app would open it and fail on the first segment.
         if (settings.externalPlayerMovies.first() && movie.drmConfig == null) {
-            return handOver(movie.name, source, movie.streamUrl, movie.httpHeaders, pid, MediaType.MOVIE, movie.id, startPositionMs)
+            return handOver(movie.name, source, movie.streamUrl, movie.httpHeaders, pid, MediaType.MOVIE, movie.id, startPositionMs, movieId = movie.remoteId)
         }
 
         if (!dataSaver.allowsStreaming()) return false
-        val url = resolve(source, movie.streamUrl) ?: return false
+        val url = resolve(source, movie.streamUrl, movieId = movie.remoteId) ?: return false
         val movieKey = enginePinKey(movie.sourceId, "MOVIE", movie.remoteId)
         saveProgress()
         liveTuner.stop()
@@ -251,7 +253,7 @@ class VodTuner(
                 drmConfig = movie.drmConfig,
                 manifestType = movie.manifestType,
                 contentKey = movieKey,
-                reconnectProvider = reconnectFor(source, movie.streamUrl),
+                reconnectProvider = reconnectFor(source, movie.streamUrl, movieId = movie.remoteId),
                 vodEngineOverride = SourceOverrides.vodEngineOf(source),
             )
         }
@@ -282,7 +284,7 @@ class VodTuner(
         val subtitle = episodeLabel(episode)
 
         if (settings.externalPlayerSeries.first() && episode.drmConfig == null) {
-            return handOver(title, source, episode.streamUrl, episode.httpHeaders, pid, MediaType.EPISODE, episode.id, startPositionMs)
+            return handOver(title, source, episode.streamUrl, episode.httpHeaders, pid, MediaType.EPISODE, episode.id, startPositionMs, episode = episode.episodeNumber)
         }
 
         if (!dataSaver.allowsStreaming()) return false
@@ -299,7 +301,7 @@ class VodTuner(
         // The receiver takes one item, not the season. Auto-advance to the next episode is one of the
         // things casting costs, along with the fallback ladder and the subtitle rendering — there is
         // no queue on a default receiver to hand the rest of the series to.
-        val castUrl = resolve(source, episode.streamUrl)
+        val castUrl = resolve(source, episode.streamUrl, episode = episode.episodeNumber, report = false)
         val handedOver = castUrl != null && cast.offer(
             this,
             CastRequest(
@@ -488,7 +490,7 @@ class VodTuner(
         val pid = currentProfileId() ?: return false
         if (!allows(pid, movie.categoryId)) return false
         val source = withContext(Dispatchers.IO) { sourceDao.getById(movie.sourceId) }
-        return handOver(movie.name, source, movie.streamUrl, movie.httpHeaders, pid, MediaType.MOVIE, movie.id, savedPositionMs(pid, MediaType.MOVIE, movie.id))
+        return handOver(movie.name, source, movie.streamUrl, movie.httpHeaders, pid, MediaType.MOVIE, movie.id, savedPositionMs(pid, MediaType.MOVIE, movie.id), movieId = movie.remoteId)
     }
 
     /** [playExternal] for an episode of [show]. */
@@ -496,7 +498,7 @@ class VodTuner(
         val pid = currentProfileId() ?: return false
         if (!allows(pid, show.categoryId)) return false
         val source = withContext(Dispatchers.IO) { sourceDao.getById(show.sourceId) }
-        return handOver(show.name, source, episode.streamUrl, episode.httpHeaders, pid, MediaType.EPISODE, episode.id, savedPositionMs(pid, MediaType.EPISODE, episode.id))
+        return handOver(show.name, source, episode.streamUrl, episode.httpHeaders, pid, MediaType.EPISODE, episode.id, savedPositionMs(pid, MediaType.EPISODE, episode.id), episode = episode.episodeNumber)
     }
 
     private suspend fun savedPositionMs(profileId: Long, mediaType: MediaType, itemId: Long): Long =
@@ -542,9 +544,13 @@ class VodTuner(
         // Whichever engine actually has the film. Casting for an hour and coming back to a resume
         // position of zero would be the same bug as never writing one at all.
         val remote = cast.engine.value
-        val position = remote?.position?.value ?: player.position.value
         val duration = remote?.duration?.value ?: player.duration.value
-        if (position <= 0 || duration <= 0) return
+        // The end credits count as finished — on this phone's player only: a cast receiver's position
+        // is not the one the skip times were matched to.
+        val raw = remote?.position?.value ?: skip.savedPosition(player.position.value, duration)
+        if (raw <= 0 || duration <= 0) return
+        // glcn: where no credits are known, an episode left in its last 7 % (never under 1:30) is saved as watched, as on the TV.
+        val position = if (current.mediaType == MediaType.EPISODE && duration - raw <= maxOf(CREDITS_MIN_MS, (duration * CREDITS_SHARE).toLong())) duration else raw
         if (currentProfileId() != playingProfileId) return
         runCatching {
             withContext(Dispatchers.IO) {
@@ -624,8 +630,10 @@ class VodTuner(
         mediaType: MediaType,
         itemId: Long,
         startPositionMs: Long,
+        movieId: String? = null,
+        episode: Int? = null,
     ): Boolean {
-        val url = resolve(source, streamUrl) ?: return false
+        val url = resolve(source, streamUrl, movieId = movieId, episode = episode) ?: return false
         externalPlayerLauncher.launch(
             url = url,
             title = title,
@@ -641,20 +649,39 @@ class VodTuner(
         return false
     }
 
-    /** Stalker mints a play URL per open; the stored "URL" is a portal command until then. */
-    private suspend fun resolve(source: SourceEntity?, streamUrl: String): String? =
-        if (streamUrlResolver.needsResolve(source)) {
-            runCatching { streamUrlResolver.resolve(source!!, streamUrl, vod = true) }.getOrNull()
-        } else {
-            streamUrl
+    /**
+     * Stalker mints a play URL per open; the stored "URL" is a portal command until then. [movieId]
+     * is a film's portal id (its file is linked, as a MAG box does), [episode] an episode's number.
+     * A link the portal would not give is said on screen rather than failing in silence.
+     */
+    private suspend fun resolve(
+        source: SourceEntity?,
+        streamUrl: String,
+        movieId: String? = null,
+        episode: Int? = null,
+        /** False where a failure is reported elsewhere (the player's own error), so it is not said twice. */
+        report: Boolean = true,
+    ): String? {
+        if (!streamUrlResolver.needsResolve(source)) return streamUrl
+        return try {
+            streamUrlResolver.resolve(source!!, streamUrl, vod = true, episode = episode, movieId = movieId)
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            android.util.Log.w("VodTuner", "stalker resolve failed", e)
+            if (report) withContext(Dispatchers.Main) {
+                android.widget.Toast.makeText(context, R.string.player_external_could_not_open, android.widget.Toast.LENGTH_SHORT).show()
+            }
+            null
         }
+    }
 
     /** A Stalker link dies before a long film ends; give the player a way to mint a fresh one. Null
      *  for M3U and Xtream, which also clears whatever the previous item left on the player. */
-    private fun reconnectFor(source: SourceEntity?, streamUrl: String): ReconnectUrlProvider? =
+    private fun reconnectFor(source: SourceEntity?, streamUrl: String, movieId: String? = null): ReconnectUrlProvider? =
         if (streamUrlResolver.needsResolve(source)) {
             ReconnectUrlProvider {
-                runCatching { streamUrlResolver.resolve(source!!, streamUrl, vod = true) }.getOrNull()
+                runCatching { streamUrlResolver.resolve(source!!, streamUrl, vod = true, movieId = movieId) }.getOrNull()
             }
         } else {
             null
@@ -685,3 +712,7 @@ class VodTuner(
 
 /** glcn: how far in a film or an episode counts as watched, for Trakt. */
 private const val TRAKT_WATCHED = 0.9
+
+/** glcn: an episode's end credits — at least this long, or this share of it. */
+private const val CREDITS_MIN_MS = 90_000L
+private const val CREDITS_SHARE = 0.07

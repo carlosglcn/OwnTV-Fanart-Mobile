@@ -20,7 +20,7 @@ A fresh install walks you through the same steps as the television:
 Welcome  →  Display  →  Disclaimer  →  Set up OwnTV  →  Profile  →  Add a playlist  →  Import  →  All set
 ```
 
-1. **Welcome** — the language picker is on this screen: one of 26, or **System default**. Tap
+1. **Welcome** — the language picker is on this screen: one of 28, or **System default**. Tap
    **Get started**.
 2. **Display** — interface zoom and font size, with a sample that resizes as you adjust, the
    **App icon**, and whether Live TV shows a preview.
@@ -103,6 +103,9 @@ it to unlock. Back only shows it too. The volume keys and the next-episode card 
   you switch tab. **⟳** at the end rebuilds the sports data (the status pill says **Rebuilding
   sports…**). Opening Sports from the bottom bar starts on Scores.
 - **Scores** — **Live now**, **Sport on your channels** (from your guide) and **Starting soon**.
+  Tables show each sport's own columns (OTL for hockey, PCT and GB for basketball and baseball), and
+  outside football the tabs read **Standings** and **Games**. College teams are found in **My teams**,
+  labelled with their league.
   Tap a match to open it; **long-press** for the sheet: tap a team's name for its team page, **Follow**
   on the right, and **Remind me**.
 - **Calendar** — the month on top, the chosen day's matches below, grouped by league. Each day shows
@@ -157,6 +160,10 @@ A name another playlist already has gets a number, so two unnamed playlists are 
 **My IPTV 2**.
 Under **User-Agent** there is an optional **Referer** — leave it empty unless your provider asks
 for one; it is then sent with every stream of that playlist.
+An Xtream playlist has **Prefer HLS for Live TV** and **Prefer HLS for catch-up**; an M3U playlist has
+**Prefer HLS for catch-up** too. The catch-up one is off by default: many providers serve catch-up only as
+MPEG-TS, and a programme that will not open as HLS is asked for as MPEG-TS by itself. On an M3U playlist it
+changes only Flussonic catch-up channels: a finished programme then shows its full length and can be sought.
 
 ### 📱 Setting up the television too?
 **Where:** on the **TV** — Settings → Sources & guide → Playlists → Add Source → **Remote**
@@ -329,7 +336,7 @@ the player
 **Record every showing** sets a standing rule; every rule is listed at the top of **Downloads → Live TV**
 under **Every showing**, and a tap offers **Stop recording every showing** (what was recorded stays). **Schedule recording…** in a channel's menu records it
 between a day and times you pick, guide or not; an overlap with another recording is shown first. While
-a channel records, its menu offers **Stop recording**. Recordings land in **Downloads → Live TV**, and the
+a channel records, its menu offers **Stop recording**. Recordings land in **Downloads → Recordings**, and the
 status pill shows one running even over the player.
 
 > A recording costs one of your provider's connections and says so before it starts.
@@ -369,7 +376,8 @@ bar, in the grid and the list alike; a show carries the bar of its latest part-w
 
 ### ▶️ A film or a show
 Tap for its page: backdrop, cast, chips, **Resume** or **Play**, favourite, download, season chips
-(**Specials** last, when the show has them) and episode progress. A show **opens on the episode you last watched**; one you have not started
+(**Specials** last, when the show has them) and episode progress. Each episode shows TMDB's picture, else the
+provider's own picture of it, else the show's backdrop. A show **opens on the episode you last watched**; one you have not started
 plays from Season 1 Episode 1, with **Specials** after the last season.
 
 Starting something part-watched anywhere else — a **Continue watching** row, the hero card, an
@@ -379,18 +387,86 @@ ten seconds never asks.
 
 ### 🔧 The long-press menu
 Favourite · Download · Hide · Rename · Move · Move to category · Mark watched/unwatched ·
-TMDB details · Trailer · Play in another app.
+TMDB details · Trailer · Check TheIntroDB · Play in another app.
 
 ---
 
 ## 🎬 TMDB metadata
 
-**Where:** Settings → Content & metadata → **Metadata (TMDB)**
+**Where:** Settings → Content & metadata → Metadata → **TMDB**
 Posters, plots, cast and trailers. **Metadata source** picks provider-only, provider + TMDB, or TMDB
 only; **Language** sets the language of plots and artwork, separately from the app's own language.
 
 **Your own key** removes the shared allowance — the page shows what is left of it and has a **Test
 connection** so you can prove a key or a self-hosted server works.
+
+---
+
+## ⏭️ Skip intro & credits — TheIntroDB
+
+Films and episodes can skip their **intro**, **recap**, **end credits** and **preview** of the next
+episode. The times come from [TheIntroDB](https://theintrodb.org/), a free database filled in by
+viewers. It works with no account and no key.
+
+**It needs TMDB details:** TheIntroDB finds a title by its TMDB match, so Metadata source must not be
+*Provider only*, and the title must be matched (long-press → **Set TMDB name** fixes a wrong one).
+Live TV and catch-up are never skipped.
+
+### ⚙️ Choose what happens
+**Where:** Settings → Content & metadata → Metadata → **TheIntroDB**
+- **Intro · Recap · End credits · Preview** — each one on its own:
+  - **Off** — nothing happens.
+  - **Show a button** (default) — a **Skip intro** (Skip recap, Skip credits, Skip preview) button
+    appears above the control bar; tap it to jump to the end of that part.
+  - **Skip automatically** — the part is jumped over by itself, and a short "Intro skipped" note shows.
+- **Skip button** — how long the button stays:
+  - **First 10 seconds** (default) — at the start of the part, and again whenever you tap to bring up
+    the controls while it is playing.
+  - **Whole part** — for as long as the part plays.
+
+### 🎬 End credits and the next episode
+- **An episode with a next one, Auto-play next episode on:**
+  - *Show a button* — when the credits start, the next-episode card counts down from 10 seconds, with
+    **Play now** and **Watch credits**.
+  - *Skip automatically* — a 3-second notice, then the next episode starts. Tap the notice to stay and
+    watch the credits.
+- **Auto-play off** — the button reads **Next episode**.
+- **A film, the last episode, or the sleep timer set to end of episode** — **Skip credits** finishes
+  the title as if it had played to the end; it is never done automatically.
+- **No credit times for the title** — everything works as before: the card in the last 30 seconds.
+- A title counts as **watched** once its end credits start.
+
+### 🔑 Your own key — optional
+Without a key, lookups use TheIntroDB's free daily allowance for your network. A key of your own
+gives you more lookups, counted for your account.
+1. Open **theintrodb.org** and **sign in** — this creates your account.
+2. Open **Docs** on the site. Your key is shown there as **Your API Key**; copy it. It starts with
+   `theintrodb:`.
+3. In OwnTV: Settings → Content & metadata → Metadata → TheIntroDB → **TheIntroDB account**. Paste the
+   key into **TheIntroDB API key** and tap **Check key**.
+4. The line underneath shows **Connected · submissions: N** (the times your account has added) and
+   today's allowance: **Day · X / Y left · Refills HH:MM**. **Key not accepted** means it was copied
+   wrongly.
+5. **Stop using your own key?** removes it; lookups carry on without a key.
+
+**Sending the key to the TV:** on the TV choose TheIntroDB account → **Get key from another device**,
+scan its QR code with the phone, enter the PIN, and paste the key there.
+
+A backup with a password carries the key, encrypted, like the TMDB and OpenSubtitles keys; a backup
+without a password leaves it out.
+
+### 🔍 Check TheIntroDB
+**Where:** long-press a film, a series or an episode → **Check TheIntroDB**
+Asks TheIntroDB right away and shows the title, its **TMDB ID** (and season and episode), and which
+parts it has times for — for example *TheIntroDB has skip times for: Intro · End credits*. On a series
+it checks Season 1 Episode 1; on an episode, that episode. The answer can also be that TheIntroDB knows
+the title but has no times yet, that it doesn't list the title at all, or that the title isn't matched
+with TMDB. Like every action, you can move or hide it in Settings → Layout → **Long-press menus**.
+
+### 🤝 Add the missing times yourself
+TheIntroDB doesn't have every film and series — its times come from viewers. If a title has no skip
+button, sign in at **theintrodb.org** and submit its times; once they are accepted, everyone watching it
+gets the button, in OwnTV too.
 
 ---
 
@@ -400,7 +476,7 @@ connection** so you can prove a key or a self-hosted server works.
 **Where:** the magnifying glass at the top right
 One field over channels, films and shows, grouped with a count for each. Once you type, filter
 chips — **Live TV / TV Shows / Movies / Series** — narrow the results; tap to turn one on or off,
-several at once, none for everything. Recent searches are kept,
+several at once, none for everything. Letter case never matters, in any alphabet. Recent searches are kept per profile,
 and three chips offer **Continue watching**, **Unwatched favourites** and **Channels**.
 **TV Shows** lists programmes from the stored guide whose title matches, on now or within the next 12
 hours, with the channel and time; tap one to open that channel.
@@ -417,7 +493,7 @@ Long-press a history row to remove it; **Clear** wipes it by type.
 ## 📥 Downloads & recordings
 
 **Where:** More → **Downloads**
-Three tabs — **Live TV** (your recordings), **Movies**, **Series** — with a free-space bar, a
+Three tabs — **Recordings** (opens first), **Movies**, **Series** — with a free-space bar, a
 measured transfer rate, and pause · resume · retry · delete per item. Downloads keep running when you
 leave the app. A download adds connections, up to eight, while each makes it faster, never more than
 your playlist allows. A failed one says why (account busy, connection lost, not enough space, …), and
@@ -449,10 +525,10 @@ Every gesture above also has a button on the control bar:
 | **Go live** | Back to the live edge |
 | **Volume · Brightness** | Sliders, with a mute row |
 | **Speed** | 0.5× to 2× |
-| **Subtitles · Audio** | Tracks (the language you pick is remembered per channel, film or series), plus subtitle search, subtitle timing and A/V sync. Both are always on the bar — a film with one soundtrack still has A/V sync. Scroll the panel to reach what is below the tracks |
+| **Subtitles · Audio** | Tracks (the language you pick is remembered per channel, film or series), plus subtitle search, a local file, **Find in folder** (a folder chosen once, best match first, optional automatic loading of the one matching file), subtitle timing and A/V sync. Both are always on the bar — a film with one soundtrack still has A/V sync. Scroll the panel to reach what is below the tracks |
 | **Previous · Next** | The episode either side of this one, beside play. Series only |
 | **⏮ · ⏭** | Live: the previous or next channel in the list you are watching, wrapping round at both ends. Shown when the list has two or more channels |
-| **Aspect** | Fit · Fill · Stretch · Original · Force 16:9 · Force 4:3 |
+| **Aspect** | Fit · Fill · Stretch · Original · Force 16:9 · Force 4:3 · Force 20:9 |
 | **Quality** | Only when the stream offers several picture sizes. Auto, or one size for what is playing now |
 | **Favourite** | Adds what is playing |
 | **Catch-up** | *Go back to…* on archive channels |
@@ -582,7 +658,7 @@ with its opacity. Real frost needs Android 12+.
 
 ### 🔤 Fonts & size
 **Where:** Settings → Appearance → **Fonts & text size**, **Popup size** and **UI zoom**
-Six font families for the interface and for popups, and interface zoom.
+Six font families for the interface and for popups, and interface zoom. Text size and zoom are kept per profile.
 
 ### 🗂️ Customize
 **Where:** Settings → Content & metadata → **Customize categories & items**

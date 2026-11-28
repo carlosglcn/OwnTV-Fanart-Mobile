@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.screens.library
 
+import androidx.compose.ui.platform.LocalResources
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -79,6 +80,8 @@ import tv.own.owntv.mobile.R
 import tv.own.owntv.mobile.ui.components.ContentMenuSheet
 import tv.own.owntv.mobile.ui.components.MobileBottomSheet
 import tv.own.owntv.mobile.ui.components.MobileIcons
+import tv.own.owntv.mobile.ui.components.TheIntroDbCheckRequests
+import tv.own.owntv.core.menu.CHECK_THEINTRODB_ACTION
 import tv.own.owntv.mobile.ui.components.SheetAction
 import tv.own.owntv.mobile.ui.components.TmdbDetailsSheet
 import tv.own.owntv.mobile.ui.components.downloadActionFor
@@ -207,7 +210,7 @@ internal fun SeriesPage(
     val targetProgress = target?.let { episodeProgress[it.id] }
         ?.takeIf { it.positionMs > 0 && it.durationMs > 0 && target.id !in completedIds }
 
-    val resources = LocalContext.current.resources
+    val resources = LocalResources.current
     // The provider's show name often carries its own prefix ("4K-NF - Minerva Academy (2026) (IT)") while the
     // episodes repeat only the plain name ("Minerva Academy - S01E01 - …"), so the plain one is stripped too.
     val plainShow = remember(series.name) { TitleNormalizer.normalize(series.name).query }
@@ -332,7 +335,7 @@ internal fun SeriesPage(
                             ep = ep,
                             title = titleOf(ep, epMeta),
                             line = episodeLine(rememberAirDateLabel(ep, epMeta), durationSecs(ep), secondsLeft(ep), watched = false),
-                            still = episodeStillUrl(epMeta, series),
+                            still = episodeStillUrl(ep, epMeta, series),
                             watched = ep.id in completedIds,
                             progress = progressOf(ep),
                             current = ep.id == target?.id,
@@ -354,7 +357,7 @@ internal fun SeriesPage(
                     title = titleOf(ep, epMeta),
                     line = episodeLine(rememberAirDateLabel(ep, epMeta), durationSecs(ep), secondsLeft(ep), watched),
                     plot = (if (page.tmdbWins) epMeta?.overview ?: ep.plot else ep.plot ?: epMeta?.overview)?.takeIf { it.isNotBlank() },
-                    still = episodeStillUrl(epMeta, series),
+                    still = episodeStillUrl(ep, epMeta, series),
                     watched = watched,
                     progress = progressOf(ep),
                     current = ep.id == target?.id,
@@ -403,7 +406,7 @@ internal fun SeriesPage(
             title = stringResource(R.string.content_episode_numbered, episodeNumber(ep.episodeNumber), titleOf(ep, epMeta)),
             subtitle = HeadlineTitle.of(series.name) + stringResource(R.string.content_epg_bits_separator) +
                 if (ep.seasonNumber == 0) stringResource(R.string.content_season_specials) else stringResource(R.string.content_season, ep.seasonNumber),
-            still = episodeStillUrl(epMeta, series),
+            still = episodeStillUrl(ep, epMeta, series),
             watched = ep.id in completedIds,
             downloadRows = listOfNotNull(episodeDownloads[ep.id]),
             vm = vm,
@@ -704,6 +707,7 @@ private fun EpisodeOptions(
     onDismiss: () -> Unit,
 ) {
     val mode by vm.metadataMode.collectAsStateWithLifecycle()
+    val show by vm.show.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -777,6 +781,16 @@ private fun EpisodeOptions(
             }
             add(
                 SheetAction(
+                    key = CHECK_THEINTRODB_ACTION,
+                    label = stringResource(R.string.content_check_theintrodb),
+                    icon = MobileIcons.SkipNext,
+                    group = GROUP_DETAILS,
+                    enabled = show != null,
+                    onClick = { show?.let { TheIntroDbCheckRequests.series(it, episode) } },
+                ),
+            )
+            add(
+                SheetAction(
                     key = "delete_subtitles",
                     label = stringResource(R.string.content_delete_subtitles),
                     icon = MobileIcons.Subtitles,
@@ -823,11 +837,13 @@ private fun EpisodeOptions(
 }
 
 /**
- * An episode's picture: TMDB's still, else the show's backdrop (16:9 like the still), else its poster — the
- * TV's chain. The provider stores no episode image, so the show's art only stands in for a missing still.
+ * An episode's picture: TMDB's still, else the provider's own picture of the episode, else the show's
+ * backdrop (16:9 like the still), else its poster — the TV's chain. The show's art only stands in for a
+ * missing still.
  */
-private fun episodeStillUrl(meta: MetadataCacheEntity?, series: SeriesEntity): String? =
+private fun episodeStillUrl(ep: EpisodeEntity, meta: MetadataCacheEntity?, series: SeriesEntity): String? =
     MetadataImages.backdrop(meta?.backdropPath, size = "w300")
+        ?: ep.imageUrl?.takeIf { it.isNotBlank() }
         ?: series.backdropUrl?.takeIf { it.isNotBlank() } ?: series.posterUrl?.takeIf { it.isNotBlank() }
 
 /** An episode number as a plain figure in the user's digits, never grouped ("1000", not "1,000"). */

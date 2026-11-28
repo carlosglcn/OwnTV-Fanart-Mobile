@@ -1,9 +1,11 @@
 package tv.own.owntv.mobile.ui.screens.library
 
+import androidx.core.net.toUri
 import tv.own.owntv.mobile.ui.components.MobileIcons
+import tv.own.owntv.mobile.ui.components.TheIntroDbCheckRequests
+import tv.own.owntv.core.menu.CHECK_THEINTRODB_ACTION
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.heightIn
@@ -272,6 +274,20 @@ fun VodMenu(
                     ),
                 )
             }
+            add(
+                SheetAction(
+                    key = CHECK_THEINTRODB_ACTION,
+                    label = stringResource(R.string.content_check_theintrodb),
+                    icon = MobileIcons.SkipNext,
+                    group = GROUP_DETAILS,
+                    onClick = {
+                        scope.launch {
+                            if (movie) vm.movieById(item.id)?.let { TheIntroDbCheckRequests.movie(it) }
+                            else vm.seriesById(item.id)?.let { TheIntroDbCheckRequests.series(it) }
+                        }
+                    },
+                ),
+            )
             // Films only, as on the TV.
             if (movie) {
                 add(
@@ -477,6 +493,6 @@ fun DeleteSubtitlesSheet(
  * one, and it will be better than anything embedded here.
  */
 internal fun Context.playTrailer(key: String) {
-    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=$key"))
+    val intent = Intent(Intent.ACTION_VIEW, "https://www.youtube.com/watch?v=$key".toUri())
     runCatching { startActivity(intent) }
 }

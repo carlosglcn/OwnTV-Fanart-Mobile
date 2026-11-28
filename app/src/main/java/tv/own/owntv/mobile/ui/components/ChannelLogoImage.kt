@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import android.graphics.Bitmap
+import androidx.core.graphics.get
 import androidx.compose.foundation.background
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
@@ -143,7 +144,7 @@ private fun Bitmap.measureInk(): Int {
     while (y < height) {
         var x = 0
         while (x < width) {
-            val pixel = getPixel(x, y)
+            val pixel = this[x, y]
             val alpha = (pixel ushr 24) and 0xFF
             samples++
             if (alpha > 240) opaque++

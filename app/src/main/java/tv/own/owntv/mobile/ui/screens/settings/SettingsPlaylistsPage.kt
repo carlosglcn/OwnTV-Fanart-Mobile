@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.screens.settings
 
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.text.style.TextOverflow
 import tv.own.owntv.mobile.ui.components.MobileIcons
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -121,7 +121,7 @@ fun SettingsPlaylistsPage(
         MobileBottomSheet(onDismissRequest = close) {
             StageSheetHeader(
                 source.displayName(),
-                subtitle = typeLine(source, counts?.breakdownText(LocalContext.current.resources)),
+                subtitle = typeLine(source, counts?.breakdownText(LocalResources.current)),
                 leading = { StagePlaylistMark(PlaylistMark.of(source.displayName(), sources.indexOf(source))) },
             )
             if (syncing) {
@@ -173,6 +173,7 @@ fun SettingsPlaylistsPage(
                     syncMovies = v.movies != SyncScopeChoice.Off,
                     syncSeries = v.series != SyncScopeChoice.Off,
                     preferHls = v.preferHls,
+                    catchupPreferHls = v.catchupPreferHls,
                 )
                 editSource = null
             },
@@ -267,7 +268,7 @@ fun SettingsPlaylistsPage(
 /** The test's own verdict and its lines of detail — both sentences are core's, shared with the TV. */
 @Composable
 private fun TestReport(result: SourceTestResult, limit: tv.own.owntv.core.live.ConnectionLimit?) {
-    val res = LocalContext.current.resources
+    val res = LocalResources.current
     val palette = LocalStagePalette.current
     Text(result.headline(res), style = stageText(14.5f, 700), color = palette.text)
     result.detailLines(res, limit).forEach { line -> Text(line, style = stageText(12.5f, 500), color = palette.muted) }
@@ -302,7 +303,7 @@ private fun PlaylistRow(
     syncState: CatalogSyncState,
     onClick: () -> Unit,
 ) {
-    val res = LocalContext.current.resources
+    val res = LocalResources.current
     val palette = LocalStagePalette.current
     val active = syncState as? CatalogSyncState.Syncing
     val activeCounts = active?.progressCounts(source.type, counts)
@@ -388,8 +389,8 @@ private fun EditPlaylistDialog(
                 StagePill(onClick = onDismiss, icon = MobileIcons.Close, contentDescription = stringResource(R.string.settings_close))
             }
             AddSourceForm(
-                onStartXtream = { _, _, _, _, _, _, _, _, _, _, _ -> },
-                onStartM3u = { _, _, _, _, _ -> },
+                onStartXtream = { _, _, _, _, _, _, _, _, _, _, _, _ -> },
+                onStartM3u = { _, _, _, _, _, _ -> },
                 onStartStalker = { _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ -> },
                 initial = source.toFormValues(),
                 onSave = onSave,
@@ -421,6 +422,7 @@ private fun SourceEntity.toFormValues(): SourceFormValues {
         movies = scope(syncMovies),
         series = scope(syncSeries),
         preferHls = preferHls,
+        catchupPreferHls = catchupPreferHls,
     )
 }
 

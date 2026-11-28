@@ -34,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -284,7 +285,7 @@ private fun statusLine(recording: RecordingEntity): String {
             recordedMinutes(recording),
         )
         RecordingStatus.FAILED, RecordingStatus.MISSED ->
-            RecordingRules.displayTextOf(recording.failure, context.resources)
+            RecordingRules.displayTextOf(recording.failure, LocalResources.current)
                 ?: stringResource(R.string.recording_failed_unknown)
         RecordingStatus.CANCELLED -> ""
     }

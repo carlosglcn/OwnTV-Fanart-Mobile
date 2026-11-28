@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.screens.downloads
 
+import androidx.compose.ui.platform.LocalResources
 import android.content.Context
 import android.net.Uri
 import android.os.storage.StorageManager
@@ -85,14 +86,14 @@ import kotlin.math.ceil
 
 /** Movies and Series hold downloads; Recordings is live TV saved by the recorder — a file of the user's all the same. */
 private enum class DownloadsTab(val labelRes: Int) {
+    RECORDINGS(R.string.recording_title),
     MOVIES(R.string.common_nav_movies),
     SERIES(R.string.common_nav_series),
-    RECORDINGS(R.string.recording_title),
 }
 
 /**
- * Downloads: the crumb is the volume and its free space, then the tabs Movies ·
- * Series · Recordings with their counts and the folder tool, the folder the open tab saves to, and the list
+ * Downloads: the crumb is the volume and its free space, then the tabs Recordings ·
+ * Movies · Series with their counts and the folder tool, the folder the open tab saves to, and the list
  * grouped DOWNLOADING (queue order, the running one first) / ON THIS PHONE, each row with its picture, its
  * line, where it got to and its file's folder. The Recordings card closes the list.
  *
@@ -129,7 +130,7 @@ fun DownloadsScreen(
         ActivityResultContracts.OpenDocumentTree(),
     ) { tree -> if (tree != null) vm.setDownloadTree(tree) }
 
-    var tab by rememberSaveable { mutableStateOf(DownloadsTab.MOVIES) }
+    var tab by rememberSaveable { mutableStateOf(DownloadsTab.RECORDINGS) }
     var menuFor by remember { mutableStateOf<DownloadEntity?>(null) }
     var optionsSheet by remember { mutableStateOf(false) }
     var savingCopyOf by remember { mutableStateOf<DownloadEntity?>(null) }
@@ -180,7 +181,7 @@ fun DownloadsScreen(
             )
         }
         DownloadTabs(
-            tabs = listOf(DownloadsTab.MOVIES to movies.size, DownloadsTab.SERIES to series.size, DownloadsTab.RECORDINGS to recorded),
+            tabs = listOf(DownloadsTab.RECORDINGS to recorded, DownloadsTab.MOVIES to movies.size, DownloadsTab.SERIES to series.size),
             selected = tab,
             onSelect = { tab = it },
             folderOpen = optionsSheet,
@@ -431,7 +432,7 @@ private fun downloadLine(d: DownloadEntity, info: DownloadDetails?): String = bu
 private fun DownloadStatusText(d: DownloadEntity, live: DownloadActivityTracker.ActiveDownload?, queue: List<DownloadEntity>) {
     val palette = LocalStagePalette.current
     val sep = stringResource(R.string.content_epg_bits_separator)
-    val reason = DownloadReasons.displayTextOf(d, LocalContext.current.resources)
+    val reason = DownloadReasons.displayTextOf(d, LocalResources.current)
     val style = stageText(12f, 500)
     when (d.status) {
         DownloadStatus.FAILED -> Text(

@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.screens.multiview
 
+import androidx.compose.ui.platform.LocalResources
 import android.content.res.Configuration
 import android.graphics.SurfaceTexture
 import android.view.Surface
@@ -32,7 +33,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -250,7 +250,7 @@ private fun Tile(
                 modifier = Modifier.align(Alignment.Center).padding(20.dp),
             )
             refusal != null -> Text(
-                text = refusal.displayText(LocalContext.current.resources),
+                text = refusal.displayText(LocalResources.current),
                 style = stageText(14f, 400),
                 color = LocalStagePalette.current.muted,
                 textAlign = TextAlign.Center,
@@ -368,7 +368,7 @@ private fun tileFailureText(failure: PlaybackFailure?): String = when {
     failure == PlaybackFailure.DecoderExhausted -> stringResource(R.string.multiview_decoder_exhausted_mobile)
     failure != null -> {
         LocalConfiguration.current // so a language change recomposes this, as stringResource would
-        val resources = LocalContext.current.resources
+        val resources = LocalResources.current
         failure.describe { id, args -> resources.getString(id, *args.toTypedArray()) }
     }
     else -> stringResource(R.string.player_error_channel)

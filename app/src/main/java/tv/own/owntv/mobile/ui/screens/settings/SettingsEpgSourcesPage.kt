@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.screens.settings
 
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.text.style.TextOverflow
 import tv.own.owntv.mobile.ui.components.MobileIcons
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +19,6 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -234,7 +234,7 @@ private fun EpgRow(
     val count by produceState<Triple<Int, Int, Int>?>(null, source.id, source.lastSyncAt, source.lastError) {
         value = runCatching { counts() }.getOrNull()
     }
-    val res = LocalContext.current.resources
+    val res = LocalResources.current
     val active = syncState as? EpgSyncState.Syncing
     // "245 channels · 9,076 programs · catch-up on 1,404": counts grouped, one short line.
     val sep = stringResource(R.string.content_epg_bits_separator)

@@ -71,6 +71,7 @@ data class SourceFormValues(
     val movies: SyncScopeChoice = SyncScopeChoice.Now,
     val series: SyncScopeChoice = SyncScopeChoice.Now,
     val preferHls: Boolean = false,
+    val catchupPreferHls: Boolean = false,
 )
 
 /**
@@ -90,9 +91,9 @@ fun AddSourceForm(
     onStartXtream: (
         name: String, server: String, username: String, password: String, userAgent: String,
         httpReferer: String, autoRefresh: PlaylistRefresh, live: SyncScopeChoice, movies: SyncScopeChoice,
-        series: SyncScopeChoice, preferHls: Boolean,
+        series: SyncScopeChoice, preferHls: Boolean, catchupPreferHls: Boolean,
     ) -> Unit,
-    onStartM3u: (name: String, url: String, userAgent: String, httpReferer: String, autoRefresh: PlaylistRefresh) -> Unit,
+    onStartM3u: (name: String, url: String, userAgent: String, httpReferer: String, autoRefresh: PlaylistRefresh, catchupPreferHls: Boolean) -> Unit,
     onStartStalker: (
         name: String, portalUrl: String, mac: String, serialNumber: String, deviceId: String,
         deviceId2: String, signature: String, userAgent: String, httpReferer: String, autoRefresh: PlaylistRefresh,
@@ -124,6 +125,7 @@ fun AddSourceForm(
     var userAgent by rememberSaveable { mutableStateOf(initial?.userAgent.orEmpty()) }
     var httpReferer by rememberSaveable { mutableStateOf(initial?.httpReferer.orEmpty()) }
     var preferHls by rememberSaveable { mutableStateOf(initial?.preferHls ?: false) }
+    var catchupPreferHls by rememberSaveable { mutableStateOf(initial?.catchupPreferHls ?: false) }
     var refreshMode by rememberSaveable { mutableStateOf(initial?.autoRefresh?.mode ?: PlaylistAutoRefresh.OFF) }
     var manualDays by rememberSaveable {
         mutableStateOf((initial?.autoRefresh ?: PlaylistRefresh()).manualDays.toString())
@@ -180,6 +182,7 @@ fun AddSourceForm(
         movies = syncMovies,
         series = syncSeries,
         preferHls = preferHls,
+        catchupPreferHls = catchupPreferHls,
     )
 
     // The type as a segmented control, the fields as rows (a tap opens the field), OPTIONAL, Start import.
@@ -317,6 +320,19 @@ fun AddSourceForm(
                 )
             }
         }
+        // Xtream and M3U: on an M3U playlist it changes only Flussonic catch-up, whose finished
+        // programmes it opens as a seekable HLS playlist.
+        if (kind == SourceKind.XTREAM || kind == SourceKind.M3U) {
+            item(key = "hls-catchup") {
+                StageSettingRow(
+                    icon = MobileIcons.LiveTv,
+                    title = stringResource(R.string.setup_prefer_hls_catchup),
+                    subtitle = stringResource(R.string.setup_prefer_hls_catchup_description),
+                    role = Role.Switch,
+                    onClick = { catchupPreferHls = !catchupPreferHls },
+                ) { StageSwitch(catchupPreferHls) }
+            }
+        }
         if (kind != SourceKind.M3U) {
             item(key = "sync-head") { StageSectionHead(stringResource(R.string.setup_what_to_sync)) }
             item(key = "sync-note") { PageNote(stringResource(R.string.setup_sync_choices)) }
@@ -331,9 +347,9 @@ fun AddSourceForm(
                     when (kind) {
                         SourceKind.XTREAM -> onStartXtream(
                             name, server, username, password, userAgent, httpReferer, autoRefresh,
-                            syncLive, syncMovies, syncSeries, preferHls,
+                            syncLive, syncMovies, syncSeries, preferHls, catchupPreferHls,
                         )
-                        SourceKind.M3U -> onStartM3u(name, m3uUrl, userAgent, httpReferer, autoRefresh)
+                        SourceKind.M3U -> onStartM3u(name, m3uUrl, userAgent, httpReferer, autoRefresh, catchupPreferHls)
                         SourceKind.STALKER -> onStartStalker(
                             name, portalUrl, mac, serialNumber, deviceId, deviceId2, signature,
                             userAgent, httpReferer, autoRefresh, syncLive, syncMovies, syncSeries, username, password,

@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile
 
+import tv.own.owntv.mobile.ui.nav.windowWidthDp
 import android.Manifest
 import android.app.PendingIntent
 import android.app.PictureInPictureParams
@@ -16,10 +17,12 @@ import android.os.Bundle
 import android.util.Rational
 import android.view.WindowManager
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
@@ -144,6 +147,13 @@ open class MainActivity : FragmentActivity() {
                 .collectLatest { if (pip.inPip.value) applyPipParams() }
         }
         tv.own.owntv.mobile.glcn.PiconPrefetch.start(this, lifecycleScope)
+        // glcn: Appearance's automatic mode — the theme turns to its day or night side as the hours pass.
+        lifecycleScope.launch {
+            while (true) {
+                runCatching { settings.syncGlcnStyle() }
+                kotlinx.coroutines.delay(GLCN_MODE_CHECK_MS)
+            }
+        }
         // glcn: the Fanart icon once, on a phone that had chosen another colour of the old icon.
         lifecycleScope.launch {
             runCatching {
@@ -169,6 +179,14 @@ open class MainActivity : FragmentActivity() {
         setContent {
             tv.own.owntv.mobile.ui.LocalizedContent(localeStore) {
             MobileTheme {
+                // A database migration still running after a second gets its own screen, so a quick one
+                // does not flash it; the shell starts once it has finished.
+                val migrating by tv.own.owntv.core.database.DatabaseUpgrade.running.collectAsState()
+                val showMigration by produceState(false, migrating) { value = false; if (migrating) { kotlinx.coroutines.delay(1_000); value = true } }
+                if (migrating && showMigration) {
+                    tv.own.owntv.mobile.ui.DatabaseMigrationScreen()
+                    return@MobileTheme
+                }
                 // The wallpaper and its blurred copy sit outside the shell, so the frost every glass
                 // panel samples is one image for the whole app rather than one per panel.
                 GlassBackdropRoot {
@@ -178,9 +196,11 @@ open class MainActivity : FragmentActivity() {
                         // Width, not device type: a phone in landscape and a tablet in split-screen
                         // are the same problem, and the configuration re-reads itself on every
                         // rotation and resize.
-                        MobileShell(windowWidthDp = LocalConfiguration.current.screenWidthDp)
+                        MobileShell(windowWidthDp = windowWidthDp())
                         // The Settings PIN before a long-press change, when the Settings lock asks for it.
                         tv.own.owntv.mobile.ui.categorylock.MenuChangeGateHost()
+                        // "Check TheIntroDB" from any long-press menu.
+                        tv.own.owntv.mobile.ui.components.TheIntroDbCheckHost()
                     }
                 }
             }
@@ -509,3 +529,6 @@ open class MainActivity : FragmentActivity() {
         private const val MAX_PIP_ASPECT = 2.35f
     }
 }
+
+/** glcn: how often automatic mode checks whether day or night has come. */
+private const val GLCN_MODE_CHECK_MS = 5 * 60_000L

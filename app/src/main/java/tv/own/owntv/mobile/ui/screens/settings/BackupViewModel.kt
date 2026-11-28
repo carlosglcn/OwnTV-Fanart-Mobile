@@ -1,6 +1,5 @@
 package tv.own.owntv.mobile.ui.screens.settings
 
-import android.content.Context
 import android.net.Uri
 import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
@@ -35,7 +34,7 @@ import java.io.File
  */
 class BackupViewModel(
     private val backup: BackupManager,
-    private val context: Context,
+    private val context: android.app.Application,
     profileDao: ProfileDao,
     settings: SettingsRepository,
     private val companion: CompanionController,

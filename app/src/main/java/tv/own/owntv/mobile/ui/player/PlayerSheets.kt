@@ -1,6 +1,8 @@
 package tv.own.owntv.mobile.ui.player
 
 import androidx.compose.material3.MaterialTheme
+import tv.own.owntv.mobile.ui.nav.windowWidthDp
+import tv.own.owntv.mobile.ui.nav.windowHeightDp
 import tv.own.owntv.mobile.ui.stage.stageGlass
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
@@ -101,6 +103,12 @@ fun PlayerSheetHost(
     canAddSubtitles: Boolean,
     /** Opens the phone's document picker for a subtitle file already on the device. */
     onPickLocalSubtitle: () -> Unit,
+    /** "Find in folder": the folder's list, or the system folder picker while no folder is chosen. */
+    onFindSubtitleInFolder: () -> Unit,
+    /** Opens the system folder picker for another subtitle folder. */
+    onChangeSubtitleFolder: () -> Unit,
+    /** A file picked in the folder list could not be read. */
+    onFolderSubtitleFailed: () -> Unit,
     /** Tunes a typed channel number, or null when the user has channel numbers turned off. */
     onTuneToNumber: (suspend (Int) -> DirectTune)?,
     /** "Go back to…" — the offsets on offer, and what to do with the chosen one. */
@@ -120,9 +128,11 @@ fun PlayerSheetHost(
             canAddSubtitles = canAddSubtitles,
             onSearch = { onOpenSheet(PlayerSheet.SUBTITLE_SEARCH) },
             onPickLocalSubtitle = onPickLocalSubtitle,
+            onFindInFolder = onFindSubtitleInFolder,
             onDismiss = onDismiss,
         )
         PlayerSheet.SUBTITLE_SEARCH -> SubtitleSearchSheet(onDismiss)
+        PlayerSheet.SUBTITLE_FOLDER -> FolderSubtitleSheet(onChangeSubtitleFolder, onFolderSubtitleFailed, onDismiss)
         PlayerSheet.AUDIO -> AudioSheet(player, onDismiss)
         PlayerSheet.ASPECT -> AspectSheet(player, onDismiss)
         PlayerSheet.QUALITY -> QualitySheet(player, onDismiss)
@@ -213,6 +223,7 @@ private fun SubtitleSheet(
     canAddSubtitles: Boolean,
     onSearch: () -> Unit,
     onPickLocalSubtitle: () -> Unit,
+    onFindInFolder: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     val tracks = remember { player.textTracks() }
@@ -246,6 +257,7 @@ private fun SubtitleSheet(
                     onClick = { onPickLocalSubtitle(); onDismiss() },
                     icon = MobileIcons.Folder,
                 )
+                StageMenuItem(stringResource(R.string.player_subtitle_find_in_folder), onClick = onFindInFolder, icon = MobileIcons.Folder)
             }
             if (timing) {
                 StageGroupLabel(stringResource(R.string.player_subtitle_timing))
@@ -495,15 +507,26 @@ private fun ChannelSheet(
     // own rows with what is on now; the playing channel carries the accent bar.
     val tuner: LiveTuner = koinInject()
     val playing by tuner.channel.collectAsStateWithLifecycle()
-    val now by produceState(emptyMap<Long, XtEpgEntry>(), channels) { value = tuner.nowProgrammes(channels) }
+    // On each minute, the channels whose programme has ended are read again — a sheet left open
+    // would otherwise keep showing what ended.
+    val now by produceState(emptyMap<Long, XtEpgEntry>(), channels) {
+        value = tuner.nowProgrammes(channels)
+        while (true) {
+            kotlinx.coroutines.delay(60_000 - (System.currentTimeMillis() % 60_000))
+            val clock = System.currentTimeMillis()
+            val ended = channels.filter { ch -> value[ch.id]?.let { it.stopMs <= clock } == true }
+            if (ended.isEmpty()) continue
+            val fresh = tuner.nowProgrammes(ended)
+            value = value - ended.map { it.id }.toSet() + fresh
+        }
+    }
     val nowMs by rememberClockTick()
     val sep = stringResource(R.string.content_epg_bits_separator)
     val heading = title?.let { ProviderTags.parse(it).name } ?: stringResource(R.string.content_channel_overlay_title)
-    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
     val body: @Composable (Boolean) -> Unit = { side -> ChannelSheetBody(heading, channels, playing, now, nowMs, sep, side, onTuneToNumber, onPick, onDismiss) }
     // Held sideways: a glass panel down the left of the picture, over a wash from that side, instead of
     // a sheet that would cover the whole short screen.
-    if (configuration.screenWidthDp > configuration.screenHeightDp) {
+    if (windowWidthDp() > windowHeightDp()) {
         androidx.activity.compose.BackHandler(onBack = onDismiss)
         // The panel sits at the start edge, so in right-to-left the wash comes from the right.
         val rtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
