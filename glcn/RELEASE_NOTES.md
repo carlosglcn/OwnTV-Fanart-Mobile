@@ -1,34 +1,38 @@
-## What's new — Trakt on the phone, cast sheets and a lighter guide
+## What's new — Skip intro, themes as on the TV and the latest core
 
 ### 🎬 Films and series
-- 🎬 **Trakt on the phone:** sign in from Settings › Metadata (the code is copied and trakt.tv/activate opens); films and episodes watched to the end go to the profile's history, and "My Trakt watchlist" can be a Home row
-- 👥 **Tap a cast member for their sheet:** photo, birth and age, the Wikipedia summary with "Read on Wikipedia", and their other films in your playlists
-- 💬 **The kind of subtitle you pick is remembered** with its language — "Spanish (full)" comes back on the next episode
-- 📚 Library: titles under posters take two lines, and the order button uses a short name
+- ⏭️ **Skip intro, recap, end credits and preview** with TheIntroDB's times — a button or automatically (Settings › TheIntroDB); the next episode is offered at the start of the credits
+- ✅ **Episodes count as watched in the end credits** (the last 7 %, never under 1:30), as on the TV
+- 🖼️ Episode tiles show the provider's own picture when TMDB has none
+- 📺 **Emby / Jellyfin:** the server now sees what you play, and what you finish is marked watched there (so its Trakt plugin picks it up)
 
 ### 📺 Live TV and the player
-- 🔒 **Player screen lock**, and the Live TV preview says why a channel stopped instead of freezing
-- ⏩ A channel whose server answers with nothing moves on after 2.5 s instead of 12 s; a stall right after the sound changes format reopens the channel once
-- 🎞️ mpv switches to software decoding at once when the hardware decoder refuses a stream; audio tracks the phone can't play are marked and never forced on
-- 🔴 **"LIVE" only for real live broadcasts**; everything else on now says "ON AIR"
-- 🖼️ Logos that won't load fall back to the guide's icon for the channel instead of the generic TV icon
+- 🔄 The player's channel sheet keeps the time: time left and the programme on air refresh each minute
+- 📺 Channels whose subtitles run ahead of the picture (Antena 3 UHD) open on ExoPlayer every time
+- 🗂️ Catch-up on Flussonic servers and a per-playlist "Prefer HLS for catch-up"; catch-up decodes in hardware and reopens by itself when it drops frames
+- 🖥️ Player zoom: Force 20:9
 
-### 🏠 Home
-- ✅ Films you've already watched leave Recent films and Featured; recent channels show programme times, and the same channel listed twice shows once
-- 🖼️ A channel with no programme picture shows its logo large on a soft wash, never an empty grey card
-- 🔝 The top bar fades as it slides away while scrolling; the Home cover no longer runs into the title on the poster
+### 🎨 Look
+- 🎨 **Appearance, as on the TV:** Settings › Fanart starts with the Theme (Ría, Brasa, Lumen, Aurora, Crepúsculo, Estudio, Neón, Vitrina — each with a night and a day side) and the Mode (Automatic, Dark, Light)
+- 🔥 New styles Brasa and Alba, with a gradient accent
 
-### 🗂️ Playlists and guide
-- 🗓️ **Big playlists are lighter:** the guide of groups hidden in every profile is no longer downloaded and stored
-- 🗂️ Playlists sheet: each playlist says what it holds and when it ends, and a long press switches it off or on
-- 🏷️ Light theme: logos sit on no dark plate — only their white parts turn grey, colours stay
+### 🗓️ Guide and playlists
+- 📺 **The guide keeps your playlist's own channel ids:** automatic matching no longer replaces a channel's tvg-id (no more La Séptima showing La 1)
+- 🎨 Guides with Kodi colour codes are read cleanly: the codes no longer show in titles and synopses
+- 🔄 A switched-off playlist's own guide no longer downloads on opening the app
+- 🔤 Search and A–Z in every alphabet; subtitles from a folder
 
-### 🏀 Sports
-- 🏀 EuroCup, Primera FEB and Lega Basket Serie A can be followed, with calendar, results and table
-- 🏆 A live match without a score yet shows its start time, and the cards say which channel shows it
+### 🏟️ Sports
+- 🎾 **Find a player:** My teams' search finds tennis players and F1 / MotoGP drivers and riders
+- 🏁 The **Dakar** and **WRC** in Motorsport
+- 🎾 A match under way no longer vanishes after reopening the app; followed competitions are read again while on screen
+
+### 🧰 More
+- ☕ Ko-fi: a card in About, for anyone who wants to help — never a prompt of its own
+- 🩺 Playback report: an Emby / Jellyfin section with each report sent to the server and its answer
 
 ### 🔄 From the original OwnTV
-- Merged the original app's latest (Nov 18) and its newest core: player screen lock, live tuning fixes, Favorites and Recent keep their own order, the Guide remembers its category. Thank you, ahXN00.
+- Merged the original app's work of Nov 19–28 and its newest core: skip intro and credits, episode pictures, catch-up fixes, Force 20:9, Stalker film links, the channel sheet refresh. Thank you, ahXN00.
 
 ### 🙏 Thank you
 Thank you to everyone on Telegram and Discord who tests, reports and shares ideas.
